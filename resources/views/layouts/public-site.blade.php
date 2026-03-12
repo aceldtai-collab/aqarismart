@@ -765,7 +765,7 @@
                 <ul class="space-y-2.5">
                     <li class="flex items-center gap-2 text-sm text-slate-400">
                         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-                        support@rentojo.com
+                        support@aqarismart.com
                     </li>
                     <li class="flex items-center gap-2 text-sm text-slate-400">
                         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
@@ -789,12 +789,12 @@
         show: false,
         dismissed: false,
         init() {
-            if(localStorage.getItem('rentojo_exit_dismissed')) return;
+            if(localStorage.getItem('aqari_smart_exit_dismissed')) return;
             document.addEventListener('mouseleave', (e) => {
                 if(e.clientY < 5 && !this.dismissed && !this.show) { this.show = true; }
             });
         },
-        close() { this.show = false; this.dismissed = true; localStorage.setItem('rentojo_exit_dismissed', '1'); }
+        close() { this.show = false; this.dismissed = true; localStorage.setItem('aqari_smart_exit_dismissed', '1'); }
      }"
      x-show="show" x-cloak
      class="fixed inset-0 z-[100] flex items-center justify-center p-4"
