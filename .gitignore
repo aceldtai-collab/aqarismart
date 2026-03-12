@@ -1,0 +1,32 @@
+# Laravel
+/vendor/
+/node_modules/
+.env
+.env.*
+
+# WSL2 dev scripts (local environment only)
+start-dev.ps1
+setup-wsl-env.sh
+sync-to-wsl.sh
+.phpunit.result.cache
+nginx-rentojo.conf
+/public/hot
+/public/storage
+/storage/*.key
+/storage/app/*
+!/storage/app/.gitignore
+/storage/framework/*
+!/storage/framework/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# IDE/OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Project docs
+IMPROVEMENTS.md

@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\AttributeField;
+use App\Models\Subcategory;
+use App\Services\Tenancy\TenantManager;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class TenantAttributeFieldController extends Controller
+{
+    public function __construct(protected TenantManager $tenants) {}
+
+    public function index(): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        $fields = AttributeField::with('subcategory')
+            ->forTenant($tenant->id)
+            ->orderBy('subcategory_id')
+            ->orderBy('group')
+            ->orderBy('sort')
+            ->get();
+
+        $globalCount = AttributeField::global()->count();
+
+        return view('custom-attributes.index', compact('fields', 'tenant', 'globalCount'));
+    }
+
+    public function create(): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        $subcategories = Subcategory::orderBy('name')->get();
+        $types = ['bool', 'int', 'decimal', 'string', 'enum'];
+        $groups = ['Basics', 'Comfort', 'Building', 'Utilities', 'Extras', 'Luxury', 'Outdoor', 'Features'];
+
+        return view('custom-attributes.create', compact('subcategories', 'types', 'groups'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        $data = $request->validate([
+            'subcategory_id' => ['required', 'exists:subcategories,id'],
+            'label_en' => ['required', 'string', 'max:255'],
+            'label_ar' => ['nullable', 'string', 'max:255'],
+            'type' => ['required', 'in:bool,int,decimal,string,enum'],
+            'group' => ['required', 'string', 'max:255'],
+            'options' => ['nullable', 'array'],
+            'unit' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $key = \Illuminate\Support\Str::slug($data['label_en'], '_') . '_' . $tenant->id;
+
+        AttributeField::create([
+            'tenant_id' => $tenant->id,
+            'subcategory_id' => $data['subcategory_id'],
+            'key' => $key,
+            'label' => $data['label_en'],
+            'label_translations' => [
+                'en' => $data['label_en'],
+                'ar' => $data['label_ar'] ?? null,
+            ],
+            'type' => $data['type'],
+            'required' => false,
+            'searchable' => false,
+            'facetable' => false,
+            'promoted' => false,
+            'group' => $data['group'],
+            'sort' => 500,
+            'options' => $data['options'] ?? null,
+            'unit' => $data['unit'] ?? null,
+        ]);
+
+        return redirect()->route('custom-attributes.index')->with('status', __('Attribute created successfully'));
+    }
+
+    public function edit(AttributeField $customAttribute): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+        abort_if($customAttribute->tenant_id !== $tenant->id, 403);
+
+        $subcategories = Subcategory::orderBy('name')->get();
+        $types = ['bool', 'int', 'decimal', 'string', 'enum'];
+        $groups = ['Basics', 'Comfort', 'Building', 'Utilities', 'Extras', 'Luxury', 'Outdoor', 'Features'];
+
+        return view('custom-attributes.edit', compact('customAttribute', 'subcategories', 'types', 'groups'));
+    }
+
+    public function update(Request $request, AttributeField $customAttribute): RedirectResponse
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+        abort_if($customAttribute->tenant_id !== $tenant->id, 403);
+
+        $data = $request->validate([
+            'subcategory_id' => ['required', 'exists:subcategories,id'],
+            'label_en' => ['required', 'string', 'max:255'],
+            'label_ar' => ['nullable', 'string', 'max:255'],
+            'type' => ['required', 'in:bool,int,decimal,string,enum'],
+            'group' => ['required', 'string', 'max:255'],
+            'options' => ['nullable', 'array'],
+            'unit' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $customAttribute->update([
+            'subcategory_id' => $data['subcategory_id'],
+            'label' => $data['label_en'],
+            'label_translations' => [
+                'en' => $data['label_en'],
+                'ar' => $data['label_ar'] ?? null,
+            ],
+            'type' => $data['type'],
+            'group' => $data['group'],
+            'options' => $data['options'] ?? null,
+            'unit' => $data['unit'] ?? null,
+        ]);
+
+        return redirect()->route('custom-attributes.index')->with('status', __('Attribute updated successfully'));
+    }
+
+    public function destroy(AttributeField $customAttribute): RedirectResponse
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+        abort_if($customAttribute->tenant_id !== $tenant->id, 403);
+
+        $customAttribute->delete();
+
+        return redirect()->route('custom-attributes.index')->with('status', __('Attribute deleted successfully'));
+    }
+}

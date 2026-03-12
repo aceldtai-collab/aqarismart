@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Property Management Theme Enhancements */
+@layer base {
+    :root {
+        /* Enhanced Property Management Color Palette */
+        --property-primary: #0ea5e9;
+        --property-secondary: #eab308;
+        --property-accent: #10b981;
+        --property-neutral: #64748b;
+        --property-surface: #ffffff;
+        --property-surface-elevated: #f8fafc;
+        --property-border: #e2e8f0;
+        --property-text-primary: #0f172a;
+        --property-text-secondary: #64748b;
+        --property-text-muted: #94a3b8;
+        
+        /* Property Management Shadows */
+        --property-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --property-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --property-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --property-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+        
+        /* Property Management Spacing */
+        --property-radius: 0.75rem;
+        --property-radius-sm: 0.5rem;
+        --property-radius-lg: 1rem;
+    }
+}
+
+@layer components {
+    /* Property Card Components */
+    .property-card {
+        @apply bg-white rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden;
+    }
+    
+    .property-card:hover {
+        @apply transform -translate-y-1;
+    }
+    
+    /* Property Management Buttons */
+    .btn-property-primary {
+        @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105;
+    }
+    
+    .btn-property-secondary {
+        @apply bg-white text-gray-700 border-2 border-gray-200 font-semibold px-6 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200;
+    }
+    
+    .btn-property-outline {
+        @apply border-2 border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200;
+    }
+    
+    /* Property Status Badges */
+    .badge-available {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800;
+    }
+    
+    .badge-rented {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800;
+    }
+    
+    .badge-pending {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800;
+    }
+    
+    .badge-maintenance {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800;
+    }
+    
+    /* Property Information Display */
+    .property-info-grid {
+        @apply grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-xl;
+    }
+    
+    .property-info-item {
+        @apply flex items-center gap-2 text-sm text-gray-600;
+    }
+    
+    .property-info-icon {
+        @apply w-4 h-4 text-blue-500;
+    }
+    
+    /* Property Management Forms */
+    .form-property {
+        @apply space-y-6;
+    }
+    
+    .form-group-property {
+        @apply space-y-2;
+    }
+    
+    .form-label-property {
+        @apply block text-sm font-semibold text-gray-700;
+    }
+    
+    .form-input-property {
+        @apply block w-full rounded-property border-gray-300 shadow-sm focus:border-property-500 focus:ring-property-500 transition-colors;
+    }
+    
+    .form-select-property {
+        @apply block w-full rounded-property border-gray-300 shadow-sm focus:border-property-500 focus:ring-property-500 transition-colors;
+    }
+    
+    /* Property Management Navigation */
+    .nav-property {
+        @apply bg-white border-b border-gray-200 shadow-sm;
+    }
+    
+    .nav-property-item {
+        @apply px-4 py-2 text-sm font-medium text-gray-600 hover:text-property-600 hover:bg-property-50 rounded-property transition-colors;
+    }
+    
+    .nav-property-item.active {
+        @apply text-property-600 bg-property-50 border-b-2 border-property-600;
+    }
+    
+    /* Property Management Tables */
+    .table-property {
+        @apply min-w-full divide-y divide-gray-200 bg-white shadow-sm rounded-property overflow-hidden;
+    }
+    
+    .table-property thead {
+        @apply bg-gray-50;
+    }
+    
+    .table-property th {
+        @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    }
+    
+    .table-property td {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    }
+    
+    .table-property tbody tr:hover {
+        @apply bg-gray-50;
+    }
+    
+    /* Property Management Dashboard Cards */
+    .dashboard-card-property {
+        @apply bg-white rounded-property shadow-property p-6 border border-gray-200;
+    }
+    
+    .dashboard-stat-property {
+        @apply text-3xl font-bold text-gray-900;
+    }
+    
+    .dashboard-stat-label-property {
+        @apply text-sm font-medium text-gray-500 uppercase tracking-wide;
+    }
+    
+    /* Property Management Alerts */
+    .alert-property-success {
+        @apply bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-property;
+    }
+    
+    .alert-property-warning {
+        @apply bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-property;
+    }
+    
+    .alert-property-error {
+        @apply bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-property;
+    }
+    
+    .alert-property-info {
+        @apply bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-property;
+    }
+}
+
+@layer utilities {
+    /* Property Management Utilities */
+    .text-property-gradient {
+        @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
+    }
+    
+    .bg-property-gradient {
+        @apply bg-gradient-to-r from-blue-500 to-indigo-600;
+    }
+    
+    /* Hide Scrollbar */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* RTL Arrow Fix */
+    [dir="rtl"] svg {
+        transform: scaleX(-1);
+    }
+    
+    /* Property Management Animations */
+    .animate-property-pulse {
+        animation: property-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes property-pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: .8;
+        }
+    }
+    
+    .animate-property-bounce {
+        animation: property-bounce 1s infinite;
+    }
+    
+    @keyframes property-bounce {
+        0%, 100% {
+            transform: translateY(-25%);
+            animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+        }
+        50% {
+            transform: translateY(0);
+            animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+        }
+    }
+}

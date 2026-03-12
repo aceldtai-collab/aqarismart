@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Providers;
+
+use App\Providers\TelescopeServiceProvider;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use Laravel\Telescope\TelescopeApplicationServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        if ($this->app->environment('local')) {
+            if (class_exists(TelescopeApplicationServiceProvider::class)) {
+                $this->app->register(TelescopeServiceProvider::class);
+            }
+        }
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // Query logging for performance monitoring
+        if (config('app.debug')) {
+            \DB::listen(function ($query) {
+                if ($query->time > 1000) {
+                    \Log::warning('Slow query detected', [
+                        'sql' => $query->sql,
+                        'time' => $query->time . 'ms',
+                        'bindings' => $query->bindings
+                    ]);
+                }
+            });
+        }
+
+        Blade::directive('num', function ($expression) {
+            return "<?php \$__val = (string)($expression); if(app()->getLocale()==='ar'){ \$__map=['0'=>'٠','1'=>'١','2'=>'٢','3'=>'٣','4'=>'٤','5'=>'٥','6'=>'٦','7'=>'٧','8'=>'٨','9'=>'٩',','=>'٬','.'=>'٫']; echo strtr(\$__val, \$__map); } else { echo \$__val; } ?>";
+        });
+    }
+}

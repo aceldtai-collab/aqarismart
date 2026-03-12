@@ -1,0 +1,184 @@
+/* ═══════════════════════════════════════════════════════════════
+   Glazey Gradient — Tenant Dashboard Design System
+   A gradient color variant of the Glazey admin design.
+   Uses brand-aware gradients with teal/indigo palette.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Gradient Stat Cards ── */
+.gz-grad-card {
+    background: var(--surface, #ffffff);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border, #e2e8f0);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+.gz-grad-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand, #3b82f6), var(--accent, #06b6d4));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.gz-grad-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+.gz-grad-card:hover::before { opacity: 1; }
+
+/* ── Gradient Icon Box ── */
+.gz-grad-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--brand, #3b82f6), var(--accent, #06b6d4));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+.gz-grad-icon svg { width: 22px; height: 22px; }
+
+/* ── Gradient Widget ── */
+.gz-grad-widget {
+    background: var(--surface, #ffffff);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border: 1px solid var(--border, #e2e8f0);
+    overflow: hidden;
+}
+.gz-grad-widget-header {
+    padding: 20px 24px 0;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.gz-grad-widget-body { padding: 20px 24px; }
+
+/* ── Gradient Buttons ── */
+.gz-grad-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 20px; border-radius: 10px;
+    font-size: 0.8125rem; font-weight: 600;
+    transition: all 0.2s ease; cursor: pointer;
+    white-space: nowrap;
+}
+.gz-grad-btn-primary {
+    background: linear-gradient(135deg, var(--brand, #3b82f6), var(--accent, #06b6d4));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    border: none;
+}
+.gz-grad-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+    filter: brightness(1.05);
+}
+.gz-grad-btn-outline {
+    background: transparent;
+    color: var(--text-primary, #0f172a);
+    border: 1px solid var(--border, #e2e8f0);
+}
+.gz-grad-btn-outline:hover {
+    border-color: var(--brand, #3b82f6);
+    color: var(--brand, #3b82f6);
+}
+
+/* ── Gradient Badge ── */
+.gz-grad-badge {
+    display: inline-flex; align-items: center;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600;
+}
+.gz-grad-badge-brand {
+    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.1));
+    color: var(--brand, #3b82f6);
+}
+.gz-grad-badge-success { background: rgba(34,197,94,0.1); color: #16a34a; }
+.gz-grad-badge-warning { background: rgba(245,158,11,0.1); color: #d97706; }
+.gz-grad-badge-danger  { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+/* ── Gradient Table ── */
+.gz-grad-table { border-collapse: collapse; }
+.gz-grad-table th {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text-secondary, #64748b);
+    padding: 12px 16px; border-bottom: 1px solid var(--border, #e2e8f0);
+    white-space: nowrap;
+}
+.gz-grad-table td {
+    padding: 14px 16px; font-size: 0.8125rem;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+}
+.gz-grad-table tr:last-child td { border-bottom: none; }
+.gz-grad-table tr:hover td { background: rgba(248,250,252,0.8); }
+
+/* ── Gradient Search / Input ── */
+.gz-grad-input {
+    background: var(--surface-hover, #f8fafc);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 10px; padding: 9px 14px;
+    font-size: 0.875rem; transition: all 0.2s ease;
+    width: 100%;
+}
+.gz-grad-input:focus {
+    outline: none;
+    border-color: var(--brand, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ── Gradient Navbar Accent ── */
+.gz-grad-nav-active {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.08));
+    color: var(--brand, #3b82f6);
+    font-weight: 600;
+}
+
+/* ── Responsive Table Wrap ── */
+.gz-grad-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── Quick Action Cards ── */
+.gz-grad-action {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px; border-radius: 12px;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    transition: all 0.2s ease;
+}
+.gz-grad-action:hover {
+    border-color: var(--brand, #3b82f6);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+.gz-grad-action-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--brand, #3b82f6), var(--accent, #06b6d4));
+    color: #fff; flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+.gz-grad-action-icon svg { width: 20px; height: 20px; }
+
+/* ── Progress Bars ── */
+.gz-grad-progress {
+    width: 100%; height: 6px;
+    background: var(--border, #e2e8f0);
+    border-radius: 999px; overflow: hidden;
+}
+.gz-grad-progress-bar {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand, #3b82f6), var(--accent, #06b6d4));
+    transition: width 0.5s ease;
+}
+
+/* ── Mobile Adjustments ── */
+@media (max-width: 639px) {
+    .gz-grad-card { padding: 16px; }
+    .gz-grad-icon { width: 40px; height: 40px; }
+    .gz-grad-icon svg { width: 18px; height: 18px; }
+    .gz-grad-widget-header { padding: 16px 16px 0; }
+    .gz-grad-widget-body { padding: 16px; }
+    .gz-grad-table th { padding: 10px 12px; }
+    .gz-grad-table td { padding: 10px 12px; font-size: 0.8rem; }
+}
