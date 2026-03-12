@@ -2,7 +2,7 @@
     <x-slot name="header">{{ $tenant->name }}</x-slot>
     <x-slot name="subtitle">{{ __('Tenant overview and metrics') }}</x-slot>
     <x-slot name="headerActions">
-        <a href="{{ $tenant->url ?? 'http://initech.localtest.me:8000/dashboard' }}" target="_blank" class="gz-btn gz-btn-primary">
+        <a href="{{ $tenant->url }}" target="_blank" class="gz-btn gz-btn-primary">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
             {{ __('Open Dashboard') }}
         </a>

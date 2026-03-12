@@ -78,4 +78,12 @@ class Tenant extends Model
     {
         return app(\App\Services\Billing\FeatureGate::class)->forTenant($this)->allows($feature);
     }
+
+    /**
+     * Get the tenant's dashboard URL (subdomain-based).
+     */
+    public function getUrlAttribute(): string
+    {
+        return app(\App\Services\Tenancy\TenantManager::class)->tenantUrl($this, '/dashboard');
+    }
 }
