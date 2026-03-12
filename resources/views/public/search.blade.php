@@ -11,7 +11,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $isAr ? 'استكشف العقارات' : 'Explore Properties' }} — RentoJo</title>
+    <title>{{ $isAr ? 'استكشف العقارات' : 'Explore Properties' }} — Aqari Smart</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
     @if($isAr)
@@ -44,7 +44,7 @@
             <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
             </div>
-            <span class="text-lg font-bold text-slate-900">RentoJo</span>
+            <span class="text-lg font-bold text-slate-900">Aqari Smart</span>
         </a>
         <div class="flex items-center gap-3">
             <div class="flex items-center gap-1 rounded-lg border border-slate-200/80 p-0.5 text-xs font-medium bg-white shadow-sm">
@@ -300,9 +300,9 @@
             <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                 <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
             </div>
-            <span class="text-sm font-bold text-slate-900">RentoJo</span>
+            <span class="text-sm font-bold text-slate-900">Aqari Smart</span>
         </div>
-        <div class="text-sm text-slate-400">&copy; {{ date('Y') }} RentoJo. {{ $isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</div>
+        <div class="text-sm text-slate-400">&copy; {{ date('Y') }} Aqari Smart. {{ $isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</div>
         <div class="flex items-center gap-4">
             <a href="{{ route('home') }}" class="text-sm text-slate-500 hover:text-slate-900 transition">{{ $isAr ? 'الرئيسية' : 'Home' }}</a>
             <a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition">{{ $isAr ? 'الخصوصية' : 'Privacy' }}</a>

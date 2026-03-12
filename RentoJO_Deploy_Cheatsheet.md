@@ -1,4 +1,4 @@
-RentoJO — Production Deployment 
+Aqari Smart — Production Deployment 
 Cheatsheet
 A practical, opinionated guide for deploying a Laravel SaaS on Ubuntu (Nginx + PHP-FPM 
 8.3 + MariaDB + Redis). All commands are in English. Edit and extend as needed.

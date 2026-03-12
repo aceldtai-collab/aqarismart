@@ -2,7 +2,7 @@
 
 return [
     // Site-wide public (base domain) theme settings controlled by Super Admin
-    'name' => env('PUBLIC_SITE_NAME', config('app.name', 'RentoJO')),
+    'name' => env('PUBLIC_SITE_NAME', config('app.name', 'Aqari Smart')),
     'logo_url' => env('PUBLIC_SITE_LOGO', ''),
     'favicon_url' => env('PUBLIC_SITE_FAVICON', ''),
     'primary_color' => env('PUBLIC_SITE_PRIMARY', '#ff2929ff'),

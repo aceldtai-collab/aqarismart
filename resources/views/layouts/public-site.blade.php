@@ -22,7 +22,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $seo['title'] ?? ($meta['title'] ?? 'RentoJo') }}</title>
+    <title>{{ $seo['title'] ?? ($meta['title'] ?? 'Aqari Smart') }}</title>
     @if(!empty($seo['description']))<meta name="description" content="{{ $seo['description'] }}">@endif
     @if(!empty($seo['robots']))<meta name="robots" content="{{ $seo['robots'] }}">@endif
     @if(!empty($seo['canonical']))<link rel="canonical" href="{{ $seo['canonical'] }}">@endif
@@ -102,7 +102,7 @@
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
                         <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
                     </div>
-                    <span class="text-lg font-bold text-slate-900 tracking-tight">RentoJo</span>
+                    <span class="text-lg font-bold text-slate-900 tracking-tight">Aqari Smart</span>
                 @endif
             </a>
 
@@ -384,7 +384,7 @@
                 {{ $isAr ? 'شركاؤنا' : 'Our Partners' }}
             </div>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">{{ $isAr ? 'شركات عقارية تثق بنا' : 'Trusted by leading property companies' }}</h2>
-            <p class="text-lg text-slate-500 max-w-2xl mx-auto">{{ $isAr ? 'انضم إلى مئات الشركات العقارية التي تدير عقاراتها عبر RentoJo' : 'Join hundreds of property companies managing their portfolios through RentoJo' }}</p>
+            <p class="text-lg text-slate-500 max-w-2xl mx-auto">{{ $isAr ? 'انضم إلى مئات الشركات العقارية التي تدير عقاراتها عبر Aqari Smart' : 'Join hundreds of property companies managing their portfolios through Aqari Smart' }}</p>
         </div>
         @php
             $tenantCards = $subscribedTenants->map(function($st, $idx) use ($isAr) {
@@ -660,12 +660,12 @@
                 {{ $isAr ? 'أسئلة شائعة' : 'FAQ' }}
             </div>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">{{ $isAr ? 'أسئلة متكررة' : 'Frequently asked questions' }}</h2>
-            <p class="text-lg text-slate-500">{{ $isAr ? 'كل ما تحتاج معرفته عن RentoJo' : 'Everything you need to know about RentoJo' }}</p>
+            <p class="text-lg text-slate-500">{{ $isAr ? 'كل ما تحتاج معرفته عن Aqari Smart' : 'Everything you need to know about Aqari Smart' }}</p>
         </div>
         @php
             $faqs = [
                 ['q' => $isAr ? 'هل يمكنني تجربة المنصة مجاناً؟' : 'Can I try the platform for free?', 'a' => $isAr ? 'نعم! نقدم تجربة مجانية لمدة 14 يوماً بدون الحاجة لبطاقة ائتمان. يمكنك استكشاف جميع المزايا قبل الاشتراك.' : 'Yes! We offer a 14-day free trial with no credit card required. Explore all features before committing.'],
-                ['q' => $isAr ? 'هل يدعم RentoJo اللغة العربية بالكامل؟' : 'Does RentoJo fully support Arabic?', 'a' => $isAr ? 'بالتأكيد. المنصة بالكامل تدعم العربية والإنجليزية مع واجهة RTL كاملة لتجربة مستخدم مثالية.' : 'Absolutely. The entire platform supports both Arabic and English with full RTL interface for an optimal user experience.'],
+                ['q' => $isAr ? 'هل يدعم Aqari Smart اللغة العربية بالكامل؟' : 'Does Aqari Smart fully support Arabic?', 'a' => $isAr ? 'بالتأكيد. المنصة بالكامل تدعم العربية والإنجليزية مع واجهة RTL كاملة لتجربة مستخدم مثالية.' : 'Absolutely. The entire platform supports both Arabic and English with full RTL interface for an optimal user experience.'],
                 ['q' => $isAr ? 'كم عدد الوحدات التي يمكنني إدارتها؟' : 'How many units can I manage?', 'a' => $isAr ? 'يعتمد ذلك على خطتك. تبدأ الخطة الأساسية بـ 50 وحدة، والاحترافية بـ 200 وحدة، وخطة الشركات تدعم وحدات غير محدودة.' : 'It depends on your plan. Starter supports up to 50 units, Professional up to 200, and Enterprise offers unlimited units.'],
                 ['q' => $isAr ? 'هل بياناتي آمنة؟' : 'Is my data secure?', 'a' => $isAr ? 'نعم. نستخدم تشفير SSL، ونسخ احتياطية يومية، وعزل كامل للبيانات بين المستأجرين لضمان أعلى مستويات الأمان.' : 'Yes. We use SSL encryption, daily backups, and complete data isolation between tenants to ensure the highest security standards.'],
                 ['q' => $isAr ? 'هل يمكنني ترقية أو تغيير خطتي لاحقاً؟' : 'Can I upgrade or change my plan later?', 'a' => $isAr ? 'بالطبع! يمكنك الترقية أو تغيير خطتك في أي وقت من لوحة التحكم. التغييرات تسري فوراً.' : 'Of course! You can upgrade or change your plan anytime from your dashboard. Changes take effect immediately.'],
@@ -698,7 +698,7 @@
     <style>@keyframes float{0%{transform:translateY(0) scale(1);opacity:.3}100%{transform:translateY(-20px) scale(1.5);opacity:.1}}</style>
     <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center relative z-10">
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">{{ $isAr ? 'ابدأ رحلتك معنا اليوم' : 'Ready to get started?' }}</h2>
-        <p class="text-lg text-white/40 mb-6 max-w-lg mx-auto">{{ $isAr ? 'جرّب RentoJo مجاناً لمدة 14 يوماً. بدون بطاقة ائتمان.' : 'Try RentoJo free for 14 days. No credit card required.' }}</p>
+        <p class="text-lg text-white/40 mb-6 max-w-lg mx-auto">{{ $isAr ? 'جرّب Aqari Smart مجاناً لمدة 14 يوماً. بدون بطاقة ائتمان.' : 'Try Aqari Smart free for 14 days. No credit card required.' }}</p>
         <div class="inline-flex items-center gap-2 text-sm text-white/30 mb-10">
             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
             {{ $isAr ? 'انضم إلى ' . ($tenantsCount ?? 0) . '+ شركة عقارية' : 'Join ' . ($tenantsCount ?? 0) . '+ property companies' }}
@@ -724,7 +724,7 @@
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                         <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
                     </div>
-                    <span class="text-lg font-bold">RentoJo</span>
+                    <span class="text-lg font-bold">Aqari Smart</span>
                 </div>
                 <p class="text-sm text-slate-400 leading-relaxed mb-4">{{ $isAr ? 'منصة إدارة العقارات الأذكى في الأردن. أدِر عقاراتك بكفاءة وسهولة.' : 'The smartest property management platform in Jordan. Manage your properties efficiently.' }}</p>
                 <div class="flex items-center gap-3">
@@ -775,7 +775,7 @@
             </div>
         </div>
         <div class="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="text-sm text-slate-500">{{ $footer['copyright'] ?? ('© ' . date('Y') . ' RentoJo. ' . ($isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.')) }}</div>
+            <div class="text-sm text-slate-500">{{ $footer['copyright'] ?? ('© ' . date('Y') . ' Aqari Smart. ' . ($isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.')) }}</div>
             <div class="flex items-center gap-2 text-sm text-slate-500">
                 <span>{{ $isAr ? 'صُنع بفخر في الأردن' : 'Proudly made in Jordan' }}</span>
                 <span class="text-base">&#x1F1EF;&#x1F1F4;</span>
@@ -832,7 +832,7 @@
 @php
     $faqsSchema = [
         ['q' => $isAr ? 'هل يمكنني تجربة المنصة مجاناً؟' : 'Can I try the platform for free?', 'a' => $isAr ? 'نعم! نقدم تجربة مجانية لمدة 14 يوماً بدون الحاجة لبطاقة ائتمان. يمكنك استكشاف جميع المزايا قبل الاشتراك.' : 'Yes! We offer a 14-day free trial with no credit card required. Explore all features before committing.'],
-        ['q' => $isAr ? 'هل يدعم RentoJo اللغة العربية بالكامل؟' : 'Does RentoJo fully support Arabic?', 'a' => $isAr ? 'بالتأكيد. المنصة بالكامل تدعم العربية والإنجليزية مع واجهة RTL كاملة لتجربة مستخدم مثالية.' : 'Absolutely. The entire platform supports both Arabic and English with full RTL interface for an optimal user experience.'],
+        ['q' => $isAr ? 'هل يدعم Aqari Smart اللغة العربية بالكامل؟' : 'Does Aqari Smart fully support Arabic?', 'a' => $isAr ? 'بالتأكيد. المنصة بالكامل تدعم العربية والإنجليزية مع واجهة RTL كاملة لتجربة مستخدم مثالية.' : 'Absolutely. The entire platform supports both Arabic and English with full RTL interface for an optimal user experience.'],
         ['q' => $isAr ? 'كم عدد الوحدات التي يمكنني إدارتها؟' : 'How many units can I manage?', 'a' => $isAr ? 'يعتمد ذلك على خطتك. تبدأ الخطة الأساسية بـ 50 وحدة، والاحترافية بـ 200 وحدة، وخطة الشركات تدعم وحدات غير محدودة.' : 'It depends on your plan. Starter supports up to 50 units, Professional up to 200, and Enterprise offers unlimited units.'],
         ['q' => $isAr ? 'هل بياناتي آمنة؟' : 'Is my data secure?', 'a' => $isAr ? 'نعم. نستخدم تشفير SSL، ونسخ احتياطية يومية، وعزل كامل للبيانات بين المستأجرين لضمان أعلى مستويات الأمان.' : 'Yes. We use SSL encryption, daily backups, and complete data isolation between tenants to ensure the highest security standards.'],
         ['q' => $isAr ? 'هل يمكنني ترقية أو تغيير خطتي لاحقاً؟' : 'Can I upgrade or change my plan later?', 'a' => $isAr ? 'بالطبع! يمكنك الترقية أو تغيير خطتك في أي وقت من لوحة التحكم. التغييرات تسري فوراً.' : 'Of course! You can upgrade or change your plan anytime from your dashboard. Changes take effect immediately.'],
@@ -843,7 +843,7 @@
     $orgSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
-        'name' => 'RentoJo',
+        'name' => 'Aqari Smart',
         'url' => url('/'),
         'description' => $seo['description'] ?? 'Professional property management platform',
         'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Amman', 'addressCountry' => 'JO'],
@@ -852,7 +852,7 @@
     $siteSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'WebSite',
-        'name' => 'RentoJo',
+        'name' => 'Aqari Smart',
         'url' => url('/'),
         'potentialAction' => [
             '@type' => 'SearchAction',

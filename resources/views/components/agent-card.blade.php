@@ -27,7 +27,7 @@
         @if(optional($primaryAgent)->license_id)
             {{ __('Licensed Agent · #:license', ['license' => $primaryAgent->license_id]) }}
         @else
-            {{ __('Your RentoJo leasing partner') }}
+            {{ __('Your Aqari Smart leasing partner') }}
         @endif
     </p>
     <div class="flex justify-center items-center space-x-1 text-yellow-400 text-sm rtl:space-x-reverse">

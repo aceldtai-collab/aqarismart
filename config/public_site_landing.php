@@ -3,8 +3,8 @@
 return [
     'meta' => [
         'title' => [
-            'en' => 'RentoJo — Professional Property Management',
-            'ar' => 'RentoJo — إدارة العقارات الاحترافية',
+            'en' => 'Aqari Smart — Professional Property Management',
+            'ar' => 'Aqari Smart — إدارة العقارات الاحترافية',
         ],
     ],
     'theme' => [
@@ -24,12 +24,12 @@ return [
     ],
     'video' => [
         'headline' => [
-            'en' => 'See RentoJo in action',
-            'ar' => 'شاهد RentoJo أثناء العمل',
+            'en' => 'See Aqari Smart in action',
+            'ar' => 'شاهد Aqari Smart أثناء العمل',
         ],
         'description' => [
-            'en' => 'Watch how property teams use RentoJo to streamline their daily operations.',
-            'ar' => 'شاهد كيف تستخدم الفرق العقارية RentoJo لتبسيط عملياتها اليومية.',
+            'en' => 'Watch how property teams use Aqari Smart to streamline their daily operations.',
+            'ar' => 'شاهد كيف تستخدم الفرق العقارية Aqari Smart لتبسيط عملياتها اليومية.',
         ],
         'youtube_url' => null,
         'poster_image' => null,
@@ -116,7 +116,7 @@ return [
             ],
         ],
         'screenshots' => [
-            'headline' => ['en' => 'See RentoJo in action', 'ar' => 'شاهد RentoJo أثناء العمل'],
+            'headline' => ['en' => 'See Aqari Smart in action', 'ar' => 'شاهد Aqari Smart أثناء العمل'],
             'description' => ['en' => 'Purpose-built dashboards keep everyone aligned — from headquarters to on-site teams to residents.', 'ar' => 'لوحات مخصصة تُبقي الجميع على اطلاع — من المقر إلى الفرق الميدانية والسكان.'],
         ],
     ],
@@ -168,11 +168,11 @@ return [
         'headline' => ['en' => 'Trusted by property teams across the region', 'ar' => 'موثوق من فرق عقارية في المنطقة'],
         'items' => [
             [
-                'quote' => ['en' => 'We launched our resident portal in under a week and cut response times in half. RentoJo transformed our operations.', 'ar' => 'أطلقنا بوابة السكان خلال أسبوع وخفّضنا مدة الاستجابة إلى النصف. RentoJo غيّر عملياتنا.'],
+                'quote' => ['en' => 'We launched our resident portal in under a week and cut response times in half. Aqari Smart transformed our operations.', 'ar' => 'أطلقنا بوابة السكان خلال أسبوع وخفّضنا مدة الاستجابة إلى النصف. Aqari Smart غيّر عملياتنا.'],
                 'author' => ['en' => 'Salma Haddad, VP Operations at Northwind Rentals', 'ar' => 'سلمى حداد، نائب الرئيس للعمليات في نورثويند رنتلز'],
             ],
             [
-                'quote' => ['en' => 'RentoJo gave us the control we needed across regions without hiring more staff. The bilingual support is a game changer.', 'ar' => 'منحنا RentoJo التحكم المطلوب عبر المناطق دون توظيف المزيد. الدعم ثنائي اللغة نقلة نوعية.'],
+                'quote' => ['en' => 'Aqari Smart gave us the control we needed across regions without hiring more staff. The bilingual support is a game changer.', 'ar' => 'منحنا Aqari Smart التحكم المطلوب عبر المناطق دون توظيف المزيد. الدعم ثنائي اللغة نقلة نوعية.'],
                 'author' => ['en' => 'Rami Qassem, COO at Cedar Living', 'ar' => 'رامي قاسم، مدير العمليات في سيدار ليفينج'],
             ],
         ],
@@ -189,8 +189,8 @@ return [
     ],
     'footer' => [
         'copyright' => [
-            'en' => '© :year RentoJo. All rights reserved.',
-            'ar' => '© :year RentoJo. جميع الحقوق محفوظة.',
+            'en' => '© :year Aqari Smart. All rights reserved.',
+            'ar' => '© :year Aqari Smart. جميع الحقوق محفوظة.',
         ],
         'links' => [
             ['label' => ['en' => 'Privacy', 'ar' => 'الخصوصية'], 'href' => '#privacy'],
@@ -200,12 +200,12 @@ return [
     ],
     'seo' => [
         'title' => [
-            'en' => 'RentoJo — Professional Property Management Platform',
-            'ar' => 'RentoJo — منصة إدارة العقارات الاحترافية',
+            'en' => 'Aqari Smart — Professional Property Management Platform',
+            'ar' => 'Aqari Smart — منصة إدارة العقارات الاحترافية',
         ],
         'description' => [
-            'en' => 'Manage your entire property portfolio from one platform. Resident portals, maintenance, billing, dashboards, and more — all with RentoJo.',
-            'ar' => 'أدِر محفظتك العقارية بالكامل من منصة واحدة: بوابات السكان، الصيانة، الفوترة، ولوحات التحكم — مع RentoJo.',
+            'en' => 'Manage your entire property portfolio from one platform. Resident portals, maintenance, billing, dashboards, and more — all with Aqari Smart.',
+            'ar' => 'أدِر محفظتك العقارية بالكامل من منصة واحدة: بوابات السكان، الصيانة، الفوترة، ولوحات التحكم — مع Aqari Smart.',
         ],
         'robots' => 'index, follow',
         'og_image' => null,

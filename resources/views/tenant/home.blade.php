@@ -126,7 +126,7 @@
                         {{ __('tenant_home.why_wait_start_search_now') }}
                     </h2>
                     <p class="text-base sm:text-lg text-white/90 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                        {{__('RentoJO gathers the whole rental market in a single search. Never miss your dream rental home again.')}}
+                        {{__('Aqari Smart gathers the whole rental market in a single search. Never miss your dream rental home again.')}}
                     </p>
                 </div>
                 <div class="flex-shrink-0">

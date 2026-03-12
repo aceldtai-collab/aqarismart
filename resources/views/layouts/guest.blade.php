@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('RentoJo') }} &mdash; {{ __('Property Management') }}</title>
+    <title>{{ __('Aqari Smart') }} &mdash; {{ __('Property Management') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
     @if(app()->getLocale() === 'ar')
@@ -97,7 +97,7 @@
                         <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:var(--brand)">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
                         </div>
-                        <span class="text-xl font-bold tracking-tight">RentoJo</span>
+                        <span class="text-xl font-bold tracking-tight">Aqari Smart</span>
                     </a>
                     <h1 class="text-[26px] xl:text-[30px] font-extrabold leading-[1.2] tracking-tight mb-3">
                         {{ $isAr ? 'كل ما تحتاجه لإدارة عقاراتك' : 'Everything you need to manage properties' }}
@@ -148,14 +148,14 @@
                         <div class="screenshot-frame">
                             <div class="browser-bar"><div class="browser-dot"></div><div class="browser-dot"></div><div class="browser-dot"></div></div>
                             @if($authScreenshot)
-                                <img src="{{ $authScreenshot }}" alt="RentoJo Dashboard" loading="eager">
+                                <img src="{{ $authScreenshot }}" alt="Aqari Smart Dashboard" loading="eager">
                             @else
                                 <div class="w-full aspect-[16/10] bg-gradient-to-br from-[#053347] to-[#041c28] flex items-center justify-center">
                                     <div class="text-center px-6">
                                         <div class="w-14 h-14 mx-auto mb-3 rounded-xl flex items-center justify-center" style="background:rgba(255,41,41,.1)">
                                             <svg class="w-7 h-7" style="color:var(--brand)" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/></svg>
                                         </div>
-                                        <p class="text-white/25 text-sm">{{ $isAr ? 'لوحة تحكم RentoJo' : 'RentoJo Dashboard' }}</p>
+                                        <p class="text-white/25 text-sm">{{ $isAr ? 'لوحة تحكم Aqari Smart' : 'Aqari Smart Dashboard' }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -181,7 +181,7 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-between pt-5 border-t border-white/[.06] text-[12px] text-white/20">
-                        <span>&copy; {{ date('Y') }} RentoJo</span>
+                        <span>&copy; {{ date('Y') }} Aqari Smart</span>
                         <div class="flex gap-4">
                             <a href="#" class="hover:text-white/40 transition">{{ __('Privacy') }}</a>
                             <a href="#" class="hover:text-white/40 transition">{{ __('Terms') }}</a>
@@ -198,7 +198,7 @@
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--brand)">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
                     </div>
-                    <span class="font-bold text-lg" style="color:var(--dark)">RentoJo</span>
+                    <span class="font-bold text-lg" style="color:var(--dark)">Aqari Smart</span>
                 </a>
                 <div class="flex items-center gap-0.5 rounded-lg border border-slate-200 p-0.5 text-xs font-medium ltr:ml-auto rtl:mr-auto">
                     <a href="{{ $langToggleEn }}" class="px-3 py-1.5 rounded-md transition {{ $currentLocale==='en' ? 'text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}" @if($currentLocale==='en') style="background:var(--brand)" @endif>EN</a>
@@ -211,7 +211,7 @@
                 </div>
             </div>
             <div class="lg:hidden px-6 pb-6 text-center">
-                <p class="text-xs text-slate-400">&copy; {{ date('Y') }} RentoJo. {{ __('All rights reserved.') }}</p>
+                <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Aqari Smart. {{ __('All rights reserved.') }}</p>
             </div>
         </div>
     </div>
