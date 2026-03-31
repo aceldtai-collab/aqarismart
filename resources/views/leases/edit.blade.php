@@ -63,7 +63,7 @@
                     </div>
                     <div class="flex gap-2">
                         <a href="{{ route('leases.index') }}" class="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">{{ __('Cancel') }}</a>
-                        <x-primary-button class="bg-slate-900 hover:bg-slate-800">{{ __('Save') }}</x-primary-button>
+                        <x-primary-button class="bg-gray-50 hover:bg-slate-800">{{ __('Save') }}</x-primary-button>
                     </div>
                 </form>
             </div>

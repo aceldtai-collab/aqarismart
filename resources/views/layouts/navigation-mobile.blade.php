@@ -140,8 +140,8 @@
         <div class="mb-4">
             <div class="px-4 text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{{ __('Language') }}</div>
             <div class="flex items-center gap-2">
-                <a href="{{ $urlEn }}" class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-medium transition {{ $currentLang==='en' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">English</a>
-                <a href="{{ $urlAr }}" class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-medium transition {{ $currentLang==='ar' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">العربية</a>
+                <a href="{{ $urlEn }}" class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-medium transition {{ $currentLang==='en' ? 'bg-gray-50 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">English</a>
+                <a href="{{ $urlAr }}" class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-medium transition {{ $currentLang==='ar' ? 'bg-gray-50 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">العربية</a>
             </div>
         </div>
         

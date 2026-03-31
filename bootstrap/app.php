@@ -1,5 +1,13 @@
 <?php
 
+// Polyfill gethostname() for NativePHP Jump/mobile runtime where it's unavailable
+if (!function_exists('gethostname')) {
+    function gethostname(): string
+    {
+        return 'nativephp-mobile';
+    }
+}
+
 use App\Console\Commands\GenerateTenantDailyReports;
 use App\Console\Commands\GenerateTenantAlerts;
 use Illuminate\Foundation\Application;
@@ -14,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             __DIR__.'/../routes/landing.php',
             __DIR__.'/../routes/web.php',
         ],
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -22,6 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
         GenerateTenantAlerts::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust Cloudways reverse proxy (Nginx/Varnish) so scheme, host, and port are detected correctly
+        $middleware->trustProxies(at: '*');
+
         // Alias and register tenant middleware
         $middleware->alias([
             'tenant' => \App\Http\Middleware\IdentifyTenant::class,
@@ -30,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureTenantRole::class,
             'staff' => \App\Http\Middleware\EnsureStaff::class,
             'resident' => \App\Http\Middleware\EnsureResident::class,
+            'mobile.tenant' => \App\Http\Middleware\SetMobileTenantContext::class,
             'setlocale' => \App\Http\Middleware\SetLocale::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);

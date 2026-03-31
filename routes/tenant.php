@@ -175,5 +175,6 @@ Route::domain('{tenant_slug}.' . config('tenancy.base_domain'))
                 Route::get('/reports/export/pipeline.pdf', [ReportExportController::class, 'pipelinePdf'])->name('reports.export.pipeline.pdf');
                 Route::get('/reports/export/occupancy.pdf', [ReportExportController::class, 'occupancyPdf'])->name('reports.export.occupancy.pdf');
             });
+
         });
     });

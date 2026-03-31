@@ -6,7 +6,7 @@
         </div>
     </x-slot>
     <x-slot name="headerActions">
-        <a href="{{ route('custom-attributes.create', request()->only('lang')) }}" class="inline-flex items-center gap-2 rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">
+        <a href="{{ route('custom-attributes.create', request()->only('lang')) }}" class="inline-flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd"/></svg>
             <span>{{ __('Add Attribute') }}</span>
         </a>
@@ -34,7 +34,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-slate-900">{{ __('No custom attributes yet') }}</h3>
                     <p class="mt-2 text-sm text-slate-500 max-w-md mx-auto">{{ __('Create custom attributes to add extra information fields to your unit listings, like special amenities or custom measurements.') }}</p>
-                    <a href="{{ route('custom-attributes.create', request()->only('lang')) }}" class="mt-6 inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-all shadow-sm">
+                    <a href="{{ route('custom-attributes.create', request()->only('lang')) }}" class="mt-6 inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-all shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                         {{ __('Create First Attribute') }}
                     </a>

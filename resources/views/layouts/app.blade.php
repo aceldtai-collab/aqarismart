@@ -180,8 +180,8 @@
                                         : (Route::has('admin.settings.landing.edit') ? route('admin.settings.landing.edit') : null);
                                 @endphp
                                 <div class="flex items-center rounded-full border border-slate-200 bg-white p-0.5 text-xs font-semibold text-slate-500">
-                                    <a href="{{ $urlEn }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='en' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100' }}">EN</a>
-                                    <a href="{{ $urlAr }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='ar' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100' }}">ع</a>
+                                    <a href="{{ $urlEn }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='en' ? 'bg-gray-50 text-white' : 'hover:bg-slate-100' }}">EN</a>
+                                    <a href="{{ $urlAr }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='ar' ? 'bg-gray-50 text-white' : 'hover:bg-slate-100' }}">ع</a>
                                 </div>
                                 @auth
                                     <div x-data="{ open: false }" @click.outside="open = false" class="relative">

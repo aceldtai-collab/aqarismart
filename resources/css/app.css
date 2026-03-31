@@ -5,17 +5,19 @@
 /* Property Management Theme Enhancements */
 @layer base {
     :root {
-        /* Enhanced Property Management Color Palette */
-        --property-primary: #0ea5e9;
-        --property-secondary: #eab308;
-        --property-accent: #10b981;
-        --property-neutral: #64748b;
-        --property-surface: #ffffff;
-        --property-surface-elevated: #f8fafc;
-        --property-border: #e2e8f0;
-        --property-text-primary: #0f172a;
-        --property-text-secondary: #64748b;
-        --property-text-muted: #94a3b8;
+        /* Aqari Smart Brand Color Palette */
+        --brand-primary: #14b8a6;
+        --brand-primary-dark: #0d9488;
+        --brand-primary-light: #5eead4;
+        --brand-secondary: #eab308;
+        --brand-accent: #10b981;
+        --brand-neutral: #64748b;
+        --brand-surface: #ffffff;
+        --brand-surface-elevated: #f8fafc;
+        --brand-border: #e2e8f0;
+        --brand-text-primary: #0f172a;
+        --brand-text-secondary: #64748b;
+        --brand-text-muted: #94a3b8;
         
         /* Property Management Shadows */
         --property-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -42,7 +44,7 @@
     
     /* Property Management Buttons */
     .btn-property-primary {
-        @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105;
+        @apply bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105;
     }
     
     .btn-property-secondary {
@@ -50,7 +52,7 @@
     }
     
     .btn-property-outline {
-        @apply border-2 border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200;
+        @apply border-2 border-brand-500 text-brand-600 hover:bg-brand-600 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200;
     }
     
     /* Property Status Badges */
@@ -80,7 +82,7 @@
     }
     
     .property-info-icon {
-        @apply w-4 h-4 text-blue-500;
+        @apply w-4 h-4 text-brand-500;
     }
     
     /* Property Management Forms */
@@ -97,11 +99,11 @@
     }
     
     .form-input-property {
-        @apply block w-full rounded-property border-gray-300 shadow-sm focus:border-property-500 focus:ring-property-500 transition-colors;
+        @apply block w-full rounded-property border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 transition-colors;
     }
     
     .form-select-property {
-        @apply block w-full rounded-property border-gray-300 shadow-sm focus:border-property-500 focus:ring-property-500 transition-colors;
+        @apply block w-full rounded-property border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 transition-colors;
     }
     
     /* Property Management Navigation */
@@ -110,11 +112,11 @@
     }
     
     .nav-property-item {
-        @apply px-4 py-2 text-sm font-medium text-gray-600 hover:text-property-600 hover:bg-property-50 rounded-property transition-colors;
+        @apply px-4 py-2 text-sm font-medium text-gray-600 hover:text-brand-600 hover:bg-brand-50 rounded-property transition-colors;
     }
     
     .nav-property-item.active {
-        @apply text-property-600 bg-property-50 border-b-2 border-property-600;
+        @apply text-brand-600 bg-brand-50 border-b-2 border-brand-600;
     }
     
     /* Property Management Tables */
@@ -172,11 +174,11 @@
 @layer utilities {
     /* Property Management Utilities */
     .text-property-gradient {
-        @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
+        @apply bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent;
     }
     
     .bg-property-gradient {
-        @apply bg-gradient-to-r from-blue-500 to-indigo-600;
+        @apply bg-gradient-to-r from-brand-500 to-brand-600;
     }
     
     /* Hide Scrollbar */

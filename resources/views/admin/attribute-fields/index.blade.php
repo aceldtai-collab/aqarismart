@@ -6,7 +6,7 @@
         </div>
     </x-slot>
     <x-slot name="headerActions">
-        <a href="{{ route('admin.attribute-fields.create', request()->only('lang')) }}" class="inline-flex items-center gap-2 rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">
+        <a href="{{ route('admin.attribute-fields.create', request()->only('lang')) }}" class="inline-flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd"/></svg>
             <span>{{ __('Add Field') }}</span>
         </a>

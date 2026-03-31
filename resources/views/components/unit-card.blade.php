@@ -38,7 +38,7 @@
             
             <!-- Status Badge -->
             <div class="absolute top-4 left-4">
-                <span class="inline-flex items-center gap-1 rounded-full {{ $isSale ? 'bg-emerald-500' : 'brand-bg' }} text-white px-3 py-1.5 text-xs font-bold shadow-lg">
+                <span class="inline-flex items-center gap-1 rounded-full {{ $isSale ? 'bg-emerald-500' : 'bg-brand-600' }} text-white px-3 py-1.5 text-xs font-bold shadow-lg">
                     {{ $isSale ? __('For Sale') : __('For Rent') }}
                 </span>
             </div>

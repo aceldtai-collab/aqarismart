@@ -7,12 +7,14 @@ use App\Models\AgentCommission;
 use App\Models\AgentLead;
 use App\Models\Lease;
 use App\Models\MaintenanceRequest;
+use App\Models\Package;
 use App\Models\Property;
 use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\PropertyViewing;
 use App\Models\Resident;
 use App\Models\Tenant;
+use App\Models\TenantSubscription;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -72,6 +74,26 @@ class DemoPmsSeeder extends Seeder
                     'trial_ends_at' => now()->addDays(14),
                 ]
             );
+
+            // Create active subscription for this tenant
+            $packageSlug = match ($t['plan']) {
+                'starter' => 'starter',
+                'pro' => 'pro',
+                'business' => 'business',
+                'enterprise' => 'enterprise',
+                default => 'starter',
+            };
+            $package = Package::where('slug', $packageSlug)->first();
+            if ($package) {
+                TenantSubscription::updateOrCreate(
+                    ['tenant_id' => $tenant->id, 'package_id' => $package->id],
+                    [
+                        'billing_cycle' => 'monthly',
+                        'status' => 'active',
+                        'starts_at' => now()->subMonth(),
+                    ]
+                );
+            }
 
             // Attach users with roles via pivot
             $tenant->users()->syncWithoutDetaching([

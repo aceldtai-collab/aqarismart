@@ -223,8 +223,8 @@
                         $urlAr = request()->fullUrlWithQuery([$langParam => 'ar']);
                     @endphp
                     <div class="flex items-center gap-1 rounded-md border border-slate-200 p-0.5 text-xs font-medium">
-                        <a href="{{ $urlEn }}" class="px-2 py-0.5 rounded transition {{ $currentLang==='en' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50' }}">EN</a>
-                        <a href="{{ $urlAr }}" class="px-2 py-0.5 rounded transition {{ $currentLang==='ar' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50' }}">ع</a>
+                        <a href="{{ $urlEn }}" class="px-2 py-0.5 rounded transition {{ $currentLang==='en' ? 'bg-gray-50 text-white' : 'text-slate-500 hover:bg-slate-50' }}">EN</a>
+                        <a href="{{ $urlAr }}" class="px-2 py-0.5 rounded transition {{ $currentLang==='ar' ? 'bg-gray-50 text-white' : 'text-slate-500 hover:bg-slate-50' }}">ع</a>
                     </div>
 
                     <div x-data="{ open: false }" @click.outside="open = false" class="relative">

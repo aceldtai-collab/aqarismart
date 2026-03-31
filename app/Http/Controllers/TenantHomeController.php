@@ -129,4 +129,57 @@ class TenantHomeController extends Controller
             'subcategories' => $subcategories,
         ]);
     }
+
+    public function mobileDashboard(Request $request): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        $user = auth()->user();
+        $agentScoped = (bool) $user?->agent_id;
+        $requestedAgent = $agentScoped ? $user->agent_id : $request->integer('agent_id');
+
+        if (! $agentScoped && $requestedAgent) {
+            $exists = \App\Models\Agent::where('tenant_id', $tenant->id)->where('id', $requestedAgent)->exists();
+            if (! $exists) {
+                $requestedAgent = null;
+            }
+        }
+
+        $agentId = $requestedAgent ?? $user?->agent_id;
+        $days = $request->integer('days', 14);
+        $days = $days > 0 ? min(max($days, 7), 90) : 14;
+
+        $metrics = app(\App\Services\Dashboard\TenantDashboardMetrics::class)->metrics($tenant, $agentId);
+        $snapshots = app(\App\Services\Reports\TenantSnapshotQuery::class);
+        $availableAgents = $agentScoped
+            ? collect()
+            : \App\Models\Agent::where('tenant_id', $tenant->id)->orderBy('name')->get(['id', 'name']);
+        $recentAlerts = \App\Models\ReportAlert::where('tenant_id', $tenant->id)
+            ->orderByDesc('snapshot_date')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('mobile.tenant-home', $metrics + [
+            'tenant' => $tenant,
+            'agentScoped' => $agentScoped,
+            'filterAgent' => $agentId,
+            'filterDays' => $days,
+            'availableAgents' => $availableAgents,
+            'alerts' => $recentAlerts,
+            'pipelineTrend' => $snapshots->agentPipelineTrend($tenant, $agentId, $days),
+            'occupancyTrend' => $snapshots->occupancyTrend($tenant, null, $days),
+            'commissionTrend' => $snapshots->commissionTrend($tenant, $agentId, $days),
+            'maintenanceTrend' => $snapshots->maintenanceTrend($tenant, $days),
+        ]);
+    }
+
+    public function tenantHome(Request $request): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        return view('mobile.tenant-home', compact('tenant'));
+    }
 }

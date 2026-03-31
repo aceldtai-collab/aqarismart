@@ -35,6 +35,7 @@ return [
         'poster_image' => null,
     ],
     'navigation' => [
+        ['label' => ['en' => 'Marketplace', 'ar' => 'السوق'], 'href' => '/marketplace'],
         ['label' => ['en' => 'Features', 'ar' => 'المزايا'], 'href' => '#features'],
         ['label' => ['en' => 'Pricing', 'ar' => 'الأسعار'], 'href' => '#pricing'],
         ['label' => ['en' => 'Testimonials', 'ar' => 'الشهادات'], 'href' => '#testimonials'],

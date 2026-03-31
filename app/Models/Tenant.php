@@ -86,4 +86,9 @@ class Tenant extends Model
     {
         return app(\App\Services\Tenancy\TenantManager::class)->tenantUrl($this, '/dashboard');
     }
+
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class);
+    }
 }

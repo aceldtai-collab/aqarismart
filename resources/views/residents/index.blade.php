@@ -17,7 +17,7 @@
                     <p class="mt-2 text-slate-600">{{ __('Manage tenant residents and access') }}</p>
                 </div>
                 @can('create', App\Models\Resident::class)
-                    <a href="{{ route('residents.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all shadow-sm">
+                    <a href="{{ route('residents.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -81,7 +81,7 @@
                                         <h3 class="mt-4 text-lg font-semibold text-slate-900">{{ __('No residents yet') }}</h3>
                                         <p class="mt-2 text-sm text-slate-600 max-w-sm mx-auto">{{ __('Add residents to manage tenant access and information.') }}</p>
                                         @can('create', App\Models\Resident::class)
-                                            <a href="{{ route('residents.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
+                                            <a href="{{ route('residents.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m-6 0H6"></path>
                                                 </svg>

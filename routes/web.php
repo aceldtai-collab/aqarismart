@@ -2,9 +2,35 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MobileAppController;
 
 // Central routes (no locale prefix)
 require __DIR__.'/auth.php';
+
+Route::get('/', function () {
+    return redirect('/mobile/marketplace');
+});
+
+Route::prefix('mobile')->name('mobile.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('mobile.marketplace');
+    })->name('home');
+    Route::get('/login', function () {
+        return view('mobile.auth.login');
+    })->name('login');
+    Route::get('/register', function () {
+        return view('mobile.auth.register');
+    })->name('register');
+    Route::get('/marketplace', [MobileAppController::class, 'marketplace'])->name('marketplace');
+    Route::get('/dashboard', [MobileAppController::class, 'dashboard'])->name('dashboard');
+    Route::get('/units', [MobileAppController::class, 'units'])->name('units.index');
+    Route::get('/units/create', [MobileAppController::class, 'createUnit'])->name('units.create');
+    Route::get('/units/{unit:code}', [MobileAppController::class, 'showUnit'])->name('units.show');
+    Route::get('/units/{unit:code}/edit', [MobileAppController::class, 'editUnit'])->name('units.edit');
+    Route::get('/tenants', [MobileAppController::class, 'tenants'])->name('tenants.index');
+    Route::get('/tenants/{tenant:slug}', [MobileAppController::class, 'showTenant'])->name('tenants.show');
+    Route::get('/about', [MobileAppController::class, 'about'])->name('about');
+});
 
 // Tenant Switcher (central, requires auth)
 Route::post('/tenant/switch', function (\Illuminate\Http\Request $request) {

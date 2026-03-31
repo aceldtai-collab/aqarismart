@@ -48,8 +48,8 @@
         </a>
         <div class="flex items-center gap-3">
             <div class="flex items-center gap-1 rounded-lg border border-slate-200/80 p-0.5 text-xs font-medium bg-white shadow-sm">
-                <a href="{{ $urlEn }}" class="px-3 py-1.5 rounded-md transition {{ $loc==='en' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}">EN</a>
-                <a href="{{ $urlAr }}" class="px-3 py-1.5 rounded-md transition {{ $loc==='ar' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}">ع</a>
+                <a href="{{ $urlEn }}" class="px-3 py-1.5 rounded-md transition {{ $loc==='en' ? 'bg-gray-50 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}">EN</a>
+                <a href="{{ $urlAr }}" class="px-3 py-1.5 rounded-md transition {{ $loc==='ar' ? 'bg-gray-50 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}">ع</a>
             </div>
             @if(Route::has('login'))
                 <a href="{{ route('login') }}" class="hidden sm:inline-flex px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">{{ $isAr ? 'تسجيل الدخول' : 'Sign in' }}</a>
@@ -180,7 +180,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition">
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 text-white text-sm font-semibold hover:bg-slate-800 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"/></svg>
                         {{ $isAr ? 'تطبيق' : 'Apply Filters' }}
                     </button>
@@ -284,7 +284,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 mb-2">{{ $isAr ? 'لا توجد نتائج' : 'No units found' }}</h3>
                     <p class="text-sm text-slate-400 max-w-sm mx-auto mb-6">{{ $isAr ? 'جرّب تعديل الفلاتر أو البحث بكلمات مختلفة' : 'Try adjusting your filters or search with different keywords' }}</p>
-                    <a href="{{ route('public.search') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition">
+                    <a href="{{ route('public.search') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-50 text-white text-sm font-semibold hover:bg-slate-800 transition">
                         {{ $isAr ? 'مسح الفلاتر' : 'Clear Filters' }}
                     </a>
                 </div>

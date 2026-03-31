@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Providers\TelescopeServiceProvider;
+use App\Services\NativePHP\MigrationHelper;
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
@@ -15,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if ($this->app->environment('local')) {
+        if ($this->app->environment('local') && function_exists('gethostname')) {
             if (class_exists(TelescopeApplicationServiceProvider::class)) {
                 $this->app->register(TelescopeServiceProvider::class);
             }
@@ -27,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         // Query logging for performance monitoring
         if (config('app.debug')) {
             \DB::listen(function ($query) {

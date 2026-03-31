@@ -508,4 +508,28 @@ class UnitController extends Controller
         }
         return null;
     }
+
+    public function mobileIndex(Request $request): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        $units = Unit::where('tenant_id', $tenant->id)
+            ->with(['property', 'category', 'subcategory', 'tenant'])
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
+        return view('mobile.units.index', compact('tenant', 'units'));
+    }
+
+    public function mobileShow(Unit $unit): View
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+        abort_if($unit->tenant_id !== $tenant->id, 404);
+
+        $unit->load(['property', 'category', 'subcategory', 'tenant', 'agent', 'photos']);
+
+        return view('mobile.units.show', compact('tenant', 'unit'));
+    }
 }

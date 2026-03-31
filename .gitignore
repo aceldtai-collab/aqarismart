@@ -3,6 +3,7 @@
 /node_modules/
 .env
 .env.*
+!.env.example
 
 # WSL2 dev scripts (local environment only)
 start-dev.ps1
@@ -30,3 +31,6 @@ Thumbs.db
 
 # Project docs
 IMPROVEMENTS.md
+
+# Credential files (keystores, private keys, etc.)
+/credentials/

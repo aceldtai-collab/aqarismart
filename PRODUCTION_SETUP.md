@@ -22,6 +22,7 @@ CENTRAL_DOMAINS=aqarismart.com
 
 # Session domain with leading dot for subdomain sharing
 SESSION_DOMAIN=.aqarismart.com
+SESSION_SECURE_COOKIE=true
 
 # Sanctum stateful domains (include all subdomains pattern)
 SANCTUM_STATEFUL_DOMAINS=aqarismart.com,*.aqarismart.com
@@ -73,13 +74,21 @@ FILESYSTEM_DISK=public
 # CACHE & QUEUE
 # ═══════════════════════════════════════════════════════════
 
-CACHE_DRIVER=redis
+CACHE_STORE=redis
 SESSION_DRIVER=redis
 QUEUE_CONNECTION=redis
 
 REDIS_HOST=127.0.0.1
 REDIS_PASSWORD=null
 REDIS_PORT=6379
+
+# ═══════════════════════════════════════════════════════════
+# LOGGING
+# ═══════════════════════════════════════════════════════════
+
+LOG_CHANNEL=stack
+LOG_STACK=daily
+LOG_LEVEL=warning
 
 # ═══════════════════════════════════════════════════════════
 # OPTIONAL: STRIPE FOR BILLING
@@ -285,8 +294,8 @@ $tenant->users()->attach($user->id, ['role' => 'owner']);
 
 1. **On Local Machine**
    ```bash
-   git add .
-   git commit -m "Your changes"
+   git add .                                                                                            
+   git commit -m "Your change                                                                                                                                                                                                                                                            
    git push origin main
    
    # Build fresh assets

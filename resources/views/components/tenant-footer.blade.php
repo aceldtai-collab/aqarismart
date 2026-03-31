@@ -100,7 +100,7 @@
                     </h6>
                     <p class="mb-4 text-sm text-slate-300">{{ $newsletterText }}</p>
                     <form class="space-y-3">
-                        <input type="email" class="w-full rounded-md border border-indigo-400/40 bg-slate-900/40 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:border-indigo-300 focus:outline-none focus:ring focus:ring-indigo-500/40" placeholder="{{ __('Your email address') }}">
+                        <input type="email" class="w-full rounded-md border border-indigo-400/40 bg-gray-50/40 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:border-indigo-300 focus:outline-none focus:ring focus:ring-indigo-500/40" placeholder="{{ __('Your email address') }}">
                         <button type="button" class="w-full rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-400 transition-colors">
                             {{ __('Subscribe') }}
                         </button>

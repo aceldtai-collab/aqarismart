@@ -1,0 +1,9 @@
+# Add this to your ~/.ssh/config (Windows: C:\Users\YOUR_USER\.ssh\config)
+# Replace YOUR_CLOUDWAYS_IP and YOUR_SSH_USER with values from Cloudways panel
+# Cloudways → Server → Master Credentials → SSH Access
+
+Host cloudways-aqarismart
+    HostName YOUR_CLOUDWAYS_IP
+    User YOUR_SSH_USER
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
