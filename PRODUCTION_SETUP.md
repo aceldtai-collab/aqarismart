@@ -332,7 +332,7 @@ $tenant->users()->attach($user->id, ['role' => 'owner']);
 
 ## Cloudways-Specific Notes
 
-**Server Path**: `/home/1599704.cloudwaysapps.com/tsyaqtsxmr/public_html`
+**Server Path**: `/mnt/BLOCKSTORAGE/home/master/applications/tsyaqtsxmr/public_html`
 
 **Webroot**: Already set to `public_html/public`
 

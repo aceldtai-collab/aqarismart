@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════
 param(
     [string]$SshHost = "cloudways-aqarismart",
-    [string]$AppDir = "/home/1599704.cloudwaysapps.com/tsyaqtsxmr/public_html",
+    [string]$AppDir = "/mnt/BLOCKSTORAGE/home/master/applications/tsyaqtsxmr/public_html",
     [switch]$SkipBuild,
     [switch]$InitialDeploy
 )

@@ -5,7 +5,7 @@
 # ═══════════════════════════════════════════════════════════
 set -uo pipefail
 
-APP_DIR="/home/1599704.cloudwaysapps.com/tsyaqtsxmr/public_html"
+APP_DIR="/mnt/BLOCKSTORAGE/home/master/applications/tsyaqtsxmr/public_html"
 DOMAIN="aqarismart.com"
 PASS=0
 FAIL=0
