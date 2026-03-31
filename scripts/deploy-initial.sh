@@ -5,8 +5,7 @@
 # ═══════════════════════════════════════════════════════════
 set -euo pipefail
 
-APP_DIR="/home/1599704.cloudwaysapps.com/tsyaqtsxmr/public_html"
-
+APP_DIR="/mnt/BLOCKSTORAGE/home/master/applications/tsyaqtsxmr/public_html"
 echo "═══════════════════════════════════════════════════════"
 echo " Aqari Smart — Initial Production Deploy"
 echo "═══════════════════════════════════════════════════════"
