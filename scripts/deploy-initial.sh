@@ -115,8 +115,7 @@ echo "  ✓ Storage symlink created"
 # ── Step 9: Permissions ──
 echo ""
 echo "[9/10] Setting file permissions..."
-chmod -R 775 storage bootstrap/cache
-echo "  ✓ Permissions set"
+chmod -R 775 storage bootstrap/cache 2>/dev/null || echo "  (skipped — Cloudways manages permissions via application user)"
 
 # ── Step 10: Cache optimization ──
 echo ""

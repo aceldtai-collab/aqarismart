@@ -73,14 +73,14 @@ const unitCode = @json($unit->code);
 async function loadUnitEditMeta() {
     if (!unitEditToken) return;
     const [metaResponse, unitResponse] = await Promise.all([
-        fetch('/api/mobile/units/meta', {
+        fetch((window.__AQARI_API_BASE || '') + '/api/mobile/units/meta', {
             headers: {
                 Accept: 'application/json',
                 Authorization: `Bearer ${unitEditToken}`,
                 'X-Tenant-Slug': unitEditTenantSlug || '',
             },
         }),
-        fetch(`/api/mobile/units/${unitCode}`, {
+        fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/units/${unitCode}`, {
             headers: {
                 Accept: 'application/json',
                 Authorization: `Bearer ${unitEditToken}`,
@@ -111,7 +111,7 @@ unitEditForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = new FormData(unitEditForm);
     formData.append('_method', 'PATCH');
-    const response = await fetch(`/api/mobile/units/${unitCode}`, {
+    const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/units/${unitCode}`, {
         method: 'POST',
         headers: {
             Accept: 'application/json',

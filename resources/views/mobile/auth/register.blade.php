@@ -192,7 +192,7 @@ function mobileRegisterWizard() {
             errBox.classList.add('hidden');
 
             try {
-                const res = await fetch('/api/mobile/auth/register-business', {
+                const res = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/auth/register-business', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(this.formData),

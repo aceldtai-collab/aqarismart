@@ -21,7 +21,7 @@
         el.textContent = 'Login first to load units.';
         return;
     }
-    const response = await fetch('/api/mobile/units', {
+    const response = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/units', {
         headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${token}`,

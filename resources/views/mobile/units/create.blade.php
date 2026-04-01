@@ -87,7 +87,7 @@ const tenantSlug = localStorage.getItem('aqari_mobile_tenant_slug');
 
 async function loadUnitMeta() {
     if (!token) return;
-    const response = await fetch('/api/mobile/units/meta', {
+    const response = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/units/meta', {
         headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${token}`,
@@ -103,7 +103,7 @@ async function loadUnitMeta() {
 unitCreateForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = new FormData(unitCreateForm);
-    const response = await fetch('/api/mobile/units', {
+    const response = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/units', {
         method: 'POST',
         headers: {
             Accept: 'application/json',

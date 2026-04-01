@@ -315,7 +315,8 @@ function renderFeed(units) {
 
 async function loadMarketplace() {
     const params = new URLSearchParams(new FormData(marketplaceForm));
-    const response = await fetch(`/api/mobile/marketplace?${params.toString()}`, { headers: { Accept: 'application/json' } });
+    const apiBase = window.__AQARI_API_BASE || '';
+    const response = await fetch(`${apiBase}/api/mobile/marketplace?${params.toString()}`, { headers: { Accept: 'application/json' } });
     const json = await response.json();
 
     if (!sectionsLoaded) {

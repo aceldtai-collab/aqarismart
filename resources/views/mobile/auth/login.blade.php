@@ -108,7 +108,7 @@ function mobileLoginWizard() {
             errBox.textContent = '';
 
             try {
-                const res = await fetch('/api/mobile/auth/login', {
+                const res = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({ email: this.email, password: this.password }),

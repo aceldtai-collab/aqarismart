@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Aqari Smart' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>window.__AQARI_API_BASE = '{{ config("nativephp.remote_api_url", "") }}';</script>
 </head>
 @php
     $currentLocale = in_array(app()->getLocale(), ['en', 'ar']) ? app()->getLocale() : 'en';

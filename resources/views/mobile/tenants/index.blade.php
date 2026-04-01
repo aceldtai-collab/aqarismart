@@ -20,7 +20,7 @@ const tenantSearch = document.getElementById('mobile-tenant-search');
 const tenantResults = document.getElementById('mobile-tenants-results');
 async function loadTenants() {
     const params = new URLSearchParams(new FormData(tenantSearch));
-    const response = await fetch(`/api/mobile/tenants?${params.toString()}`, { headers: { Accept: 'application/json' } });
+    const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/tenants?${params.toString()}`, { headers: { Accept: 'application/json' } });
     const data = await response.json();
     tenantResults.innerHTML = (data.data || []).map(tenant => `
         <a href="/mobile/tenants/${tenant.slug}" class="rounded-3xl bg-emerald-300/10 backdrop-blur-sm p-5 shadow-lg ring-1 ring-emerald-300/30 transition hover:shadow-xl hover:ring-emerald-300/50">

@@ -19,7 +19,7 @@
         el.textContent = 'Login first to load the mobile dashboard.';
         return;
     }
-    const response = await fetch('/api/mobile/dashboard', {
+    const response = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/dashboard', {
         headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${token}`,

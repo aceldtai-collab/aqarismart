@@ -82,6 +82,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Remote API Base URL
+    |--------------------------------------------------------------------------
+    |
+    | When set, the mobile app's JS fetch calls will use this as the base URL
+    | for all API requests, pointing to the production server's MySQL database
+    | instead of the embedded NativePHP SQLite. Leave empty for local dev.
+    | Example: https://aqarismart.com
+    |
+    */
+
+    'remote_api_url' => env('NATIVEPHP_REMOTE_API_URL', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Development Team (iOS)
     |--------------------------------------------------------------------------
     |
