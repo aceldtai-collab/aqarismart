@@ -310,7 +310,7 @@
         const badge = isSale ? TX.sale : TX.rent;
         const badgeColor = isSale ? 'bg-emerald-500' : 'bg-brand-600';
         const slug = u.tenant?.slug;
-        const href = slug ? `${tenantUrl(slug)}/units/${u.code ?? u.id}` : '#';
+        const href = slug ? `${tenantUrl(slug)}/listings/${u.code ?? u.id}` : '#';
         return `<article class="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
             <a href="${href}" class="block relative">
                 <div class="relative h-56 bg-slate-100 overflow-hidden">
@@ -337,7 +337,7 @@
         const isSale = u.listing_type === 'sale';
         const badge = isSale ? TX.sale : TX.rent;
         const slug = u.tenant?.slug;
-        const href = slug ? `${tenantUrl(slug)}/units/${u.code ?? u.id}` : '#';
+        const href = slug ? `${tenantUrl(slug)}/listings/${u.code ?? u.id}` : '#';
         return `<a href="${href}" class="group block min-w-[280px] max-w-[320px] flex-1 snap-start overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-1 hover:shadow-md hover:ring-brand-400">
             <div class="relative h-48 bg-slate-100 overflow-hidden"><img src="${photo}" alt="${title}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" onerror="this.style.display='none'">
             <div class="absolute left-3 top-3"><span class="inline-flex items-center rounded-lg ${isSale ? 'bg-emerald-600/90' : 'bg-brand-600/90'} backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">${badge}</span></div>

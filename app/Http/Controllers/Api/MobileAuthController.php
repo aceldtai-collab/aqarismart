@@ -68,8 +68,7 @@ class MobileAuthController extends Controller
 
     public function registerResident(Request $request): JsonResponse
     {
-        $tenant = $this->resolveTenantFromRequest($request);
-        abort_if(! $tenant, 404, 'Tenant not found.');
+        $tenant = $this->resolveTenantFromRequest($request, null, false);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -105,30 +104,32 @@ class MobileAuthController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        if (method_exists($user, 'assignRole')) {
+        if ($tenant && method_exists($user, 'assignRole')) {
             try {
                 $user->assignRole('resident');
             } catch (\Throwable $e) {
             }
         }
 
-        $user->tenants()->syncWithoutDetaching([$tenant->id => ['role' => 'resident']]);
-        $user->tenants()->updateExistingPivot($tenant->id, ['role' => 'resident']);
+        if ($tenant) {
+            $user->tenants()->syncWithoutDetaching([$tenant->id => ['role' => 'resident']]);
+            $user->tenants()->updateExistingPivot($tenant->id, ['role' => 'resident']);
 
-        $parts = preg_split('/\s+/u', trim($data['name']), 2, PREG_SPLIT_NO_EMPTY);
-        Resident::updateOrCreate(
-            ['tenant_id' => $tenant->id, 'phone' => $fullPhone],
-            [
-                'first_name' => $parts[0] ?? $data['name'],
-                'last_name' => $parts[1] ?? '',
-                'phone' => $fullPhone,
-                'phone_country_code' => $countryCode,
-                'email' => $email,
-                'tenant_id' => $tenant->id,
-            ]
-        );
+            $parts = preg_split('/\s+/u', trim($data['name']), 2, PREG_SPLIT_NO_EMPTY);
+            Resident::updateOrCreate(
+                ['tenant_id' => $tenant->id, 'phone' => $fullPhone],
+                [
+                    'first_name' => $parts[0] ?? $data['name'],
+                    'last_name' => $parts[1] ?? '',
+                    'phone' => $fullPhone,
+                    'phone_country_code' => $countryCode,
+                    'email' => $email,
+                    'tenant_id' => $tenant->id,
+                ]
+            );
+        }
 
-        return $this->authenticatedResponse($user->fresh('tenants.activeSubscription.package'), $tenant, 'resident');
+        return $this->authenticatedResponse($user->fresh('tenants.activeSubscription.package'), $tenant, $tenant ? 'resident' : null);
     }
 
     public function login(Request $request): JsonResponse
@@ -153,18 +154,17 @@ class MobileAuthController extends Controller
             ]);
         }
 
-        $tenant = $this->resolveTenantFromRequest($request, $user);
-        if (! $tenant) {
-            $tenant = $user->tenants()->first();
-        }
+        $tenant = $this->resolveTenantFromRequest($request, null, false);
 
-        if (! $tenant || ! $user->tenants()->whereKey($tenant->getKey())->exists()) {
+        if ($tenant && ! $user->tenants()->whereKey($tenant->getKey())->exists()) {
             throw ValidationException::withMessages([
                 'tenant_id' => [__('You do not have access to the requested tenant.')],
             ]);
         }
 
-        $pivotRole = strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role));
+        $pivotRole = $tenant
+            ? strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role))
+            : null;
 
         return $this->authenticatedResponse($user->fresh('tenants.activeSubscription.package'), $tenant, $pivotRole ?: null);
     }
@@ -172,8 +172,11 @@ class MobileAuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user()->loadMissing('tenants.activeSubscription.package');
-        $tenant = $this->resolveTenantFromRequest($request, $user) ?: $user->tenants()->first();
-        $request->attributes->set('mobile_tenant', $tenant);
+        $tenant = $this->resolveTenantFromRequest($request, null, false);
+
+        if ($tenant) {
+            $request->attributes->set('mobile_tenant', $tenant);
+        }
 
         return response()->json([
             'user' => new MobileUserResource($user),
@@ -190,25 +193,27 @@ class MobileAuthController extends Controller
         ]);
     }
 
-    protected function authenticatedResponse(User $user, Tenant $tenant, ?string $role): JsonResponse
+    protected function authenticatedResponse(User $user, ?Tenant $tenant, ?string $role): JsonResponse
     {
-        $this->tenants->setTenant($tenant);
         $token = $user->createToken('mobile-app')->plainTextToken;
 
         $user->loadMissing('tenants.activeSubscription.package');
 
-        request()->attributes->set('mobile_tenant', $tenant);
+        if ($tenant) {
+            $this->tenants->setTenant($tenant);
+            request()->attributes->set('mobile_tenant', $tenant);
+        }
 
         return response()->json([
             'token' => $token,
             'token_type' => 'Bearer',
             'user' => new MobileUserResource($user),
-            'current_tenant' => new MobileTenantResource($tenant->loadMissing('activeSubscription.package')),
+            'current_tenant' => $tenant ? new MobileTenantResource($tenant->loadMissing('activeSubscription.package')) : null,
             'tenant_role' => $role,
         ], 201);
     }
 
-    protected function resolveTenantFromRequest(Request $request, ?User $user = null): ?Tenant
+    protected function resolveTenantFromRequest(Request $request, ?User $user = null, bool $fallbackToUserTenant = true): ?Tenant
     {
         $tenantId = $request->input('tenant_id') ?? $request->header('X-Tenant-Id');
         if ($tenantId) {
@@ -220,7 +225,7 @@ class MobileAuthController extends Controller
             return Tenant::where('slug', $tenantSlug)->first();
         }
 
-        return $user?->tenants()->first();
+        return $fallbackToUserTenant ? $user?->tenants()->first() : null;
     }
 
     protected function resolvePhone(string $value, ?string $countryCode): string

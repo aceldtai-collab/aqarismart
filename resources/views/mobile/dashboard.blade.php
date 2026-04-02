@@ -149,6 +149,7 @@
     const content = document.getElementById('dash-content');
 
     if (!token) {
+        localStorage.removeItem('aqari_mobile_user_role');
         loading.classList.add('hidden');
         noAuth.classList.remove('hidden');
         return;
@@ -161,6 +162,9 @@
 
         if (res.status === 401) {
             localStorage.removeItem('aqari_mobile_token');
+            localStorage.removeItem('aqari_mobile_tenant_slug');
+            localStorage.removeItem('aqari_mobile_user_name');
+            localStorage.removeItem('aqari_mobile_user_role');
             loading.classList.add('hidden');
             noAuth.classList.remove('hidden');
             return;

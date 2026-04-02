@@ -23,12 +23,16 @@ class MobileDashboardController extends Controller
     public function show(Request $request): JsonResponse
     {
         $user = $request->user()->loadMissing('tenants.activeSubscription.package');
-        $tenant = $this->tenants->tenant() ?: $user->tenants()->first();
-        abort_if(! $tenant, 404);
+        $tenant = $this->tenants->tenant() ?: $request->attributes->get('mobile_tenant');
+        abort_if(! $tenant, 404, 'No tenant context');
 
         $request->attributes->set('mobile_tenant', $tenant);
-        $pivotRole = strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role));
-        $isResident = $pivotRole === 'resident' || (method_exists($user, 'hasRole') && $user->hasRole('resident'));
+        $membership = $user->tenants()->whereKey($tenant->getKey())->first();
+        $pivotRole = strtolower((string) ($membership?->pivot?->role));
+
+        abort_if($pivotRole === '', 403, 'You do not have access to the requested tenant.');
+
+        $isResident = $pivotRole === 'resident';
 
         if ($isResident) {
             $resident = Resident::query()

@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "open": {
+    "success": true,
+    "pageId": "page-1",
+    "url": "https://aqarismart.com/marketplace"
+  },
+  "list": {
+    "success": true,
+    "pages": [
+      {
+        "pageId": "page-1",
+        "url": "https://aqarismart.com/marketplace",
+        "title": "Find Your Dream Place | Aqari Smart",
+        "active": true
+      }
+    ]
+  },
+  "snapshot": {
+    "success": true,
+    "page": {
+      "pageId": "page-1",
+      "url": "https://aqarismart.com/marketplace",
+      "title": "Find Your Dream Place | Aqari Smart",
+      "active": true,
+      "textPreview": "AS Aqari Smart Home Featured For Sale For Rent Contact EN ع Book Demo REAL ESTATE MARKETPLACE Find Your Dream Place Browse trusted listings from professional property managers and agents in one place. City Amman Irbid Jeddah Makkah Riyadh Zarqa Listing Type For Sale For Rent Search Now — PROPERTIES — FOR SALE — FOR RENT — MANAGERS Browse by Category Find the right property type for you Loading... FEATURED COLLECTION Featured Properties Loading... FEATURED COLLECTION Why Choose Us Trusted Listings Fresh listings from active property management teams. Faster Search Quick filtering by city, budget, and listing type. Clearer Details Richer property cards with photos, price, and features. Direct Contact Reach the right property manager or agent faster. BEST OPPORTUNITIES Properties For Sale View All Loading... MOVE-IN READY Properties For Rent View All Loading... POPULAR PLACES Most Popular Places Loading... OUR PARTNERS Top Agencies Trusted agencies and property managers Loading... READY T..."
+    }
+  }
+}

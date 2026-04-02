@@ -1,0 +1,463 @@
+{
+  "baseUrl": "https://aqarismart.com",
+  "tenantName": "Codex Test Realty 25306845",
+  "subdomain": "codex25306845",
+  "email": "codex.25306845@example.com",
+  "password": "Codex!25306845Aa",
+  "units": [
+    {
+      "id": 81,
+      "code": "CORE0001",
+      "tenant_id": 12,
+      "property_id": null,
+      "subcategory_id": "1",
+      "title": {
+        "en": "Codex Test Apartment A 25306845",
+        "ar": "??? ?????? A 25306845"
+      },
+      "translated_title": "Codex Test Apartment A 25306845",
+      "description": {
+        "en": "Test furnished apartment created by automation.",
+        "ar": "??? ?????? ?????? ?? ??????? ?????."
+      },
+      "translated_description": "Test furnished apartment created by automation.",
+      "city_id": null,
+      "area_id": null,
+      "price": "85000.00",
+      "currency": "JOD",
+      "market_rent": null,
+      "status": "vacant",
+      "listing_type": "sale",
+      "beds": null,
+      "baths": null,
+      "bedrooms": null,
+      "bathrooms": null,
+      "sqft": null,
+      "area_m2": null,
+      "lat": null,
+      "lng": null,
+      "location": null,
+      "location_url": null,
+      "photos": [
+        "https://aqarismart.com/storage/units/EN2QjtkdYX6vUwt0j67pwdB3hwslg6bpDa02arey.png"
+      ],
+      "property": null,
+      "tenant": {
+        "id": 12,
+        "name": "Codex Test Realty 25306845",
+        "slug": "codex25306845",
+        "plan": "starter",
+        "url": "https://codex25306845.aqarismart.com/dashboard",
+        "branding": {
+          "logo_url": null,
+          "favicon_url": null,
+          "primary_color": null,
+          "accent_color": null
+        },
+        "summary": {
+          "description": null,
+          "city": null,
+          "coverage": null,
+          "address": null,
+          "phone": null,
+          "email": null,
+          "website": null
+        },
+        "stats": [],
+        "subscription": {
+          "status": null,
+          "ends_at": null,
+          "package_name": null
+        }
+      },
+      "city": null,
+      "subcategory": {
+        "id": 1,
+        "name": "Apartment",
+        "category_id": 1,
+        "category_name": "Residential"
+      },
+      "agent_ids": [],
+      "official": {
+        "directorate": "Amman",
+        "village": "Khalda",
+        "basin_number": "101",
+        "basin_name": "Test Basin 1",
+        "plot_number": "201",
+        "apartment_number": "A-25306845",
+        "areas": null
+      },
+      "owner": {
+        "name": "Test Owner A",
+        "phone": "+962790000001",
+        "email": "owner.a.25306845@example.com",
+        "notes": "Created by Codex automation for testing."
+      },
+      "created_at": "2026-04-02T10:27:15.000000Z",
+      "updated_at": "2026-04-02T10:27:15.000000Z"
+    },
+    {
+      "id": 82,
+      "code": "CORE0002",
+      "tenant_id": 12,
+      "property_id": null,
+      "subcategory_id": "1",
+      "title": {
+        "en": "Codex Test Apartment B 25306845",
+        "ar": "??? ?????? B 25306845"
+      },
+      "translated_title": "Codex Test Apartment B 25306845",
+      "description": {
+        "en": "Test rental apartment with uploaded image.",
+        "ar": "??? ????? ??????? ?? ???? ??????."
+      },
+      "translated_description": "Test rental apartment with uploaded image.",
+      "city_id": null,
+      "area_id": null,
+      "price": "650.00",
+      "currency": "JOD",
+      "market_rent": null,
+      "status": "vacant",
+      "listing_type": "rent",
+      "beds": null,
+      "baths": null,
+      "bedrooms": null,
+      "bathrooms": null,
+      "sqft": null,
+      "area_m2": null,
+      "lat": null,
+      "lng": null,
+      "location": null,
+      "location_url": null,
+      "photos": [
+        "https://aqarismart.com/storage/units/9zGaMzOySmlOiJRkRywVE9fyL2YR7QERLXvbh4Y1.png"
+      ],
+      "property": null,
+      "tenant": {
+        "id": 12,
+        "name": "Codex Test Realty 25306845",
+        "slug": "codex25306845",
+        "plan": "starter",
+        "url": "https://codex25306845.aqarismart.com/dashboard",
+        "branding": {
+          "logo_url": null,
+          "favicon_url": null,
+          "primary_color": null,
+          "accent_color": null
+        },
+        "summary": {
+          "description": null,
+          "city": null,
+          "coverage": null,
+          "address": null,
+          "phone": null,
+          "email": null,
+          "website": null
+        },
+        "stats": [],
+        "subscription": {
+          "status": null,
+          "ends_at": null,
+          "package_name": null
+        }
+      },
+      "city": null,
+      "subcategory": {
+        "id": 1,
+        "name": "Apartment",
+        "category_id": 1,
+        "category_name": "Residential"
+      },
+      "agent_ids": [],
+      "official": {
+        "directorate": "Amman",
+        "village": "Khalda",
+        "basin_number": "102",
+        "basin_name": "Test Basin 2",
+        "plot_number": "202",
+        "apartment_number": "B-25306845",
+        "areas": null
+      },
+      "owner": {
+        "name": "Test Owner B",
+        "phone": "+962790000002",
+        "email": "owner.b.25306845@example.com",
+        "notes": "Created by Codex automation for testing."
+      },
+      "created_at": "2026-04-02T10:27:16.000000Z",
+      "updated_at": "2026-04-02T10:27:16.000000Z"
+    },
+    {
+      "id": 83,
+      "code": "CORE0003",
+      "tenant_id": 12,
+      "property_id": null,
+      "subcategory_id": "1",
+      "title": {
+        "en": "Codex Test Apartment C 25306845",
+        "ar": "??? ?????? C 25306845"
+      },
+      "translated_title": "Codex Test Apartment C 25306845",
+      "description": {
+        "en": "Test listing for validating mobile unit creation.",
+        "ar": "????? ?????? ?????? ?? ????? ??????? ??? ??????."
+      },
+      "translated_description": "Test listing for validating mobile unit creation.",
+      "city_id": null,
+      "area_id": null,
+      "price": "92000.00",
+      "currency": "JOD",
+      "market_rent": null,
+      "status": "vacant",
+      "listing_type": "sale",
+      "beds": null,
+      "baths": null,
+      "bedrooms": null,
+      "bathrooms": null,
+      "sqft": null,
+      "area_m2": null,
+      "lat": null,
+      "lng": null,
+      "location": null,
+      "location_url": null,
+      "photos": [
+        "https://aqarismart.com/storage/units/ll9FjLj3L5WJMktk9zAVNxJB18jRzo6trYCeSn3A.png"
+      ],
+      "property": null,
+      "tenant": {
+        "id": 12,
+        "name": "Codex Test Realty 25306845",
+        "slug": "codex25306845",
+        "plan": "starter",
+        "url": "https://codex25306845.aqarismart.com/dashboard",
+        "branding": {
+          "logo_url": null,
+          "favicon_url": null,
+          "primary_color": null,
+          "accent_color": null
+        },
+        "summary": {
+          "description": null,
+          "city": null,
+          "coverage": null,
+          "address": null,
+          "phone": null,
+          "email": null,
+          "website": null
+        },
+        "stats": [],
+        "subscription": {
+          "status": null,
+          "ends_at": null,
+          "package_name": null
+        }
+      },
+      "city": null,
+      "subcategory": {
+        "id": 1,
+        "name": "Apartment",
+        "category_id": 1,
+        "category_name": "Residential"
+      },
+      "agent_ids": [],
+      "official": {
+        "directorate": "Amman",
+        "village": "Khalda",
+        "basin_number": "103",
+        "basin_name": "Test Basin 3",
+        "plot_number": "203",
+        "apartment_number": "C-25306845",
+        "areas": null
+      },
+      "owner": {
+        "name": "Test Owner C",
+        "phone": "+962790000003",
+        "email": "owner.c.25306845@example.com",
+        "notes": "Created by Codex automation for testing."
+      },
+      "created_at": "2026-04-02T10:27:17.000000Z",
+      "updated_at": "2026-04-02T10:27:17.000000Z"
+    }
+  ],
+  "registration": {
+    "token": "5|Kh3d7lvcMqfN3lsUK6aRT39jYDNerVSltfnKmSdacc3e7ed5",
+    "token_type": "Bearer",
+    "user": {
+      "id": 40,
+      "name": "Codex Operator",
+      "email": "codex.25306845@example.com",
+      "phone": null,
+      "phone_country_code": null,
+      "email_verified_at": null,
+      "agent_id": null,
+      "tenant_role": "owner",
+      "roles": [
+        "owner"
+      ],
+      "is_resident": false,
+      "is_staff": true,
+      "tenants": [
+        {
+          "id": 12,
+          "name": "Codex Test Realty 25306845",
+          "slug": "codex25306845",
+          "plan": "starter",
+          "url": "https://codex25306845.aqarismart.com/dashboard",
+          "branding": {
+            "logo_url": null,
+            "favicon_url": null,
+            "primary_color": null,
+            "accent_color": null
+          },
+          "summary": {
+            "description": null,
+            "city": null,
+            "coverage": null,
+            "address": null,
+            "phone": null,
+            "email": null,
+            "website": null
+          },
+          "stats": [],
+          "subscription": {
+            "status": null,
+            "ends_at": null,
+            "package_name": null
+          }
+        }
+      ]
+    },
+    "current_tenant": {
+      "id": 12,
+      "name": "Codex Test Realty 25306845",
+      "slug": "codex25306845",
+      "plan": "starter",
+      "url": "https://codex25306845.aqarismart.com/dashboard",
+      "branding": {
+        "logo_url": null,
+        "favicon_url": null,
+        "primary_color": null,
+        "accent_color": null
+      },
+      "summary": {
+        "description": null,
+        "city": null,
+        "coverage": null,
+        "address": null,
+        "phone": null,
+        "email": null,
+        "website": null
+      },
+      "stats": [],
+      "subscription": {
+        "status": null,
+        "ends_at": null,
+        "package_name": null
+      }
+    },
+    "tenant_role": "owner"
+  },
+  "ok": true,
+  "error": "Meta fetch failed: {\"message\":\"No query results for model [App\\\\Models\\\\Unit] meta\"}",
+  "subcategoryProbe": [
+    {
+      "candidate": 1,
+      "status": 201,
+      "body": {
+        "message": "Unit created.",
+        "data": {
+          "id": 81,
+          "code": "CORE0001",
+          "tenant_id": 12,
+          "property_id": null,
+          "subcategory_id": "1",
+          "title": {
+            "en": "Codex Test Apartment A 25306845",
+            "ar": "??? ?????? A 25306845"
+          },
+          "translated_title": "Codex Test Apartment A 25306845",
+          "description": {
+            "en": "Test furnished apartment created by automation.",
+            "ar": "??? ?????? ?????? ?? ??????? ?????."
+          },
+          "translated_description": "Test furnished apartment created by automation.",
+          "city_id": null,
+          "area_id": null,
+          "price": "85000.00",
+          "currency": "JOD",
+          "market_rent": null,
+          "status": "vacant",
+          "listing_type": "sale",
+          "beds": null,
+          "baths": null,
+          "bedrooms": null,
+          "bathrooms": null,
+          "sqft": null,
+          "area_m2": null,
+          "lat": null,
+          "lng": null,
+          "location": null,
+          "location_url": null,
+          "photos": [
+            "https://aqarismart.com/storage/units/EN2QjtkdYX6vUwt0j67pwdB3hwslg6bpDa02arey.png"
+          ],
+          "property": null,
+          "tenant": {
+            "id": 12,
+            "name": "Codex Test Realty 25306845",
+            "slug": "codex25306845",
+            "plan": "starter",
+            "url": "https://codex25306845.aqarismart.com/dashboard",
+            "branding": {
+              "logo_url": null,
+              "favicon_url": null,
+              "primary_color": null,
+              "accent_color": null
+            },
+            "summary": {
+              "description": null,
+              "city": null,
+              "coverage": null,
+              "address": null,
+              "phone": null,
+              "email": null,
+              "website": null
+            },
+            "stats": [],
+            "subscription": {
+              "status": null,
+              "ends_at": null,
+              "package_name": null
+            }
+          },
+          "city": null,
+          "subcategory": {
+            "id": 1,
+            "name": "Apartment",
+            "category_id": 1,
+            "category_name": "Residential"
+          },
+          "agent_ids": [],
+          "official": {
+            "directorate": "Amman",
+            "village": "Khalda",
+            "basin_number": "101",
+            "basin_name": "Test Basin 1",
+            "plot_number": "201",
+            "apartment_number": "A-25306845",
+            "areas": null
+          },
+          "owner": {
+            "name": "Test Owner A",
+            "phone": "+962790000001",
+            "email": "owner.a.25306845@example.com",
+            "notes": "Created by Codex automation for testing."
+          },
+          "created_at": "2026-04-02T10:27:15.000000Z",
+          "updated_at": "2026-04-02T10:27:15.000000Z"
+        }
+      }
+    }
+  ],
+  "validSubcategoryId": 1
+}

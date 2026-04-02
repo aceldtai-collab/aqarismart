@@ -386,6 +386,11 @@ loginForm?.addEventListener('submit', async function(e) {
         localStorage.setItem('aqari_mobile_token', json.token);
         localStorage.setItem('aqari_mobile_tenant_slug', json.current_tenant?.slug || tenantSlug);
         localStorage.setItem('aqari_mobile_user_name', json.user?.name || '');
+        if (json.tenant_role || json.user?.tenant_role) {
+            localStorage.setItem('aqari_mobile_user_role', json.tenant_role || json.user.tenant_role);
+        } else {
+            localStorage.removeItem('aqari_mobile_user_role');
+        }
 
         // Redirect to mobile dashboard
         window.location.href = '/mobile/dashboard';

@@ -9,11 +9,11 @@
 </div>
 
 <div id="profile-guest" class="hidden px-5 py-16 text-center">
-    <div class="mx-auto h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
         <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
     </div>
-    <h2 class="text-lg font-bold text-slate-800 mb-2">{{ $isAr ? 'سجّل الدخول لعرض ملفك' : 'Sign in to view your profile' }}</h2>
-    <p class="text-sm text-slate-500 mb-6 max-w-xs mx-auto">{{ $isAr ? 'قم بتسجيل الدخول للوصول إلى معلوماتك الشخصية ونشاطك.' : 'Log in to access your personal info and activity.' }}</p>
+    <h2 class="mb-2 text-lg font-bold text-slate-800">{{ $isAr ? 'سجّل الدخول لعرض ملفك' : 'Sign in to view your profile' }}</h2>
+    <p class="mx-auto mb-6 max-w-xs text-sm text-slate-500">{{ $isAr ? 'قم بتسجيل الدخول للوصول إلى معلوماتك الشخصية ونشاطك.' : 'Log in to access your personal info and activity.' }}</p>
     <a href="{{ route('mobile.login') }}" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-700">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14"/></svg>
         {{ $isAr ? 'تسجيل الدخول' : 'Sign in' }}
@@ -21,39 +21,33 @@
 </div>
 
 <div id="profile-content" class="hidden space-y-5 pb-8">
-    {{-- Avatar + Name Card --}}
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-white shadow-lg">
         <div class="absolute inset-0 opacity-5" style="background-image:radial-gradient(white 1px,transparent 1px);background-size:20px 20px;"></div>
         <div class="relative flex items-center gap-4">
-            <div id="profile-avatar" class="h-16 w-16 shrink-0 rounded-2xl bg-white/20 ring-2 ring-white/30 flex items-center justify-center text-xl font-bold text-white"></div>
+            <div id="profile-avatar" class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-xl font-bold text-white ring-2 ring-white/30"></div>
             <div class="min-w-0">
-                <h1 id="profile-name" class="text-xl font-bold truncate"></h1>
+                <h1 id="profile-name" class="truncate text-xl font-bold"></h1>
                 <p id="profile-role" class="mt-0.5 text-sm text-white/80"></p>
             </div>
         </div>
     </div>
 
-    {{-- Info Card --}}
-    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-4">
+    <div class="space-y-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
         <h2 class="text-sm font-bold text-slate-800">{{ $isAr ? 'معلومات الحساب' : 'Account Info' }}</h2>
         <div id="profile-info" class="space-y-3"></div>
     </div>
 
-    {{-- Tenant Card --}}
-    <div id="profile-tenant-section" class="hidden rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-4">
+    <div id="profile-tenant-section" class="hidden space-y-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
         <h2 class="text-sm font-bold text-slate-800">{{ $isAr ? 'المنظمة' : 'Organization' }}</h2>
         <div id="profile-tenant-info" class="space-y-3"></div>
     </div>
 
-    {{-- Quick Actions --}}
-    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-3">
+    <div class="space-y-3 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
         <h2 class="text-sm font-bold text-slate-800">{{ $isAr ? 'إجراءات سريعة' : 'Quick Actions' }}</h2>
         <div class="grid grid-cols-2 gap-3" id="profile-actions"></div>
     </div>
 
-    {{-- Sign Out --}}
-    <button type="button" id="profile-signout"
-            class="w-full rounded-2xl bg-red-50 py-3.5 text-sm font-semibold text-red-600 ring-1 ring-red-200 transition hover:bg-red-100 active:scale-[0.98]">
+    <button type="button" id="profile-signout" class="w-full rounded-2xl bg-red-50 py-3.5 text-sm font-semibold text-red-600 ring-1 ring-red-200 transition hover:bg-red-100 active:scale-[0.98]">
         {{ $isAr ? 'تسجيل الخروج' : 'Sign Out' }}
     </button>
 </div>
@@ -66,7 +60,9 @@ const apiBase = window.__AQARI_API_BASE || '';
 
 async function loadProfile() {
     const token = localStorage.getItem('aqari_mobile_token');
+
     if (!token) {
+        localStorage.removeItem('aqari_mobile_user_role');
         document.getElementById('profile-loading').classList.add('hidden');
         document.getElementById('profile-guest').classList.remove('hidden');
         return;
@@ -83,6 +79,9 @@ async function loadProfile() {
 
         if (!res.ok) {
             localStorage.removeItem('aqari_mobile_token');
+            localStorage.removeItem('aqari_mobile_tenant_slug');
+            localStorage.removeItem('aqari_mobile_user_name');
+            localStorage.removeItem('aqari_mobile_user_role');
             document.getElementById('profile-loading').classList.add('hidden');
             document.getElementById('profile-guest').classList.remove('hidden');
             return;
@@ -92,22 +91,40 @@ async function loadProfile() {
         const user = json.user || {};
         const tenant = json.current_tenant || null;
 
-        // Avatar
-        const initials = (user.name || '?').split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
+        if (user.name) {
+            localStorage.setItem('aqari_mobile_user_name', user.name);
+        } else {
+            localStorage.removeItem('aqari_mobile_user_name');
+        }
+
+        if (user.tenant_role) {
+            localStorage.setItem('aqari_mobile_user_role', user.tenant_role);
+        } else {
+            localStorage.removeItem('aqari_mobile_user_role');
+        }
+
+        if (tenant?.slug) {
+            localStorage.setItem('aqari_mobile_tenant_slug', tenant.slug);
+        } else {
+            localStorage.removeItem('aqari_mobile_tenant_slug');
+        }
+
+        const initials = (user.name || '?').split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
         document.getElementById('profile-avatar').textContent = initials;
 
-        // Name + Role
         document.getElementById('profile-name').textContent = user.name || '—';
-        const roleLabel = user.is_staff
-            ? (lang === 'ar' ? 'فريق العمل' : 'Staff')
-            : user.is_resident
-                ? (lang === 'ar' ? 'مقيم' : 'Resident')
-                : (lang === 'ar' ? 'مستخدم' : 'User');
+        const roleLabel = !tenant && !user.is_staff && !user.is_resident
+            ? (lang === 'ar' ? 'مستخدم السوق' : 'Marketplace User')
+            : user.is_staff
+                ? (lang === 'ar' ? 'فريق العمل' : 'Staff')
+                : user.is_resident
+                    ? (lang === 'ar' ? 'مقيم' : 'Resident')
+                    : (lang === 'ar' ? 'مستخدم' : 'User');
         document.getElementById('profile-role').textContent = roleLabel;
 
-        // Info rows
         const infoEl = document.getElementById('profile-info');
         const infoItems = [];
+
         if (user.email) {
             infoItems.push({ icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', label: lang === 'ar' ? 'البريد الإلكتروني' : 'Email', value: user.email });
         }
@@ -117,6 +134,7 @@ async function loadProfile() {
         if (user.email_verified_at) {
             infoItems.push({ icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', label: lang === 'ar' ? 'الحالة' : 'Status', value: lang === 'ar' ? 'تم التحقق ✓' : 'Verified ✓' });
         }
+
         infoEl.innerHTML = infoItems.map(item =>
             '<div class="flex items-center gap-3">' +
             '<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">' +
@@ -124,21 +142,22 @@ async function loadProfile() {
             '</div>' +
             '<div class="min-w-0">' +
             '<p class="text-[11px] font-medium text-slate-400">' + item.label + '</p>' +
-            '<p class="text-sm font-semibold text-slate-800 truncate">' + item.value + '</p>' +
+            '<p class="truncate text-sm font-semibold text-slate-800">' + item.value + '</p>' +
             '</div></div>'
         ).join('');
 
-        // Tenant section
         if (tenant) {
             document.getElementById('profile-tenant-section').classList.remove('hidden');
             const tenantInfo = document.getElementById('profile-tenant-info');
             const tenantItems = [
                 { label: lang === 'ar' ? 'الاسم' : 'Name', value: tenant.name || '—' },
-                { label: lang === 'ar' ? 'الخطة' : 'Plan', value: (tenant.subscription?.package_name || tenant.plan || '—') },
+                { label: lang === 'ar' ? 'الخطة' : 'Plan', value: tenant.subscription?.package_name || tenant.plan || '—' }
             ];
+
             if (tenant.active_units_count !== undefined) {
                 tenantItems.push({ label: lang === 'ar' ? 'الوحدات النشطة' : 'Active Units', value: tenant.active_units_count });
             }
+
             tenantInfo.innerHTML = tenantItems.map(item =>
                 '<div class="flex items-center justify-between py-1">' +
                 '<span class="text-xs font-medium text-slate-400">' + item.label + '</span>' +
@@ -147,26 +166,26 @@ async function loadProfile() {
             ).join('');
         }
 
-        // Quick actions
         const actionsEl = document.getElementById('profile-actions');
         const actions = [];
-        if (user.is_staff) {
+
+        if (tenant) {
             actions.push({ href: '/mobile/dashboard', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', label: lang === 'ar' ? 'لوحة التحكم' : 'Dashboard' });
+        }
+        if (tenant && user.is_staff) {
             actions.push({ href: '/mobile/units', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5', label: lang === 'ar' ? 'الوحدات' : 'Units' });
         }
         actions.push({ href: '/mobile/marketplace', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z', label: lang === 'ar' ? 'السوق' : 'Marketplace' });
         actions.push({ href: '/mobile/tenants', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', label: lang === 'ar' ? 'الوكالات' : 'Agencies' });
 
-        actionsEl.innerHTML = actions.map(a =>
-            '<a href="' + a.href + '" class="flex flex-col items-center gap-2 rounded-xl bg-slate-50 p-4 transition hover:bg-emerald-50 hover:text-emerald-700">' +
-            '<svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="' + a.icon + '"/></svg>' +
-            '<span class="text-xs font-semibold text-slate-700">' + a.label + '</span></a>'
+        actionsEl.innerHTML = actions.map(action =>
+            '<a href="' + action.href + '" class="flex flex-col items-center gap-2 rounded-xl bg-slate-50 p-4 transition hover:bg-emerald-50 hover:text-emerald-700">' +
+            '<svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="' + action.icon + '"/></svg>' +
+            '<span class="text-xs font-semibold text-slate-700">' + action.label + '</span></a>'
         ).join('');
 
-        // Show content
         document.getElementById('profile-loading').classList.add('hidden');
         document.getElementById('profile-content').classList.remove('hidden');
-
     } catch (err) {
         console.error('Profile load error:', err);
         document.getElementById('profile-loading').classList.add('hidden');
@@ -182,9 +201,11 @@ document.getElementById('profile-signout')?.addEventListener('click', function()
             headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
         }).catch(() => {});
     }
+
     localStorage.removeItem('aqari_mobile_token');
     localStorage.removeItem('aqari_mobile_tenant_slug');
     localStorage.removeItem('aqari_mobile_user_name');
+    localStorage.removeItem('aqari_mobile_user_role');
     window.location.href = '/mobile/marketplace';
 });
 

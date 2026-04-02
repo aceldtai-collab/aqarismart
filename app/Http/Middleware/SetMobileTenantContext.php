@@ -58,11 +58,6 @@ class SetMobileTenantContext
             }
         }
 
-        $user = $request->user();
-        if (! $user) {
-            return null;
-        }
-
-        return $user->tenants()->orderBy('tenant_user.created_at')->first();
+        return null;
     }
 }

@@ -7,17 +7,33 @@
     <title>{{ $title ?? 'Aqari Smart' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>window.__AQARI_API_BASE = '{{ config("nativephp.remote_api_url", "") }}';</script>
+    <style>[x-cloak]{display:none!important}</style>
 </head>
 @php
     $currentLocale = in_array(app()->getLocale(), ['en', 'ar']) ? app()->getLocale() : 'en';
     $langToggleEn = url(request()->path()) . '?lang=en';
     $langToggleAr = url(request()->path()) . '?lang=ar';
+    $countryCodes = config('phone.codes', []);
+    $defaultCountry = config('phone.default', '+962');
+    if (empty($countryCodes)) {
+        $countryCodes = [$defaultCountry => $defaultCountry];
+    }
+    $showResidentRegister = request()->routeIs('mobile.marketplace');
 @endphp
 <body class="bg-gray-50 min-h-screen text-slate-800">
-    <div x-data="{ open: false, authed: !!localStorage.getItem('aqari_mobile_token'), userName: localStorage.getItem('aqari_mobile_user_name') || '' }" class="min-h-screen">
-        {{-- ═══ Side Menu — Premium Light Theme ═══ --}}
+    <div
+        x-data="mobileShell({
+            defaultCountry: @js($defaultCountry),
+            marketplaceUrl: @js(route('mobile.marketplace')),
+            profileUrl: @js(route('mobile.profile')),
+            dashboardUrl: @js(route('mobile.dashboard')),
+            residentRegisterPath: @js(route('api.mobile.auth.register-resident', [], false)),
+            shouldAutoOpenRegister: @js(request()->routeIs('mobile.marketplace') && request()->query('auth') === 'register'),
+        })"
+        x-init="if (shouldAutoOpenRegister) openResidentRegister()"
+        class="min-h-screen"
+    >
         <aside class="overflow-auto fixed inset-y-0 left-0 rtl:left-auto rtl:right-0 z-40 w-[300px] transform bg-white shadow-2xl transition-all duration-300" :class="open ? 'translate-x-0 rtl:-translate-x-0' : '-translate-x-full rtl:translate-x-full'">
-            {{-- Menu Header --}}
             <div class="relative bg-gradient-to-br from-emerald-600 to-emerald-700 px-6 pb-6 pt-[max(1.5rem,env(safe-area-inset-top,1.5rem))]">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -35,7 +51,6 @@
                 </div>
             </div>
 
-            {{-- Menu Navigation --}}
             <nav class="flex flex-col gap-1 px-4 py-5">
                 <a href="{{ route('mobile.marketplace') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.marketplace') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('mobile.marketplace') ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600' }} transition-colors">
@@ -55,7 +70,7 @@
                         <div class="text-[11px] font-medium {{ request()->routeIs('mobile.tenants.*') ? 'text-emerald-500' : 'text-slate-400' }}">{{ app()->getLocale() === 'ar' ? 'تصفح الوكالات' : 'Browse agencies' }}</div>
                     </div>
                 </a>
-                <a x-show="authed" x-cloak href="{{ route('mobile.dashboard') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.dashboard') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
+                <a x-show="authed && hasTenantAccess" x-cloak href="{{ route('mobile.dashboard') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.dashboard') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('mobile.dashboard') ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600' }} transition-colors">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     </div>
@@ -64,7 +79,7 @@
                         <div class="text-[11px] font-medium {{ request()->routeIs('mobile.dashboard') ? 'text-emerald-500' : 'text-slate-400' }}">{{ app()->getLocale() === 'ar' ? 'نظرة عامة' : 'Overview' }}</div>
                     </div>
                 </a>
-                <a x-show="authed" x-cloak href="{{ route('mobile.units.index') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.units.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
+                <a x-show="authed && isStaff" x-cloak href="{{ route('mobile.units.index') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.units.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('mobile.units.*') ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600' }} transition-colors">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
                     </div>
@@ -74,10 +89,8 @@
                     </div>
                 </a>
 
-                {{-- Divider --}}
                 <div class="my-2 border-t border-slate-100"></div>
 
-                {{-- Auth Section --}}
                 <div x-show="!authed" class="flex flex-col gap-1">
                     <a href="{{ route('mobile.login') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-slate-700 transition-all duration-150 hover:bg-slate-50">
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors group-hover:bg-emerald-50 group-hover:text-emerald-600">
@@ -88,6 +101,17 @@
                             <div class="text-[11px] font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'دخول إلى حسابك' : 'Access your account' }}</div>
                         </div>
                     </a>
+                    @if($showResidentRegister)
+                        <button type="button" @click="openResidentRegister()" class="group flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left text-slate-700 transition-all duration-150 hover:bg-slate-50">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600 transition-colors group-hover:bg-sky-100">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v16m8-8H4m4-6.5h8a3.5 3.5 0 013.5 3.5v6A3.5 3.5 0 0116 18.5H8A3.5 3.5 0 014.5 15v-6A3.5 3.5 0 018 5.5z"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-sky-700">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب' : 'Register' }}</div>
+                                <div class="text-[11px] font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'للباحثين عن العقارات' : 'For buyers & renters' }}</div>
+                            </div>
+                        </button>
+                    @endif
                     <a href="{{ route('mobile.register') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-slate-700 transition-all duration-150 hover:bg-slate-50">
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-100">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -109,7 +133,7 @@
                     </div>
                 </a>
 
-                <button x-show="authed" x-cloak type="button" class="group flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left text-slate-700 transition-all duration-150 hover:bg-red-50" @click="localStorage.removeItem('aqari_mobile_token'); localStorage.removeItem('aqari_mobile_tenant_slug'); localStorage.removeItem('aqari_mobile_user_name'); authed = false; window.location.href='{{ route('mobile.marketplace') }}';">
+                <button x-show="authed" x-cloak type="button" class="group flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left text-slate-700 transition-all duration-150 hover:bg-red-50" @click="clearAuth()">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-colors group-hover:bg-red-100">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     </div>
@@ -120,7 +144,6 @@
                 </button>
             </nav>
 
-            {{-- Menu Footer --}}
             <div class="mt-auto border-t border-slate-100 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] font-medium uppercase tracking-widest text-slate-300">{{ app()->getLocale() === 'ar' ? 'اللغة' : 'Language' }}</span>
@@ -133,9 +156,7 @@
         </aside>
         <div class="fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-sm" x-show="open" x-transition.opacity @click="open = false"></div>
 
-        {{-- ═══ Main Content Area ═══ --}}
         <div class="relative min-h-screen">
-            {{-- Safe-area spacer for mobile status bar --}}
             <div class="bg-emerald-700" style="padding-top: env(safe-area-inset-top, 0px)"></div>
 
             <header class="sticky top-0 z-20 bg-emerald-700 shadow-sm">
@@ -170,7 +191,205 @@
                 @yield('content')
             </main>
         </div>
+
+        @if($showResidentRegister)
+            <div x-show="residentRegisterOpen" x-cloak class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeResidentRegister()"></div>
+                <div
+                    class="relative z-10 w-full max-w-md rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-8 sm:scale-95 sm:translate-y-0"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-8 sm:scale-95 sm:translate-y-0"
+                >
+                    <div class="rounded-t-3xl bg-gradient-to-br from-sky-600 to-emerald-600 px-6 pb-5 pt-6 text-white sm:rounded-t-3xl">
+                        <button type="button" @click="closeResidentRegister()" class="absolute top-4 {{ app()->getLocale() === 'ar' ? 'left-4' : 'right-4' }} text-white/70 transition hover:text-white">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                        <div class="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/85">
+                            Aqari Smart
+                        </div>
+                        <h2 class="mt-4 text-2xl font-bold">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب مستخدم' : 'Create your account' }}</h2>
+                        <p class="mt-2 text-sm text-white/80">{{ app()->getLocale() === 'ar' ? 'أنشئ حساباً واحداً لتصفح وشراء أو استئجار العقارات عبر جميع الوكالات.' : 'Create one buyer account to browse and contact listings across all agencies.' }}</p>
+                    </div>
+
+                    <form class="max-h-[80vh] space-y-4 overflow-y-auto px-6 py-5" @submit.prevent="submitResidentRegister">
+                        <div x-show="residentRegisterError" x-cloak class="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200" x-html="residentRegisterError"></div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-slate-700">{{ app()->getLocale() === 'ar' ? 'الاسم الكامل' : 'Full name' }}</label>
+                            <input x-model="residentForm.name" type="text" class="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500" required>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-slate-700">{{ app()->getLocale() === 'ar' ? 'الرمز' : 'Code' }}</label>
+                                <select x-model="residentForm.country_code" class="block w-full rounded-2xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500" required>
+                                    @foreach($countryCodes as $code => $label)
+                                        <option value="{{ $code }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="mb-1 block text-sm font-medium text-slate-700">{{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone number' }}</label>
+                                <input x-model="residentForm.phone" type="tel" class="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-slate-700">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }} <span class="text-slate-400">({{ app()->getLocale() === 'ar' ? 'اختياري' : 'optional' }})</span></label>
+                            <input x-model="residentForm.email" type="email" class="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500">
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-slate-700">{{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}</label>
+                            <input x-model="residentForm.password" type="password" class="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500" required>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-slate-700">{{ app()->getLocale() === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm password' }}</label>
+                            <input x-model="residentForm.password_confirmation" type="password" class="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500" required>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200" @click="closeResidentRegister()">
+                                {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
+                            </button>
+                            <button type="submit" :disabled="residentRegisterLoading" class="w-full rounded-2xl bg-gradient-to-r from-sky-600 to-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-sky-700 hover:to-emerald-700 disabled:opacity-60">
+                                <span x-show="!residentRegisterLoading">{{ app()->getLocale() === 'ar' ? 'إنشاء الحساب' : 'Create account' }}</span>
+                                <span x-show="residentRegisterLoading" x-cloak>{{ app()->getLocale() === 'ar' ? 'جاري الإنشاء...' : 'Creating...' }}</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
     </div>
+    <script>
+    function mobileShell(config) {
+        return {
+            open: false,
+            authed: !!localStorage.getItem('aqari_mobile_token'),
+            userName: localStorage.getItem('aqari_mobile_user_name') || '',
+            tenantSlug: localStorage.getItem('aqari_mobile_tenant_slug') || '',
+            userRole: localStorage.getItem('aqari_mobile_user_role') || '',
+            shouldAutoOpenRegister: !!config.shouldAutoOpenRegister,
+            residentRegisterOpen: false,
+            residentRegisterLoading: false,
+            residentRegisterError: '',
+            residentForm: {
+                name: '',
+                country_code: config.defaultCountry,
+                phone: '',
+                email: '',
+                password: '',
+                password_confirmation: '',
+            },
+            get hasTenantAccess() {
+                return this.authed && this.tenantSlug !== '' && this.userRole !== '';
+            },
+            get isStaff() {
+                return this.hasTenantAccess && this.userRole !== 'resident';
+            },
+            openResidentRegister() {
+                this.open = false;
+                this.residentRegisterError = '';
+                this.residentRegisterOpen = true;
+            },
+            closeResidentRegister() {
+                this.residentRegisterOpen = false;
+                this.residentRegisterLoading = false;
+                this.residentRegisterError = '';
+            },
+            persistAuth(json) {
+                const token = json.token || '';
+                const tenantSlug = json.current_tenant?.slug || '';
+                const userName = json.user?.name || '';
+                const userRole = json.tenant_role || json.user?.tenant_role || '';
+
+                localStorage.setItem('aqari_mobile_token', token);
+
+                if (tenantSlug) {
+                    localStorage.setItem('aqari_mobile_tenant_slug', tenantSlug);
+                } else {
+                    localStorage.removeItem('aqari_mobile_tenant_slug');
+                }
+
+                if (userName) {
+                    localStorage.setItem('aqari_mobile_user_name', userName);
+                } else {
+                    localStorage.removeItem('aqari_mobile_user_name');
+                }
+
+                if (userRole) {
+                    localStorage.setItem('aqari_mobile_user_role', userRole);
+                } else {
+                    localStorage.removeItem('aqari_mobile_user_role');
+                }
+
+                this.authed = !!token;
+                this.userName = userName;
+                this.tenantSlug = tenantSlug;
+                this.userRole = userRole;
+            },
+            clearAuth() {
+                localStorage.removeItem('aqari_mobile_token');
+                localStorage.removeItem('aqari_mobile_tenant_slug');
+                localStorage.removeItem('aqari_mobile_user_name');
+                localStorage.removeItem('aqari_mobile_user_role');
+                this.authed = false;
+                this.userName = '';
+                this.tenantSlug = '';
+                this.userRole = '';
+                this.open = false;
+                this.residentRegisterOpen = false;
+                window.location.href = config.marketplaceUrl;
+            },
+            flattenErrors(json) {
+                if (json?.errors) {
+                    return Object.values(json.errors).flat().join('<br>');
+                }
+
+                return json?.message || 'Registration failed';
+            },
+            async submitResidentRegister() {
+                if (this.residentRegisterLoading) {
+                    return;
+                }
+
+                this.residentRegisterError = '';
+                this.residentRegisterLoading = true;
+
+                try {
+                    const res = await fetch((window.__AQARI_API_BASE || '') + config.residentRegisterPath, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                        },
+                        body: JSON.stringify(this.residentForm),
+                    });
+                    const json = await res.json();
+
+                    if (!res.ok) {
+                        this.residentRegisterError = this.flattenErrors(json);
+                        return;
+                    }
+
+                    this.persistAuth(json);
+                    this.closeResidentRegister();
+                    window.location.href = config.profileUrl;
+                } catch (error) {
+                    this.residentRegisterError = error.message || 'Connection error';
+                } finally {
+                    this.residentRegisterLoading = false;
+                }
+            },
+        };
+    }
+    </script>
     @stack('scripts')
 </body>
 </html>

@@ -11,9 +11,7 @@ class MobileUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         $tenant = $request->attributes->get('mobile_tenant');
-        if (! $tenant instanceof Tenant && method_exists($request, 'user') && $request->user()) {
-            $tenant = $request->user()->tenants()->first();
-        }
+        $tenant = $tenant instanceof Tenant ? $tenant : null;
 
         $pivotRole = $tenant ? strtolower((string) $this->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role) : null;
         $roleNames = method_exists($this->resource, 'getRoleNames') ? $this->getRoleNames()->values()->all() : [];
