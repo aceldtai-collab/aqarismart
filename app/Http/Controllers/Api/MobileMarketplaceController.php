@@ -154,7 +154,7 @@ class MobileMarketplaceController extends Controller
         $recommendedSectionUnits = Unit::withoutGlobalScope('tenant')
             ->with(['tenant', 'property', 'subcategory', 'city'])
             ->where('status', Unit::STATUS_VACANT)
-            ->where('listing_type', Unit::LISTING_RENT)
+            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
             ->latest()
             ->limit(6)
             ->get();

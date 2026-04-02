@@ -36,8 +36,8 @@
         <section class="bg-emerald-700 rounded-[0.5rem] shadow-xl text-white" x-data="mobileRegisterWizard()">
             <div class="px-6 space-y-6 py-7">
                 <div class="text-center">
-                    <h1 class="text-2xl font-bold text-white">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد' : 'Create Account' }}</h1>
-                    <p class="text-sm text-white/70 mt-2">{{ app()->getLocale() === 'ar' ? 'انضم إلى عقاري سمارت' : 'Join Aqari Smart' }}</p>
+                    <h1 class="text-2xl font-bold text-white">{{ app()->getLocale() === 'ar' ? 'بيع معنا' : 'Sell with us' }}</h1>
+                    <p class="text-sm text-white/70 mt-2">{{ app()->getLocale() === 'ar' ? 'سجّل عقارك على عقاري سمارت' : 'List your property on Aqari Smart' }}</p>
                 </div>
                 
                 <div class="flex items-start">

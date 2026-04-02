@@ -86,7 +86,7 @@
                 <div class="text-center">
                     <p class="text-sm text-white/70">
                         {{ app()->getLocale() === 'ar' ? 'ليس لديك حساب؟' : "Don't have an account?" }}
-                        <a href="{{ route('mobile.register') }}" class="font-semibold hover:underline text-white">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب' : 'Create one' }}</a>
+                        <a href="{{ route('mobile.register') }}" class="font-semibold hover:underline text-white">{{ app()->getLocale() === 'ar' ? 'بيع معنا' : 'Sell with us' }}</a>
                     </p>
                 </div>
             </form>

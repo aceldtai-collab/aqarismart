@@ -64,13 +64,22 @@ class MobileTenantDirectoryController extends Controller
         abort_unless($tenant->activeSubscription()->exists(), 404);
 
         $listingType = $request->input('listing_type', Unit::LISTING_RENT);
+        $search = $request->filled('q') ? trim($request->string('q')->value()) : '';
 
-        $units = Unit::withoutGlobalScope('tenant')
+        $baseQuery = Unit::withoutGlobalScope('tenant')
             ->with(['property', 'subcategory.category', 'city', 'tenant'])
             ->where('tenant_id', $tenant->id)
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED])
             ->when(in_array($listingType, Unit::LISTING_TYPES, true), fn ($q) => $q->where('listing_type', $listingType))
-            ->latest()
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($inner) use ($search) {
+                    $inner->where('title', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%")
+                        ->orWhereHas('property', fn ($p) => $p->where('name', 'like', "%{$search}%"));
+                });
+            });
+
+        $units = (clone $baseQuery)->latest()
             ->paginate((int) $request->input('per_page', 12));
 
         $featuredUnits = Unit::withoutGlobalScope('tenant')

@@ -331,6 +331,9 @@
                 </div>
             @endif
         </div>
+        @guest
+            @include('partials.auth-modals')
+        @endguest
         @if(class_exists('\Livewire\Livewire'))
             @livewireScripts
         @endif

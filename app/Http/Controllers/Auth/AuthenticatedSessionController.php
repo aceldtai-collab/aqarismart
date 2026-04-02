@@ -41,33 +41,30 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
-        // If the login came from the public popup, restrict it to resident accounts
-        if ($request->input('_form') === 'login') {
-            $user = $request->user();
-            $pivotRole = null;
-            if ($tenant) {
-                $pivotRole = strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role));
-            }
-            $hasSpatie = method_exists($user, 'hasAnyRole');
-            $isResident = ($pivotRole === 'resident') || ($hasSpatie && $user->hasAnyRole(['resident']));
+        // Resolve user's role on this tenant
+        $user = $request->user();
 
-            if (! $isResident) {
-                // Log out and route to team login page with a friendly banner
+        if ($tenant) {
+            $pivotRole = strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role));
+
+            if (! $pivotRole) {
+                // User doesn't belong to this tenant
                 Auth::guard('web')->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-                return redirect()->route('login')->with('status', __('Please sign in via Team Login.'));
+                return redirect('/')->withErrors(['login' => __('You do not have access to this tenant.')]);
             }
 
-            // Resident success: always send to tenant public home
-            return redirect()->intended('/');
+            if ($pivotRole === 'resident') {
+                return redirect()->intended('/');
+            }
+
+            // Staff / owner → dashboard
+            return redirect()->intended('/dashboard');
         }
 
-        // Standard login flow
-        if (! $tenant) {
-            return redirect()->intended('/admin');
-        }
-        return redirect()->intended('/dashboard');
+        // No tenant context (central domain) → admin panel
+        return redirect()->intended('/admin');
     }
 
     /**

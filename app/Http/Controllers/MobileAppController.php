@@ -71,6 +71,11 @@ class MobileAppController extends Controller
         return view('mobile.tenants.show', compact('tenant'));
     }
 
+    public function profile(): View
+    {
+        return view('mobile.profile');
+    }
+
     public function about(): View
     {
         return view('mobile.about');

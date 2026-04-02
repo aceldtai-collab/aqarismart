@@ -29,6 +29,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/units/{unit:code}/edit', [MobileAppController::class, 'editUnit'])->name('units.edit');
     Route::get('/tenants', [MobileAppController::class, 'tenants'])->name('tenants.index');
     Route::get('/tenants/{tenant:slug}', [MobileAppController::class, 'showTenant'])->name('tenants.show');
+    Route::get('/profile', [MobileAppController::class, 'profile'])->name('profile');
     Route::get('/about', [MobileAppController::class, 'about'])->name('about');
 });
 
