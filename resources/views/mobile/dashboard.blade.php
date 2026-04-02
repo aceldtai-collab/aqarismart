@@ -47,7 +47,7 @@
                 </div>
                 <span class="shrink-0 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" id="dash-plan-badge"></span>
             </div>
-            <a id="dash-web-link" href="#" target="_blank" class="mt-4 flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/25">
+            <a id="dash-web-link" href="#" class="mt-4 flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/25">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 {{ $locale === 'ar' ? 'فتح لوحة التحكم الكاملة' : 'Open full web dashboard' }}
             </a>
@@ -190,7 +190,36 @@
         }
 
         const webUrl = tenant.url || '#';
-        document.getElementById('dash-web-link').href = webUrl;
+        const webLink = document.getElementById('dash-web-link');
+        webLink.href = webUrl;
+        webLink.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            if (!token || !tenantSlug) {
+                window.location.href = webUrl;
+                return;
+            }
+
+            try {
+                const bridgeRes = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/auth/web-dashboard-link', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                        'X-Tenant-Slug': tenantSlug || '',
+                    },
+                });
+
+                if (!bridgeRes.ok) {
+                    throw new Error('Bridge request failed');
+                }
+
+                const bridgeData = await bridgeRes.json();
+                window.location.href = bridgeData.url || webUrl;
+            } catch (_error) {
+                window.location.href = webUrl;
+            }
+        });
 
         if (data.role === 'resident') {
             // Resident view

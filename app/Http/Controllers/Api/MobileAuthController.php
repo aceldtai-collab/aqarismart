@@ -9,10 +9,14 @@ use App\Models\Resident;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\Tenancy\TenantManager;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -184,6 +188,43 @@ class MobileAuthController extends Controller
         ]);
     }
 
+    public function webDashboardLink(Request $request): JsonResponse
+    {
+        $user = $request->user()->loadMissing('tenants');
+        $tenant = $this->resolveTenantFromRequest($request, $user, false);
+
+        if (! $tenant) {
+            return response()->json([
+                'message' => __('No tenant context available.'),
+            ], 404);
+        }
+
+        if (! $user->tenants()->whereKey($tenant->getKey())->exists()) {
+            return response()->json([
+                'message' => __('You do not have access to the requested tenant.'),
+            ], 403);
+        }
+
+        $nonce = Str::random(64);
+
+        Cache::put(
+            $this->webDashboardBridgeCacheKey($nonce),
+            [
+                'user_id' => $user->getKey(),
+                'tenant_id' => $tenant->getKey(),
+            ],
+            now()->addMinutes(2),
+        );
+
+        return response()->json([
+            'url' => URL::temporarySignedRoute(
+                'mobile.auth.web-dashboard',
+                now()->addMinutes(2),
+                ['nonce' => $nonce],
+            ),
+        ]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()?->currentAccessToken()?->delete();
@@ -191,6 +232,25 @@ class MobileAuthController extends Controller
         return response()->json([
             'message' => __('Logged out successfully.'),
         ]);
+    }
+
+    public function openWebDashboard(Request $request, string $nonce): RedirectResponse
+    {
+        abort_unless($request->hasValidSignature(), 403);
+
+        $payload = Cache::pull($this->webDashboardBridgeCacheKey($nonce));
+        abort_unless(is_array($payload), 403);
+
+        $user = User::findOrFail((int) ($payload['user_id'] ?? 0));
+        $tenant = Tenant::findOrFail((int) ($payload['tenant_id'] ?? 0));
+
+        abort_unless($user->tenants()->whereKey($tenant->getKey())->exists(), 403);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+        $request->session()->regenerateToken();
+
+        return redirect()->away($this->tenants->tenantUrl($tenant, '/dashboard'));
     }
 
     protected function authenticatedResponse(User $user, ?Tenant $tenant, ?string $role): JsonResponse
@@ -211,6 +271,11 @@ class MobileAuthController extends Controller
             'current_tenant' => $tenant ? new MobileTenantResource($tenant->loadMissing('activeSubscription.package')) : null,
             'tenant_role' => $role,
         ], 201);
+    }
+
+    protected function webDashboardBridgeCacheKey(string $nonce): string
+    {
+        return "mobile:web-dashboard:{$nonce}";
     }
 
     protected function resolveTenantFromRequest(Request $request, ?User $user = null, bool $fallbackToUserTenant = true): ?Tenant

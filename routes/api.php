@@ -20,6 +20,7 @@ Route::prefix('mobile')->name('api.mobile.')->group(function () {
 
     Route::middleware(['auth:sanctum', 'mobile.tenant'])->group(function () {
         Route::get('/auth/me', [MobileAuthController::class, 'me'])->name('auth.me');
+        Route::post('/auth/web-dashboard-link', [MobileAuthController::class, 'webDashboardLink'])->name('auth.web-dashboard-link');
         Route::post('/auth/logout', [MobileAuthController::class, 'logout'])->name('auth.logout');
 
         Route::get('/dashboard', [MobileDashboardController::class, 'show'])->name('dashboard.show');

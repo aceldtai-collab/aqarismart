@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MobileAppController;
+use App\Http\Controllers\Api\MobileAuthController;
 
 // Central routes (no locale prefix)
 require __DIR__.'/auth.php';
@@ -32,6 +33,10 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/profile', [MobileAppController::class, 'profile'])->name('profile');
     Route::get('/about', [MobileAppController::class, 'about'])->name('about');
 });
+
+Route::get('/mobile/auth/web-dashboard/{nonce}', [MobileAuthController::class, 'openWebDashboard'])
+    ->middleware(['web', 'signed'])
+    ->name('mobile.auth.web-dashboard');
 
 // Tenant Switcher (central, requires auth)
 Route::post('/tenant/switch', function (\Illuminate\Http\Request $request) {
