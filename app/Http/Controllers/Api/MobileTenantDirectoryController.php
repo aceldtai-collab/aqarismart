@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MobileTenantResource;
+use App\Models\Agent;
 use App\Http\Resources\MobileUnitResource;
 use App\Models\Tenant;
 use App\Models\Unit;
@@ -14,27 +15,46 @@ class MobileTenantDirectoryController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Tenant::query()
+        $baseQuery = Tenant::query()
             ->whereHas('activeSubscription')
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $q = $request->string('q')->trim()->value();
+
+                $query->where(function ($builder) use ($q) {
+                    $builder->where('name', 'like', "%{$q}%")
+                        ->orWhere('slug', 'like', "%{$q}%")
+                        ->orWhere('settings', 'like', "%{$q}%");
+                });
+            });
+
+        $query = (clone $baseQuery)
             ->with(['activeSubscription.package'])
             ->withCount([
-                'users',
-                'subscriptions',
+                'units',
+                'units as active_units_count' => fn ($units) => $units->where('status', Unit::STATUS_VACANT),
+                'agents',
             ]);
 
-        if ($request->filled('q')) {
-            $q = $request->string('q')->trim()->value();
-            $query->where(function ($builder) use ($q) {
-                $builder->where('name', 'like', "%{$q}%")
-                    ->orWhere('slug', 'like', "%{$q}%")
-                    ->orWhere('settings', 'like', "%{$q}%");
-            });
-        }
+        $tenants = $query
+            ->orderByDesc('active_units_count')
+            ->orderByDesc('units_count')
+            ->orderBy('name')
+            ->paginate((int) $request->input('per_page', 12));
 
-        $tenants = $query->orderBy('name')->paginate((int) $request->input('per_page', 12));
+        $tenantIds = (clone $baseQuery)->select('tenants.id');
 
         return response()->json([
             'data' => MobileTenantResource::collection($tenants->getCollection()),
+            'summary' => [
+                'agencies_count' => (clone $baseQuery)->count(),
+                'active_units_count' => Unit::withoutGlobalScope('tenant')
+                    ->whereIn('tenant_id', $tenantIds)
+                    ->where('status', Unit::STATUS_VACANT)
+                    ->count(),
+                'agents_count' => Agent::withoutGlobalScope('tenant')
+                    ->whereIn('tenant_id', $tenantIds)
+                    ->count(),
+            ],
             'meta' => [
                 'current_page' => $tenants->currentPage(),
                 'last_page' => $tenants->lastPage(),
@@ -65,6 +85,9 @@ class MobileTenantDirectoryController extends Controller
 
         $listingType = $request->input('listing_type', Unit::LISTING_RENT);
         $search = $request->filled('q') ? trim($request->string('q')->value()) : '';
+        $summaryQuery = Unit::withoutGlobalScope('tenant')
+            ->where('tenant_id', $tenant->id)
+            ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED]);
 
         $baseQuery = Unit::withoutGlobalScope('tenant')
             ->with(['property', 'subcategory.category', 'city', 'tenant'])
@@ -94,6 +117,11 @@ class MobileTenantDirectoryController extends Controller
             'tenant' => new MobileTenantResource($tenant->load('activeSubscription.package')),
             'featured_units' => MobileUnitResource::collection($featuredUnits),
             'units' => MobileUnitResource::collection($units->getCollection()),
+            'summary' => [
+                'total_active' => (clone $summaryQuery)->count(),
+                'rent_count' => (clone $summaryQuery)->where('listing_type', Unit::LISTING_RENT)->count(),
+                'sale_count' => (clone $summaryQuery)->where('listing_type', Unit::LISTING_SALE)->count(),
+            ],
             'meta' => [
                 'current_page' => $units->currentPage(),
                 'last_page' => $units->lastPage(),

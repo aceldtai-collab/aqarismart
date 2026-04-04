@@ -236,6 +236,7 @@
                     @endif
                 </main>
             @else
+                @if(! $navSuppressed)
                 <header class="{{ ($useBrandHeader ?? false) ? 'brand-bg text-white' : 'bg-white' }} flex items-center justify-between shadow px-4 h-[72px]">
                     <div class="flex items-center gap-3 ltr:order-1 rtl:order-2">
                         <a href="{{ app(\App\Services\Tenancy\TenantManager::class)->tenant() ? route('tenant.home') : route('home') }}" class="inline-flex items-center">
@@ -320,6 +321,7 @@
                         @endguest
                     </div>
                 </header>
+                @endif
                 <div class="min-h-screen bg-gray-100">
                     <main>
                         @if (View::hasSection('content'))

@@ -1,219 +1,272 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale()==='ar' ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('Aqari Smart') }} &mdash; {{ __('Property Management') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
-    @if(app()->getLocale() === 'ar')
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    @endif
-    <x-vite-assets />
     @php
         $isAr = app()->getLocale() === 'ar';
-        $currentLocale = in_array(app()->getLocale(), ['en','ar']) ? app()->getLocale() : 'en';
+        $routeName = Route::currentRouteName();
+        $langParam = config('locales.cookie_name', 'lang');
+        $urlEn = request()->fullUrlWithQuery([$langParam => 'en']);
+        $urlAr = request()->fullUrlWithQuery([$langParam => 'ar']);
+        $scheme = request()->getScheme() ?: 'http';
+        $port = request()->getPort();
+        $defaultPort = $scheme === 'https' ? 443 : 80;
+        $portPart = $port && $port !== $defaultPort ? ':' . $port : '';
+        $centralMarketplaceUrl = sprintf('%s://%s%s/marketplace', $scheme, config('tenancy.base_domain'), $portPart);
         $landing = app(\App\Services\PublicLandingService::class)->forPublicDomain();
         $authScreenshot = $landing['assets']['auth_screenshot'] ?? ($landing['assets']['hero_image'] ?? null);
-        $primaryColor = config('public_site.primary_color', '#ff2929');
-        $langToggleEn = url(request()->path()) . '?lang=en';
-        $langToggleAr = url(request()->path()) . '?lang=ar';
+        $authContext = match ($routeName) {
+            'register' => [
+                'title' => $isAr ? 'أنشئ حسابك وابدأ واجهتك العامة' : 'Create your account and launch your storefront',
+                'lead' => $isAr ? 'افتح مساحة عملك، جهّز وكالتك، وابدأ رحلتك من نفس اللغة البصرية التي يراها عملاؤك في السوق العام.' : 'Open your workspace, set up your agency, and start from the same public design language your clients already see in the marketplace.',
+                'eyebrow' => $isAr ? 'بوابة الانطلاق' : 'Launch Point',
+                'kicker' => $isAr ? 'إنشاء مساحة العمل' : 'Create Workspace',
+                'features' => $isAr
+                    ? ['واجهة عامة متناسقة مع السوق', 'لوحة تحكم لإدارة العقارات', 'جاهز للعربية والإنجليزية']
+                    : ['Public storefront aligned with the marketplace', 'Operational dashboard for property management', 'Ready for Arabic and English'],
+                'chips' => $isAr
+                    ? [['label' => 'الواجهة', 'value' => 'Storefront'], ['label' => 'التدفق', 'value' => 'Guided setup'], ['label' => 'النتيجة', 'value' => 'Tenant-ready']]
+                    : [['label' => 'Surface', 'value' => 'Storefront'], ['label' => 'Flow', 'value' => 'Guided setup'], ['label' => 'Outcome', 'value' => 'Tenant-ready']],
+                'meta_title' => $isAr ? 'إنشاء حساب' : 'Create Account',
+            ],
+            'password.request' => [
+                'title' => $isAr ? 'استعد الوصول إلى حسابك' : 'Recover access to your account',
+                'lead' => $isAr ? 'أرسل رابط إعادة التعيين ثم ارجع مباشرة إلى نفس الرحلة داخل السوق والواجهة العامة.' : 'Send a reset link, then return directly to the same marketplace and storefront journey.',
+                'eyebrow' => $isAr ? 'استعادة الوصول' : 'Recover Access',
+                'kicker' => $isAr ? 'إعادة ضبط كلمة المرور' : 'Reset Password',
+                'features' => $isAr
+                    ? ['إرسال رابط آمن للبريد الإلكتروني', 'تصميم موحّد مع صفحات السوق', 'عودة سريعة إلى لوحة التحكم']
+                    : ['Secure email reset link', 'Unified look with public marketplace pages', 'Fast return to your dashboard'],
+                'chips' => $isAr
+                    ? [['label' => 'الأمان', 'value' => 'Secure link'], ['label' => 'الرحلة', 'value' => 'Continuous'], ['label' => 'الخطوة', 'value' => 'Email reset']]
+                    : [['label' => 'Security', 'value' => 'Secure link'], ['label' => 'Journey', 'value' => 'Continuous'], ['label' => 'Step', 'value' => 'Email reset']],
+                'meta_title' => $isAr ? 'إعادة تعيين كلمة المرور' : 'Reset Password',
+            ],
+            'password.reset' => [
+                'title' => $isAr ? 'اضبط كلمة مرور جديدة' : 'Set a new password',
+                'lead' => $isAr ? 'أكمل استعادة الحساب ثم عد إلى متابعة السوق وواجهتك بثقة.' : 'Finish account recovery, then return to the marketplace and your storefront with a fresh session.',
+                'eyebrow' => $isAr ? 'تأمين الحساب' : 'Secure Account',
+                'kicker' => $isAr ? 'كلمة مرور جديدة' : 'New Password',
+                'features' => $isAr
+                    ? ['استعادة وصول سريعة', 'واجهة موحّدة', 'متابعة مباشرة للرحلة']
+                    : ['Fast access recovery', 'Unified public shell', 'Direct continuation of the journey'],
+                'chips' => $isAr
+                    ? [['label' => 'الوصول', 'value' => 'Recovered'], ['label' => 'التجربة', 'value' => 'Consistent'], ['label' => 'الحالة', 'value' => 'Protected']]
+                    : [['label' => 'Access', 'value' => 'Recovered'], ['label' => 'Experience', 'value' => 'Consistent'], ['label' => 'State', 'value' => 'Protected']],
+                'meta_title' => $isAr ? 'كلمة مرور جديدة' : 'Set New Password',
+            ],
+            'verification.notice' => [
+                'title' => $isAr ? 'أكد بريدك الإلكتروني' : 'Confirm your email address',
+                'lead' => $isAr ? 'خطوة بسيطة حتى تستكمل رحلتك داخل المنصة وتصل إلى واجهتك ولوحاتك.' : 'One short step before you continue into the platform, your dashboards, and your storefront.',
+                'eyebrow' => $isAr ? 'تأكيد الهوية' : 'Verify Identity',
+                'kicker' => $isAr ? 'تأكيد البريد' : 'Email Verification',
+                'features' => $isAr
+                    ? ['تأكيد سريع', 'استمرار الرحلة', 'وصول أوضح للمنصة']
+                    : ['Quick confirmation', 'Journey continuity', 'Cleaner platform access'],
+                'chips' => $isAr
+                    ? [['label' => 'الخطوة', 'value' => 'Verification'], ['label' => 'الأثر', 'value' => 'Access'], ['label' => 'الرحلة', 'value' => 'Continues']]
+                    : [['label' => 'Step', 'value' => 'Verification'], ['label' => 'Effect', 'value' => 'Access'], ['label' => 'Journey', 'value' => 'Continues']],
+                'meta_title' => $isAr ? 'تأكيد البريد الإلكتروني' : 'Verify Email',
+            ],
+            'password.confirm' => [
+                'title' => $isAr ? 'أكد هويتك للمتابعة' : 'Confirm your identity to continue',
+                'lead' => $isAr ? 'قبل الوصول إلى الإجراء الحساس، أكمل التحقق ضمن نفس الواجهة العامة الموحّدة.' : 'Before the sensitive action, confirm your identity inside the same unified public-facing shell.',
+                'eyebrow' => $isAr ? 'تحقق إضافي' : 'Extra Verification',
+                'kicker' => $isAr ? 'تأكيد كلمة المرور' : 'Confirm Password',
+                'features' => $isAr
+                    ? ['حماية للإجراءات الحساسة', 'تجربة موحّدة', 'وصول سريع بعد التحقق']
+                    : ['Protection for sensitive actions', 'Unified experience', 'Fast access after verification'],
+                'chips' => $isAr
+                    ? [['label' => 'الأمان', 'value' => 'Protected'], ['label' => 'الحالة', 'value' => 'Confirm'], ['label' => 'المسار', 'value' => 'Continue']]
+                    : [['label' => 'Security', 'value' => 'Protected'], ['label' => 'State', 'value' => 'Confirm'], ['label' => 'Path', 'value' => 'Continue']],
+                'meta_title' => $isAr ? 'تأكيد كلمة المرور' : 'Confirm Password',
+            ],
+            default => [
+                'title' => $isAr ? 'ارجع إلى حسابك وأكمل الرحلة' : 'Return to your account and continue the journey',
+                'lead' => $isAr ? 'من السوق العام إلى لوحة التحكم، نفس الهوية البصرية تستمر هنا حتى لا يشعر المستخدم أنه انتقل إلى منتج مختلف.' : 'From the public marketplace to the dashboard, the same visual language continues here so the user never feels dropped into a different product.',
+                'eyebrow' => $isAr ? 'بوابة الدخول' : 'Entry Point',
+                'kicker' => $isAr ? 'تسجيل الدخول' : 'Sign In',
+                'features' => $isAr
+                    ? ['نفس تصميم السوق والواجهة العامة', 'متابعة سهلة من الويب إلى لوحة التحكم', 'دعم واضح للعربية والإنجليزية']
+                    : ['Same language as the marketplace and storefront', 'Clean continuation from public web to dashboard', 'Clear Arabic and English support'],
+                'chips' => $isAr
+                    ? [['label' => 'المسار', 'value' => 'Marketplace'], ['label' => 'الوجهة', 'value' => 'Dashboard'], ['label' => 'اللغة', 'value' => 'AR / EN']]
+                    : [['label' => 'Path', 'value' => 'Marketplace'], ['label' => 'Destination', 'value' => 'Dashboard'], ['label' => 'Language', 'value' => 'AR / EN']],
+                'meta_title' => $isAr ? 'تسجيل الدخول' : 'Sign In',
+            ],
+        };
+        $navTx = [
+            'brand' => $isAr ? 'عقاري سمارت' : 'Aqari Smart',
+            'home' => $isAr ? 'الرئيسية' : 'Home',
+            'featured_nav' => $isAr ? 'السوق' : 'Marketplace',
+            'sale_nav' => $isAr ? 'الوكالات' : 'Agencies',
+            'rent_nav' => $isAr ? 'بيع معنا' : 'Sell with us',
+            'contact_nav' => $isAr ? 'تواصل' : 'Contact',
+            'login_cta' => $isAr ? 'تسجيل الدخول' : 'Sign in',
+            'register_cta' => $isAr ? 'إنشاء حساب' : 'Create account',
+            'sell_cta' => $isAr ? 'بيع معنا' : 'Sell with us',
+            'profile_cta' => $isAr ? 'الملف الشخصي' : 'Profile',
+            'menu_cta' => $isAr ? 'القائمة' : 'Menu',
+            'close_cta' => $isAr ? 'إغلاق' : 'Close',
+            'account_title' => $isAr ? 'حسابك' : 'Your Account',
+            'browse_title' => $isAr ? 'تنقل داخل الواجهة' : 'Browse Aqari Smart',
+            'dashboard_cta' => $isAr ? 'لوحة التحكم' : 'Dashboard',
+            'logout_cta' => $isAr ? 'تسجيل الخروج' : 'Log Out',
+            'welcome_cta' => $isAr ? 'أهلاً' : 'Welcome',
+            'guest_subtitle' => $isAr ? 'ارجع إلى السوق أو أكمل تسجيل الدخول من نفس الواجهة.' : 'Head back to the marketplace or continue signing in from the same shell.',
+            'switch_language' => $isAr ? 'تغيير اللغة' : 'Switch language',
+        ];
+        $sellWithUsUrl = Route::has('sales-flow') ? route('sales-flow') : (Route::has('book-call') ? route('book-call') : '#');
+        $navLinks = [
+            ['label' => $navTx['home'], 'href' => url('/')],
+            ['label' => $navTx['featured_nav'], 'href' => $centralMarketplaceUrl],
+            ['label' => $navTx['sale_nav'], 'href' => $centralMarketplaceUrl . '#top-agencies'],
+            ['label' => $navTx['rent_nav'], 'href' => $sellWithUsUrl],
+        ];
     @endphp
+    <title>{{ $authContext['meta_title'] }} — Aqari Smart</title>
+    <x-vite-assets />
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
         [x-cloak]{display:none!important}
+        @include('public.partials.market-nav-styles')
+        :root{--market-ink:#1f2a24;--market-palm:#0f5a46;--market-brass:#b6842f;--market-clay:#9d5a3b;--market-sand:#ece2cf;--market-cream:#fbf7ef;--market-line:rgba(130,94,38,.16);--brand:#0f5a46;--brand-rgb:15,90,70;--dark:#1f2a24}
         *{box-sizing:border-box}
-        :root{--brand:{{ $primaryColor }};--brand-rgb:255,41,41;--dark:#074860}
-        body{font-family:'Inter',system-ui,sans-serif;margin:0;-webkit-font-smoothing:antialiased;color:var(--dark)}
-        @if($isAr) body{font-family:'Noto Sans Arabic','Inter',system-ui,sans-serif} @endif
-
-        /* Showcase panel */
-        .auth-showcase{background:linear-gradient(155deg,#041c28 0%,#074860 40%,#053347 100%);position:relative;overflow:hidden}
-        .auth-showcase::before{content:'';position:absolute;top:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(255,41,41,.12) 0%,transparent 65%);pointer-events:none}
-        .auth-showcase::after{content:'';position:absolute;bottom:-20%;left:-8%;width:45%;height:45%;background:radial-gradient(circle,rgba(60,156,63,.08) 0%,transparent 65%);pointer-events:none}
-
-        /* Inputs */
-        .auth-input{display:block;width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.8125rem;background:#fff;transition:all .2s;color:var(--dark)}
-        .auth-input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(var(--brand-rgb),.1)}
-        .auth-input::placeholder{color:#94a3b8}
-        .auth-input.has-icon-left{padding-left:36px}
-        .auth-input.has-icon-right{padding-right:36px}
-        html[dir="rtl"] .auth-input.has-icon-left{padding-left:12px;padding-right:36px}
-        html[dir="rtl"] .auth-input.has-icon-right{padding-right:12px;padding-left:36px}
-
-        /* Buttons */
-        .auth-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 20px;border:none;border-radius:8px;font-size:.8125rem;font-weight:600;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-        .auth-btn:disabled{opacity:.65;cursor:not-allowed;transform:none!important}
-        .auth-btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(var(--brand-rgb),.3)}
-        .auth-btn-primary:hover:not(:disabled){box-shadow:0 4px 16px rgba(var(--brand-rgb),.4);transform:translateY(-1px)}
-        .auth-btn-outline{background:transparent;color:var(--dark);border:1.5px solid #e2e8f0}
-        .auth-btn-outline:hover{border-color:#cbd5e1;background:#f8fafc}
-        .auth-btn .shimmer{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);animation:shimmer-slide 3s ease-in-out infinite}
-
-        /* Screenshot */
-        .screenshot-frame{border-radius:14px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.06)}
-        .screenshot-frame img{display:block;width:100%;height:auto}
-        .screenshot-frame .browser-bar{height:28px;background:rgba(255,255,255,.06);display:flex;align-items:center;padding:0 12px;gap:6px}
-        .screenshot-frame .browser-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12)}
-        .stat-float{background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;position:absolute;z-index:10}
-
-        /* Animations */
-        @keyframes float-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-        @keyframes fade-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes particle-drift{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.5}90%{opacity:.5}100%{transform:translateY(-100vh) translateX(20px);opacity:0}}
-        @keyframes pulse-ring{0%{transform:scale(.85);opacity:.5}50%{transform:scale(1);opacity:1}100%{transform:scale(.85);opacity:.5}}
-        @keyframes shake{0%,100%{transform:translateX(0)}15%,45%,75%{transform:translateX(-4px)}30%,60%,90%{transform:translateX(4px)}}
-        @keyframes shimmer-slide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-        @keyframes fade-in-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-
-        .float-y{animation:float-y 4s ease-in-out infinite}
-        .float-y-d{animation:float-y 4s ease-in-out 1.5s infinite}
-        .fade-up{animation:fade-up .5s ease-out both}
-        .fade-up-1{animation:fade-up .5s ease-out .08s both}
-        .fade-up-2{animation:fade-up .5s ease-out .16s both}
-        .fade-up-3{animation:fade-up .5s ease-out .24s both}
-        .shake-it{animation:shake .45s ease-in-out}
-        .auth-particle{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.25);animation:particle-drift linear infinite;pointer-events:none}
-
-        /* Feature list */
-        .feat-item{display:flex;align-items:center;gap:10px;padding:6px 0}
-        .feat-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);flex-shrink:0;opacity:.7}
-
-        @media(max-width:1023px){.showcase-wrap{display:none}}
+        html,body{margin:0;min-height:100%}
+        body{background:radial-gradient(circle at top left,rgba(182,132,47,.14),transparent 24%),radial-gradient(circle at top right,rgba(15,90,70,.12),transparent 24%),linear-gradient(180deg,#ece2cf 0,#f5ecdc 320px,#fbf7ef 100%);color:var(--market-ink);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+        html[dir="rtl"] body{font-family:'Cairo','Noto Sans Arabic',sans-serif}
+        .auth-shell{max-width:1320px;margin:0 auto;padding-inline:1rem}
+        .auth-card{border:1px solid var(--market-line);background:rgba(255,252,246,.94);box-shadow:0 28px 60px -38px rgba(57,42,16,.34)}
+        .auth-panel{position:relative;overflow:hidden;border-radius:2.1rem}
+        .auth-ornament{height:10px;width:112px;border-radius:999px;background:linear-gradient(90deg,rgba(15,90,70,.16),rgba(182,132,47,.32),rgba(15,90,70,.16)),repeating-linear-gradient(90deg,transparent 0 10px,rgba(182,132,47,.58) 10px 14px,transparent 14px 24px)}
+        .auth-hero{background:radial-gradient(circle at top left,rgba(255,255,255,.14),transparent 28%),linear-gradient(145deg,rgba(15,32,26,.96),rgba(15,90,70,.88) 54%,rgba(48,33,15,.84));color:#fff8ea}
+        .auth-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,18,14,.08),rgba(15,18,14,.22));pointer-events:none}
+        .auth-hero-content,.auth-form-content{position:relative;z-index:1}
+        .auth-chip{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);backdrop-filter:blur(14px)}
+        .auth-chip-label{font-size:.67rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,244,221,.64);font-weight:700}
+        .auth-chip-value{margin-top:.45rem;font-size:1rem;line-height:1.2;font-weight:800;color:#fff8ea}
+        .auth-kicker{font-size:.72rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,241,212,.72)}
+        .auth-form-shell{background:linear-gradient(180deg,rgba(255,249,239,.98),rgba(247,237,214,.9))}
+        .auth-mini-link{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;border:1px solid rgba(130,94,38,.16);background:rgba(255,255,255,.76);padding:.65rem 1rem;font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--market-palm);text-decoration:none}
+        .auth-visual{overflow:hidden;border-radius:1.8rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);box-shadow:0 28px 60px -38px rgba(0,0,0,.42)}
+        .auth-visual-bar{display:flex;align-items:center;gap:.45rem;padding:.9rem 1rem;background:rgba(255,255,255,.08)}
+        .auth-visual-dot{height:.55rem;width:.55rem;border-radius:999px;background:rgba(255,255,255,.16)}
+        .auth-visual img{display:block;height:auto;width:100%}
+        .auth-feature{display:flex;align-items:flex-start;gap:.8rem;font-size:.92rem;line-height:1.75;color:rgba(255,248,236,.82)}
+        .auth-feature-dot{margin-top:.55rem;height:.5rem;width:.5rem;flex-shrink:0;border-radius:999px;background:rgba(255,231,176,.88)}
+        .auth-toggle{display:flex;align-items:center;gap:.35rem;border-radius:999px;border:1px solid rgba(130,94,38,.16);background:#fff;padding:.3rem}
+        .auth-toggle a{text-decoration:none;padding:.55rem .95rem;border-radius:999px;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5f655d}
+        .auth-toggle a.active{background:linear-gradient(135deg,var(--market-palm),var(--market-brass));color:#fff}
+        .auth-input,.r-input{display:block;width:100%;padding:.9rem 1rem;border:1px solid rgba(130,94,38,.18);border-radius:1rem;background:rgba(255,255,255,.84);font-size:.92rem;line-height:1.5;color:var(--market-ink);transition:border-color .2s,box-shadow .2s,transform .2s}
+        .auth-input:focus,.r-input:focus{outline:none;border-color:rgba(182,132,47,.72);box-shadow:0 0 0 4px rgba(182,132,47,.12)}
+        .auth-input::placeholder,.r-input::placeholder{color:#8b8e87}
+        .auth-input.has-icon-left,.r-input.has-icon,.auth-input.has-icon{padding-left:3rem}
+        .auth-input.has-icon-right{padding-right:3rem}
+        html[dir="rtl"] .auth-input.has-icon-left,html[dir="rtl"] .r-input.has-icon,html[dir="rtl"] .auth-input.has-icon{padding-left:1rem;padding-right:3rem}
+        html[dir="rtl"] .auth-input.has-icon-right{padding-right:1rem;padding-left:3rem}
+        .auth-btn,.r-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;width:100%;padding:.95rem 1.15rem;border:none;border-radius:1rem;font-size:.9rem;font-weight:800;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s;position:relative;overflow:hidden}
+        .auth-btn:disabled,.r-btn:disabled{opacity:.68;cursor:not-allowed;transform:none!important}
+        .auth-btn-primary,.r-btn-primary{background:linear-gradient(135deg,var(--market-palm),var(--market-brass));color:#fff;box-shadow:0 24px 40px -24px rgba(15,90,70,.75)}
+        .auth-btn-primary:hover:not(:disabled),.r-btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 28px 48px -24px rgba(15,90,70,.82)}
+        .auth-btn-outline,.r-btn-outline{background:#fff;color:var(--market-ink);border:1px solid rgba(130,94,38,.16)}
+        .auth-btn-outline:hover,.r-btn-outline:hover{background:rgba(255,249,239,.94)}
+        .auth-btn .shimmer,.r-btn .shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);animation:auth-shimmer 3.2s ease-in-out infinite}
+        .wizard-step{display:flex;flex-direction:column;align-items:center;gap:.4rem;flex:1}
+        .wizard-dot{width:2rem;height:2rem;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;transition:all .25s;border:2px solid rgba(130,94,38,.16);background:#fff;color:#8b8e87}
+        .wizard-dot.active{border-color:var(--market-brass);background:linear-gradient(135deg,var(--market-palm),var(--market-brass));color:#fff}
+        .wizard-dot.done{border-color:var(--market-brass);background:rgba(182,132,47,.16);color:var(--market-palm)}
+        .wizard-line{flex:1;height:2px;background:rgba(130,94,38,.14);transition:background .25s;margin:0 -.12rem}
+        .wizard-line.active{background:linear-gradient(90deg,var(--market-palm),var(--market-brass))}
+        .pw-bar{height:4px;border-radius:999px;transition:all .25s}
+        .shake-it{animation:auth-shake .45s ease-in-out}
+        @keyframes auth-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+        @keyframes auth-shake{0%,100%{transform:translateX(0)}15%,45%,75%{transform:translateX(-4px)}30%,60%,90%{transform:translateX(4px)}}
+        @media (max-width:1023px){.auth-shell{padding-inline:.9rem}}
     </style>
 </head>
-<body class="antialiased bg-white">
-    <div class="flex min-h-screen">
-        {{-- Left — Showcase --}}
-        <div class="showcase-wrap lg:flex lg:w-[50%] xl:w-[52%] flex-shrink-0">
-            <div class="auth-showcase w-full flex flex-col justify-between p-8 xl:p-12 text-white relative">
-                @for($p = 0; $p < 8; $p++)
-                    <div class="auth-particle" style="left:{{ rand(5,95) }}%;bottom:-5%;animation-duration:{{ rand(10,20) }}s;animation-delay:{{ $p * 1.1 }}s"></div>
-                @endfor
+<body>
+    <div class="min-h-screen">
+        @include('public.partials.market-nav', [
+            'isAr' => $isAr,
+            'navTx' => $navTx,
+            'navLinks' => $navLinks,
+            'navBrandHref' => $centralMarketplaceUrl,
+            'navBrandLabel' => $navTx['brand'],
+            'urlEn' => $urlEn,
+            'urlAr' => $urlAr,
+            'sellWithUsUrl' => $sellWithUsUrl,
+        ])
 
-                {{-- Logo + copy --}}
-                <div class="fade-up relative z-10">
-                    <a href="{{ url('/') }}" class="flex items-center gap-3 mb-10">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:var(--brand)">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
-                        </div>
-                        <span class="text-xl font-bold tracking-tight">Aqari Smart</span>
-                    </a>
-                    <h1 class="text-[26px] xl:text-[30px] font-extrabold leading-[1.2] tracking-tight mb-3">
-                        {{ $isAr ? 'كل ما تحتاجه لإدارة عقاراتك' : 'Everything you need to manage properties' }}
-                    </h1>
-                    <p class="text-[14px] text-white/50 leading-relaxed max-w-sm mb-8">
-                        {{ $isAr ? 'منصة متكاملة للمحافظ والعقود والصيانة والفوترة.' : 'Portfolios, leases, maintenance & billing — one dashboard.' }}
-                    </p>
-                    <div class="space-y-0.5 mb-6 fade-up-1">
-                        @php
-                            $features = $isAr
-                                ? ['إدارة العقود والإيجارات','طلبات الصيانة الذكية','فواتير وتحصيل آلي','تقارير ولوحة تحكم']
-                                : ['Lease & contract management','Smart maintenance requests','Automated billing & collection','Advanced reports & dashboard'];
-                        @endphp
-                        @foreach($features as $feat)
-                            <div class="feat-item">
-                                <div class="feat-dot"></div>
-                                <span class="text-[13px] text-white/55 font-medium">{{ $feat }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
+        <main class="auth-shell px-4 pb-10 pt-28 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36">
+            <div class="grid gap-6 xl:grid-cols-[1.06fr_.94fr]">
+                <section class="auth-panel auth-card auth-hero px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-11">
+                    <div class="auth-hero-content">
+                        <div class="auth-ornament"></div>
+                        <p class="auth-kicker mt-6">{{ $authContext['eyebrow'] }}</p>
+                        <h1 class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.04] tracking-[-0.04em] text-[#fff8ea] sm:text-5xl">{{ $authContext['title'] }}</h1>
+                        <p class="mt-5 max-w-2xl text-base leading-8 text-white/78">{{ $authContext['lead'] }}</p>
 
-                {{-- Screenshot --}}
-                <div class="relative flex-1 flex items-center justify-center my-4 fade-up-2">
-                    <div class="relative w-full max-w-md">
-                        <div class="stat-float float-y -top-3 ltr:-left-2 rtl:-right-2 hidden xl:block">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(255,41,41,.15)">
-                                    <svg class="w-4 h-4" style="color:var(--brand)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+                        <div class="mt-7 grid gap-3 sm:grid-cols-3">
+                            @foreach ($authContext['chips'] as $chip)
+                                <div class="auth-chip rounded-[1.35rem] px-4 py-4">
+                                    <div class="auth-chip-label">{{ $chip['label'] }}</div>
+                                    <div class="auth-chip-value">{{ $chip['value'] }}</div>
                                 </div>
-                                <div>
-                                    <div class="text-[10px] text-white/35">{{ $isAr ? 'نسبة الإشغال' : 'Occupancy' }}</div>
-                                    <div class="text-base font-bold">94.2%</div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
-                        <div class="stat-float float-y-d -bottom-3 ltr:-right-2 rtl:-left-2 hidden xl:block">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75"/></svg>
+
+                        <div class="mt-8 space-y-3">
+                            @foreach ($authContext['features'] as $feature)
+                                <div class="auth-feature">
+                                    <span class="auth-feature-dot"></span>
+                                    <span>{{ $feature }}</span>
                                 </div>
-                                <div>
-                                    <div class="text-[10px] text-white/35">{{ $isAr ? 'وحدات مُدارة' : 'Units' }}</div>
-                                    <div class="text-base font-bold">1,247</div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
-                        <div class="screenshot-frame">
-                            <div class="browser-bar"><div class="browser-dot"></div><div class="browser-dot"></div><div class="browser-dot"></div></div>
-                            @if($authScreenshot)
-                                <img src="{{ $authScreenshot }}" alt="Aqari Smart Dashboard" loading="eager">
+
+                        <div class="mt-8 auth-visual">
+                            <div class="auth-visual-bar">
+                                <span class="auth-visual-dot"></span>
+                                <span class="auth-visual-dot"></span>
+                                <span class="auth-visual-dot"></span>
+                            </div>
+                            @if ($authScreenshot)
+                                <img src="{{ $authScreenshot }}" alt="Aqari Smart" loading="eager">
                             @else
-                                <div class="w-full aspect-[16/10] bg-gradient-to-br from-[#053347] to-[#041c28] flex items-center justify-center">
-                                    <div class="text-center px-6">
-                                        <div class="w-14 h-14 mx-auto mb-3 rounded-xl flex items-center justify-center" style="background:rgba(255,41,41,.1)">
-                                            <svg class="w-7 h-7" style="color:var(--brand)" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/></svg>
-                                        </div>
-                                        <p class="text-white/25 text-sm">{{ $isAr ? 'لوحة تحكم Aqari Smart' : 'Aqari Smart Dashboard' }}</p>
+                                <div class="flex aspect-[16/10] items-center justify-center bg-[linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02))] px-8 text-center">
+                                    <div>
+                                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/10 text-lg font-black text-white">AS</div>
+                                        <p class="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-white/58">{{ $authContext['kicker'] }}</p>
+                                        <p class="mt-2 text-xl font-extrabold text-white/92">Aqari Smart</p>
                                     </div>
                                 </div>
                             @endif
                         </div>
                     </div>
-                </div>
+                </section>
 
-                {{-- Social proof --}}
-                <div class="fade-up-3 relative z-10">
-                    <div class="flex items-center gap-5 mb-5">
-                        <div class="flex -space-x-2 rtl:space-x-reverse">
-                            @for($i = 0; $i < 4; $i++)
-                                <div class="w-7 h-7 rounded-full border-2 border-[#074860] bg-gradient-to-br {{ ['from-red-400 to-red-600','from-emerald-400 to-emerald-600','from-amber-400 to-amber-600','from-sky-400 to-sky-600'][$i] }} flex items-center justify-center text-[9px] font-bold text-white">
-                                    {{ ['S','R','A','M'][$i] }}
-                                </div>
-                            @endfor
-                        </div>
-                        <div>
-                            <div class="flex gap-0.5 mb-0.5">
-                                @for($s = 0; $s < 5; $s++)<svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>@endfor
+                <section class="auth-panel auth-card auth-form-shell px-5 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
+                    <div class="auth-form-content">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <a href="{{ $centralMarketplaceUrl }}" class="auth-mini-link">
+                                <svg class="h-4 w-4 {{ $isAr ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                                <span>{{ $isAr ? 'العودة إلى السوق' : 'Back to marketplace' }}</span>
+                            </a>
+                            <div class="auth-toggle">
+                                <a href="{{ $urlEn }}" class="{{ ! $isAr ? 'active' : '' }}">EN</a>
+                                <a href="{{ $urlAr }}" class="{{ $isAr ? 'active' : '' }}">{{ $isAr ? 'العربية' : 'AR' }}</a>
                             </div>
-                            <p class="text-[11px] text-white/30">{{ $isAr ? 'موثوق من 500+ فريق عقاري' : 'Trusted by 500+ property teams' }}</p>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-between pt-5 border-t border-white/[.06] text-[12px] text-white/20">
-                        <span>&copy; {{ date('Y') }} Aqari Smart</span>
-                        <div class="flex gap-4">
-                            <a href="#" class="hover:text-white/40 transition">{{ __('Privacy') }}</a>
-                            <a href="#" class="hover:text-white/40 transition">{{ __('Terms') }}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        {{-- Right — Form --}}
-        <div class="flex-1 flex flex-col min-h-screen">
-            <div class="flex items-center justify-between px-6 sm:px-10 py-5 fade-up">
-                <a href="{{ url('/') }}" class="flex items-center gap-2 lg:hidden">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--brand)">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg>
+                        <div class="mt-6 rounded-[1.85rem] border border-[rgba(130,94,38,.14)] bg-[rgba(255,255,255,.7)] p-5 shadow-[0_24px_42px_-32px_rgba(57,42,16,.22)] sm:p-6 lg:p-7">
+                            {{ $slot }}
+                        </div>
                     </div>
-                    <span class="font-bold text-lg" style="color:var(--dark)">Aqari Smart</span>
-                </a>
-                <div class="flex items-center gap-0.5 rounded-lg border border-slate-200 p-0.5 text-xs font-medium ltr:ml-auto rtl:mr-auto">
-                    <a href="{{ $langToggleEn }}" class="px-3 py-1.5 rounded-md transition {{ $currentLocale==='en' ? 'text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}" @if($currentLocale==='en') style="background:var(--brand)" @endif>EN</a>
-                    <a href="{{ $langToggleAr }}" class="px-3 py-1.5 rounded-md transition {{ $currentLocale==='ar' ? 'text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50' }}" @if($currentLocale==='ar') style="background:var(--brand)" @endif>ع</a>
-                </div>
+                </section>
             </div>
-            <div class="flex-1 flex items-center justify-center px-6 sm:px-10 pb-10">
-                <div class="w-full max-w-[380px] fade-up-1">
-                    {{ $slot }}
-                </div>
-            </div>
-            <div class="lg:hidden px-6 pb-6 text-center">
-                <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Aqari Smart. {{ __('All rights reserved.') }}</p>
-            </div>
-        </div>
+        </main>
     </div>
 </body>
 </html>

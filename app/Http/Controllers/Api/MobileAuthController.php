@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -100,40 +101,46 @@ class MobileAuthController extends Controller
             ]);
         }
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $email,
-            'phone' => $fullPhone,
-            'phone_country_code' => $countryCode,
-            'password' => Hash::make($data['password']),
-        ]);
+        return DB::transaction(function () use ($countryCode, $data, $email, $fullPhone, $tenant) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $email,
+                'phone' => $fullPhone,
+                'phone_country_code' => $countryCode,
+                'password' => Hash::make($data['password']),
+            ]);
 
-        if ($tenant && method_exists($user, 'assignRole')) {
-            try {
-                $user->assignRole('resident');
-            } catch (\Throwable $e) {
+            if ($tenant && method_exists($user, 'assignRole')) {
+                try {
+                    $user->assignRole('resident');
+                } catch (\Throwable $e) {
+                }
             }
-        }
 
-        if ($tenant) {
-            $user->tenants()->syncWithoutDetaching([$tenant->id => ['role' => 'resident']]);
-            $user->tenants()->updateExistingPivot($tenant->id, ['role' => 'resident']);
+            if ($tenant) {
+                $user->tenants()->syncWithoutDetaching([$tenant->id => ['role' => 'resident']]);
+                $user->tenants()->updateExistingPivot($tenant->id, ['role' => 'resident']);
 
-            $parts = preg_split('/\s+/u', trim($data['name']), 2, PREG_SPLIT_NO_EMPTY);
-            Resident::updateOrCreate(
-                ['tenant_id' => $tenant->id, 'phone' => $fullPhone],
-                [
-                    'first_name' => $parts[0] ?? $data['name'],
-                    'last_name' => $parts[1] ?? '',
-                    'phone' => $fullPhone,
-                    'phone_country_code' => $countryCode,
-                    'email' => $email,
-                    'tenant_id' => $tenant->id,
-                ]
+                $parts = preg_split('/\s+/u', trim($data['name']), 2, PREG_SPLIT_NO_EMPTY);
+                Resident::updateOrCreate(
+                    ['tenant_id' => $tenant->id, 'phone' => $fullPhone],
+                    [
+                        'first_name' => $parts[0] ?? $data['name'],
+                        'last_name' => $parts[1] ?? '',
+                        'phone' => $fullPhone,
+                        'phone_country_code' => $countryCode,
+                        'email' => $email,
+                        'tenant_id' => $tenant->id,
+                    ]
+                );
+            }
+
+            return $this->authenticatedResponse(
+                $user->fresh('tenants.activeSubscription.package'),
+                $tenant,
+                $tenant ? 'resident' : null
             );
-        }
-
-        return $this->authenticatedResponse($user->fresh('tenants.activeSubscription.package'), $tenant, $tenant ? 'resident' : null);
+        });
     }
 
     public function login(Request $request): JsonResponse

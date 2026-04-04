@@ -1,289 +1,278 @@
-@extends('mobile.layouts.app', ['title' => app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard', 'subtitle' => ''])
+@extends('mobile.layouts.app', [
+    'title' => app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard',
+    'subtitle' => '',
+    'show_back_button' => false,
+    'body_class' => 'mobile-account-shell',
+])
+
+@php
+    $isAr = app()->getLocale() === 'ar';
+    $strings = [
+        'loading' => $isAr ? 'جارٍ تحميل لوحة التحكم...' : 'Loading dashboard...',
+        'guestKicker' => $isAr ? 'الوصول المحمي' : 'Protected access',
+        'guestTitle' => $isAr ? 'سجّل الدخول لتصل إلى لوحة التحكم' : 'Sign in to access the dashboard',
+        'guestText' => $isAr ? 'لوحة التحكم مخصصة للمستخدمين المرتبطين بوكالة أو عقد سكني. سجّل الدخول أولاً ثم أكمل الرحلة من الداخل.' : 'The dashboard is for users connected to a tenant workspace or resident lease. Sign in first, then continue the journey from inside.',
+        'signIn' => $isAr ? 'تسجيل الدخول' : 'Sign In',
+        'marketplace' => $isAr ? 'العودة إلى السوق' : 'Back to marketplace',
+        'errorKicker' => $isAr ? 'تعذّر التحميل' : 'Unable to load',
+        'errorTitle' => $isAr ? 'حدث خطأ أثناء جلب اللوحة' : 'Something went wrong while loading the dashboard',
+        'errorText' => $isAr ? 'تأكد من تسجيل الدخول أو من وجود سياق وكالة صالح، ثم حاول مجدداً.' : 'Check that you are signed in and have a valid tenant context, then try again.',
+        'tryMarketplace' => $isAr ? 'ارجع إلى السوق' : 'Return to marketplace',
+        'heroKicker' => $isAr ? 'مركز الوكالة' : 'Workspace hub',
+        'heroFallback' => $isAr ? 'واجهة تشغيل يومية تربطك بالمخزون والعقود والمتابعة السريعة من نفس الهاتف.' : 'A daily operating view that connects inventory, leases, and fast actions from the same phone.',
+        'staffRole' => $isAr ? 'فريق العمل' : 'Staff',
+        'residentRole' => $isAr ? 'مقيم' : 'Resident',
+        'dashboard' => $isAr ? 'لوحة التحكم' : 'Dashboard',
+        'profile' => $isAr ? 'ملفي' : 'My profile',
+        'openWeb' => $isAr ? 'فتح لوحة الويب' : 'Open web dashboard',
+        'openSite' => $isAr ? 'فتح الموقع العام' : 'Open public site',
+        'heroWorkspace' => $isAr ? 'الوكالة' : 'Workspace',
+        'heroAccess' => $isAr ? 'الوصول' : 'Access',
+        'heroStatus' => $isAr ? 'الخطة' : 'Plan',
+        'performanceKicker' => $isAr ? 'لقطة تشغيلية' : 'Performance snapshot',
+        'performanceTitle' => $isAr ? 'قراءة سريعة للحركة الحالية' : 'A quick read on current activity',
+        'performanceText' => $isAr ? 'الأرقام الأهم في الواجهة قبل النزول إلى التفاصيل.' : 'The most important numbers to scan before going deeper.',
+        'properties' => $isAr ? 'العقارات' : 'Properties',
+        'units' => $isAr ? 'الوحدات' : 'Units',
+        'leases' => $isAr ? 'العقود' : 'Leases',
+        'maintenance' => $isAr ? 'الصيانة' : 'Maintenance',
+        'occupancy' => $isAr ? 'الإشغال' : 'Occupancy',
+        'monthlyRent' => $isAr ? 'الدخل الشهري' : 'Monthly rent',
+        'viewings' => $isAr ? 'المعاينات القادمة' : 'Upcoming viewings',
+        'leads' => $isAr ? 'العملاء المحتملون' : 'Leads',
+        'operationsTitle' => $isAr ? 'التشغيل والتحصيل' : 'Operations and rent flow',
+        'operationsText' => $isAr ? 'ملخص الإشغال والتحصيل والصيانة المفتوحة.' : 'A quick summary of occupancy, rent flow, and open maintenance.',
+        'leadTitle' => $isAr ? 'الحركة التجارية' : 'Pipeline pulse',
+        'leadText' => $isAr ? 'إشارات سريعة عن العملاء والطلبات المفتوحة.' : 'Fast signals around lead flow and request volume.',
+        'propertyMixTitle' => $isAr ? 'أداء العقارات' : 'Property performance',
+        'propertyMixText' => $isAr ? 'أكثر العقارات اقتراباً من الامتلاء حالياً.' : 'The properties currently closest to full occupancy.',
+        'noPropertyMix' => $isAr ? 'لا توجد عقارات كافية لعرض الأداء بعد.' : 'There is not enough property data to show performance yet.',
+        'upcomingTitle' => $isAr ? 'عقود تنتهي قريباً' : 'Upcoming expirations',
+        'upcomingText' => $isAr ? 'العقود التي تحتاج متابعة مبكرة خلال الفترة القادمة.' : 'Leases that need early follow-up in the coming period.',
+        'noUpcoming' => $isAr ? 'لا توجد عقود قريبة الانتهاء حالياً.' : 'There are no imminent expirations right now.',
+        'quickActionsTitle' => $isAr ? 'الانتقال السريع' : 'Quick navigation',
+        'quickActionsText' => $isAr ? 'اختصارات سريعة لأكثر الوجهات استخداماً في الموبايل.' : 'Shortcuts to the most-used destinations in the mobile flow.',
+        'residentOverviewTitle' => $isAr ? 'رحلتك داخل الوكالة' : 'Your journey inside this tenant',
+        'residentOverviewText' => $isAr ? 'مركز بسيط يجمّع بياناتك وعقودك وأقصر طريق للعودة إلى السوق أو الملف.' : 'A simpler home base that brings together your identity, leases, and the fastest route back to the marketplace or profile.',
+        'residentInfoTitle' => $isAr ? 'بياناتك الحالية' : 'Your current details',
+        'residentLeasesTitle' => $isAr ? 'عقودك الحالية' : 'Your leases',
+        'residentNoLeases' => $isAr ? 'لا توجد عقود مرتبطة بهذا الحساب حالياً.' : 'There are no leases attached to this account right now.',
+        'residentActionsTitle' => $isAr ? 'إلى أين بعد ذلك؟' : 'Where next?',
+        'residentActionsText' => $isAr ? 'تنقل سريع بين السوق والملف والموقع العام للوكالة.' : 'Move quickly between the marketplace, your profile, and the tenant public site.',
+        'myUnits' => $isAr ? 'وحداتي' : 'My units',
+        'addUnit' => $isAr ? 'إضافة وحدة' : 'Add unit',
+        'inventoryText' => $isAr ? 'راجع المخزون الحالي' : 'Review current inventory',
+        'newUnitText' => $isAr ? 'ابدأ إضافة وحدة جديدة' : 'Start a new unit',
+        'marketplaceText' => $isAr ? 'تابع السوق العام' : 'Continue in the marketplace',
+        'profileText' => $isAr ? 'ارجع إلى ملفك' : 'Return to your profile',
+        'name' => $isAr ? 'الاسم' : 'Name',
+        'email' => $isAr ? 'البريد الإلكتروني' : 'Email',
+        'phone' => $isAr ? 'الهاتف' : 'Phone',
+        'tenant' => $isAr ? 'الوكالة' : 'Tenant',
+        'active' => $isAr ? 'نشط' : 'Active',
+        'occupiedWord' => $isAr ? 'مشغول' : 'occupied',
+        'openRequests' => $isAr ? 'طلبات مفتوحة' : 'Open requests',
+        'averageAge' => $isAr ? 'متوسط العمر' : 'Average age',
+        'expires' => $isAr ? 'ينتهي' : 'Expires',
+        'maintenanceStatuses' => [
+            'new' => $isAr ? 'جديد' : 'New',
+            'open' => $isAr ? 'مفتوح' : 'Open',
+            'in_progress' => $isAr ? 'قيد التنفيذ' : 'In progress',
+            'resolved' => $isAr ? 'تم الحل' : 'Resolved',
+            'completed' => $isAr ? 'مكتمل' : 'Completed',
+        ],
+        'fallback' => $isAr ? 'غير متاح' : 'Not available',
+    ];
+@endphp
+
+@push('head')
+    @include('mobile.partials.account-theme')
+@endpush
 
 @section('content')
-    @php $locale = app()->getLocale() === 'ar' ? 'ar' : 'en'; @endphp
+    <div class="mpa-page">
+        <div class="mpa-shell">
+            <div id="dash-loading" class="mpa-state">
+                <div class="mpa-spinner"></div>
+                <p class="mt-4 text-sm font-semibold text-[#6d726c]">{{ $strings['loading'] }}</p>
+            </div>
 
-    <!-- Loading state -->
-    <div id="dash-loading" class="flex flex-col items-center justify-center py-20">
-        <div class="h-8 w-8 animate-spin rounded-full border-[3px] border-slate-200 border-t-emerald-600"></div>
-        <p class="mt-3 text-xs font-medium text-slate-400">{{ $locale === 'ar' ? 'جاري التحميل...' : 'Loading dashboard...' }}</p>
-    </div>
-
-    <!-- Not logged in -->
-    <div id="dash-no-auth" class="hidden">
-        <div class="flex flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-            <svg class="h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <h3 class="mt-4 text-base font-bold text-slate-800">{{ $locale === 'ar' ? 'تسجيل الدخول مطلوب' : 'Sign in required' }}</h3>
-            <p class="mt-1 text-xs text-slate-400">{{ $locale === 'ar' ? 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم' : 'Please sign in to access your dashboard' }}</p>
-            <a href="{{ route('mobile.login') }}" class="mt-5 inline-flex items-center rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">{{ $locale === 'ar' ? 'تسجيل الدخول' : 'Sign in' }}</a>
-        </div>
-    </div>
-
-    <!-- Error state -->
-    <div id="dash-error" class="hidden">
-        <div class="flex flex-col items-center justify-center rounded-2xl bg-red-50 p-8 text-center ring-1 ring-red-200">
-            <svg class="h-10 w-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-            <h3 class="mt-3 text-sm font-bold text-red-700" id="dash-error-title">Error</h3>
-            <p class="mt-1 text-xs text-red-500" id="dash-error-msg"></p>
-        </div>
-    </div>
-
-    <!-- Dashboard content (hidden until loaded) -->
-    <div id="dash-content" class="hidden space-y-5">
-
-        <!-- Tenant card -->
-        <div class="overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-5 text-white shadow-lg">
-            <div class="flex items-start justify-between">
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2">
-                        <div id="dash-tenant-logo" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <div id="dash-no-auth" class="hidden space-y-5">
+                <section class="mpa-hero">
+                    <div class="mpa-hero-copy px-5 py-6 sm:px-6 sm:py-7">
+                        <div class="mpa-kicker">{{ $strings['guestKicker'] }}</div>
+                        <div class="mt-4 mpa-ornament"></div>
+                        <div class="mt-5 space-y-3">
+                            <h1 class="text-[2rem] font-black leading-[1.02] tracking-[-0.05em] text-[#fff8ea] sm:text-[2.25rem]">{{ $strings['guestTitle'] }}</h1>
+                            <p class="max-w-xl text-[0.96rem] leading-8 text-white/78">{{ $strings['guestText'] }}</p>
                         </div>
-                        <div class="min-w-0">
-                            <h2 class="truncate text-lg font-bold" id="dash-tenant-name"></h2>
-                            <p class="text-xs text-white/70" id="dash-user-info"></p>
+                        <div class="mt-5 flex flex-wrap gap-2.5">
+                            <div class="mpa-chip">{{ $isAr ? 'وكالة أو مقيم' : 'Tenant or resident' }}</div>
+                            <div class="mpa-chip">{{ $isAr ? 'رحلة داخلية' : 'Protected flow' }}</div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <a href="{{ route('mobile.login') }}" class="mpa-button mpa-button-primary">{{ $strings['signIn'] }}</a>
+                            <a href="{{ route('mobile.marketplace') }}" class="mpa-button mpa-button-secondary">{{ $strings['marketplace'] }}</a>
                         </div>
                     </div>
-                </div>
-                <span class="shrink-0 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" id="dash-plan-badge"></span>
+                </section>
             </div>
-            <a id="dash-web-link" href="#" class="mt-4 flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/25">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                {{ $locale === 'ar' ? 'فتح لوحة التحكم الكاملة' : 'Open full web dashboard' }}
-            </a>
-        </div>
 
-        <!-- Staff dashboard -->
-        <div id="dash-staff" class="hidden space-y-5">
-            <!-- Metrics grid -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                    <div class="flex items-center gap-2">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50"><svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg></div>
-                        <span class="text-[11px] font-medium text-slate-400">{{ $locale === 'ar' ? 'العقارات' : 'Properties' }}</span>
+            <div id="dash-error" class="hidden space-y-5">
+                <section class="mpa-card p-5">
+                    <div class="mpa-section-head">
+                        <div>
+                            <div class="mpa-section-kicker">{{ $strings['errorKicker'] }}</div>
+                            <h2 class="mpa-section-title" id="dash-error-title">{{ $strings['errorTitle'] }}</h2>
+                        </div>
                     </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-800" id="m-properties">0</div>
-                </div>
-                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                    <div class="flex items-center gap-2">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50"><svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg></div>
-                        <span class="text-[11px] font-medium text-slate-400">{{ $locale === 'ar' ? 'الوحدات' : 'Units' }}</span>
+                    <p class="mpa-section-text" id="dash-error-msg">{{ $strings['errorText'] }}</p>
+                    <div class="mt-5">
+                        <a href="{{ route('mobile.marketplace') }}" class="mpa-button mpa-button-secondary">{{ $strings['tryMarketplace'] }}</a>
                     </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-800" id="m-units">0</div>
-                </div>
-                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                    <div class="flex items-center gap-2">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50"><svg class="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
-                        <span class="text-[11px] font-medium text-slate-400">{{ $locale === 'ar' ? 'العقود' : 'Leases' }}</span>
+                </section>
+            </div>
+
+            <div id="dash-content" class="hidden space-y-5 pb-8">
+                <section class="mpa-hero">
+                    <div class="mpa-hero-copy px-5 py-6 sm:px-6 sm:py-7">
+                        <div class="mpa-kicker" id="dash-hero-kicker">{{ $strings['heroKicker'] }}</div>
+                        <div class="mt-4 mpa-ornament"></div>
+
+                        <div class="mt-5 flex items-start gap-4">
+                            <div id="dash-tenant-logo" class="mpa-avatar"></div>
+                            <div class="min-w-0 flex-1">
+                                <h1 id="dash-tenant-name" class="truncate text-[1.9rem] font-black leading-[1.02] tracking-[-0.05em] text-[#fff8ea]"></h1>
+                                <p id="dash-user-info" class="mt-2 text-sm font-semibold text-white/78"></p>
+                                <p id="dash-hero-summary" class="mt-3 text-[0.95rem] leading-8 text-white/74"></p>
+                            </div>
+                        </div>
+
+                        <div id="dash-hero-chips" class="mt-5 flex flex-wrap gap-2.5"></div>
+                        <div id="dash-hero-stats" class="mt-5 grid grid-cols-3 gap-3"></div>
+                        <div id="dash-hero-actions" class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2"></div>
                     </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-800" id="m-leases">0</div>
-                </div>
-                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                    <div class="flex items-center gap-2">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50"><svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
-                        <span class="text-[11px] font-medium text-slate-400">{{ $locale === 'ar' ? 'الإشغال' : 'Occupancy' }}</span>
-                    </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-800"><span id="m-occupancy">0</span>%</div>
-                </div>
-            </div>
+                </section>
 
-            <!-- Rent & Maintenance row -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                    <span class="text-[11px] font-medium text-slate-400">{{ $locale === 'ar' ? 'الإيجار الشهري' : 'Monthly rent' }}</span>
-                    <div class="mt-1.5 text-lg font-bold text-emerald-700"><span id="m-currency">JOD</span> <span id="m-rent">0</span></div>
-                    <div class="mt-1 text-[10px] text-slate-400"><span id="m-occupied">0</span> {{ $locale === 'ar' ? 'مشغولة' : 'occupied' }} · <span id="m-vacant">0</span> {{ $locale === 'ar' ? 'شاغرة' : 'vacant' }}</div>
-                </div>
-                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                    <span class="text-[11px] font-medium text-slate-400">{{ $locale === 'ar' ? 'الصيانة' : 'Maintenance' }}</span>
-                    <div class="mt-1.5 text-lg font-bold text-slate-800" id="m-maintenance">0</div>
-                    <div class="mt-1 text-[10px] text-slate-400">{{ $locale === 'ar' ? 'طلبات مفتوحة' : 'open requests' }}</div>
-                </div>
-            </div>
+                <div id="dash-staff" class="hidden space-y-5">
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['performanceKicker'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['performanceTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['performanceText'] }}</p>
+                        <div id="dash-metric-grid" class="mpa-metric-grid mt-5"></div>
+                    </section>
 
-            <!-- Upcoming leases -->
-            <div id="dash-upcoming-wrap" class="hidden">
-                <h3 class="mb-3 text-sm font-bold text-slate-800">{{ $locale === 'ar' ? 'عقود تنتهي قريباً' : 'Upcoming lease expirations' }}</h3>
-                <div id="dash-upcoming" class="space-y-2"></div>
-            </div>
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['operationsTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['operationsTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['operationsText'] }}</p>
+                        <div id="dash-ops-stack" class="mpa-stack mt-5"></div>
+                    </section>
 
-            <!-- Quick actions -->
-            <div class="space-y-2">
-                <h3 class="text-sm font-bold text-slate-800">{{ $locale === 'ar' ? 'إجراءات سريعة' : 'Quick actions' }}</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="{{ route('mobile.units.index') }}" class="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:ring-emerald-400">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50"><svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></div>
-                        <span class="text-xs font-semibold text-slate-700">{{ $locale === 'ar' ? 'الوحدات' : 'My units' }}</span>
-                    </a>
-                    <a href="{{ route('mobile.units.create') }}" class="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:ring-emerald-400">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"><svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></div>
-                        <span class="text-xs font-semibold text-slate-700">{{ $locale === 'ar' ? 'وحدة جديدة' : 'Add unit' }}</span>
-                    </a>
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['leadTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['leadTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['leadText'] }}</p>
+                        <div id="dash-lead-stack" class="mpa-stack mt-5"></div>
+                    </section>
+
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['propertyMixTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['propertyMixTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['propertyMixText'] }}</p>
+                        <div id="dash-property-mix" class="mpa-progress mt-5"></div>
+                        <div id="dash-property-mix-empty" class="mpa-note mt-5 hidden">{{ $strings['noPropertyMix'] }}</div>
+                    </section>
+
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['upcomingTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['upcomingTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['upcomingText'] }}</p>
+                        <div id="dash-upcoming" class="mpa-timeline mt-5"></div>
+                        <div id="dash-upcoming-empty" class="mpa-note mt-5 hidden">{{ $strings['noUpcoming'] }}</div>
+                    </section>
+
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['quickActionsTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['quickActionsTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['quickActionsText'] }}</p>
+                        <div id="dash-staff-actions" class="mpa-action-grid mt-5"></div>
+                    </section>
                 </div>
-            </div>
-        </div>
 
-        <!-- Resident dashboard -->
-        <div id="dash-resident" class="hidden space-y-5">
-            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <h3 class="text-sm font-bold text-slate-800">{{ $locale === 'ar' ? 'معلوماتك' : 'Your info' }}</h3>
-                <div class="mt-3 space-y-2 text-xs text-slate-500" id="dash-resident-info"></div>
-            </div>
-            <div id="dash-leases-wrap" class="hidden">
-                <h3 class="mb-3 text-sm font-bold text-slate-800">{{ $locale === 'ar' ? 'عقود الإيجار' : 'Your leases' }}</h3>
-                <div id="dash-leases" class="space-y-2"></div>
+                <div id="dash-resident" class="hidden space-y-5">
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['residentOverviewTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['residentOverviewTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['residentOverviewText'] }}</p>
+                        <div id="dash-resident-stats" class="mpa-metric-grid mt-5"></div>
+                    </section>
+
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['residentInfoTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['residentInfoTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <div id="dash-resident-info" class="mpa-list mt-5"></div>
+                    </section>
+
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['residentLeasesTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['residentLeasesTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <div id="dash-leases" class="mpa-timeline mt-5"></div>
+                        <div id="dash-leases-empty" class="mpa-note mt-5 hidden">{{ $strings['residentNoLeases'] }}</div>
+                    </section>
+
+                    <section class="mpa-card p-5">
+                        <div class="mpa-section-head">
+                            <div>
+                                <div class="mpa-section-kicker">{{ $strings['residentActionsTitle'] }}</div>
+                                <h2 class="mpa-section-title">{{ $strings['residentActionsTitle'] }}</h2>
+                            </div>
+                        </div>
+                        <p class="mpa-section-text">{{ $strings['residentActionsText'] }}</p>
+                        <div id="dash-resident-actions" class="mpa-action-grid mt-5"></div>
+                    </section>
+                </div>
             </div>
         </div>
     </div>
 @endsection
 
 @push('scripts')
-<script>
-(async () => {
-    const lang = @json($locale);
-    const token = localStorage.getItem('aqari_mobile_token');
-    const tenantSlug = localStorage.getItem('aqari_mobile_tenant_slug');
-    const loading = document.getElementById('dash-loading');
-    const noAuth = document.getElementById('dash-no-auth');
-    const errorEl = document.getElementById('dash-error');
-    const content = document.getElementById('dash-content');
-
-    if (!token) {
-        localStorage.removeItem('aqari_mobile_user_role');
-        loading.classList.add('hidden');
-        noAuth.classList.remove('hidden');
-        return;
-    }
-
-    try {
-        const res = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/dashboard', {
-            headers: { Accept: 'application/json', Authorization: `Bearer ${token}`, 'X-Tenant-Slug': tenantSlug || '' },
-        });
-
-        if (res.status === 401) {
-            localStorage.removeItem('aqari_mobile_token');
-            localStorage.removeItem('aqari_mobile_tenant_slug');
-            localStorage.removeItem('aqari_mobile_user_name');
-            localStorage.removeItem('aqari_mobile_user_role');
-            loading.classList.add('hidden');
-            noAuth.classList.remove('hidden');
-            return;
-        }
-
-        if (!res.ok) {
-            throw new Error(res.statusText || 'Failed to load');
-        }
-
-        const data = await res.json();
-        loading.classList.add('hidden');
-        content.classList.remove('hidden');
-
-        // Tenant card
-        const tenant = data.tenant || {};
-        const user = data.user || {};
-        document.getElementById('dash-tenant-name').textContent = tenant.name || 'My Workspace';
-        document.getElementById('dash-user-info').textContent = (user.name || '') + (user.tenant_role ? ` · ${user.tenant_role}` : '');
-        document.getElementById('dash-plan-badge').textContent = (tenant.plan || 'starter').toUpperCase();
-
-        if (tenant.branding?.logo_url) {
-            document.getElementById('dash-tenant-logo').innerHTML = `<img src="${tenant.branding.logo_url}" class="h-10 w-10 rounded-xl object-cover" alt="">`;
-        }
-
-        const webUrl = tenant.url || '#';
-        const webLink = document.getElementById('dash-web-link');
-        webLink.href = webUrl;
-        webLink.addEventListener('click', async (event) => {
-            event.preventDefault();
-
-            if (!token || !tenantSlug) {
-                window.location.href = webUrl;
-                return;
-            }
-
-            try {
-                const bridgeRes = await fetch((window.__AQARI_API_BASE || '') + '/api/mobile/auth/web-dashboard-link', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                        'X-Tenant-Slug': tenantSlug || '',
-                    },
-                });
-
-                if (!bridgeRes.ok) {
-                    throw new Error('Bridge request failed');
-                }
-
-                const bridgeData = await bridgeRes.json();
-                window.location.href = bridgeData.url || webUrl;
-            } catch (_error) {
-                window.location.href = webUrl;
-            }
-        });
-
-        if (data.role === 'resident') {
-            // Resident view
-            document.getElementById('dash-resident').classList.remove('hidden');
-            const ri = document.getElementById('dash-resident-info');
-            const resident = data.resident;
-            if (resident) {
-                ri.innerHTML = `
-                    <div class="flex justify-between"><span class="text-slate-400">${lang === 'ar' ? 'الاسم' : 'Name'}</span><span class="font-medium text-slate-700">${resident.name || '-'}</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">${lang === 'ar' ? 'البريد' : 'Email'}</span><span class="font-medium text-slate-700">${resident.email || '-'}</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">${lang === 'ar' ? 'الهاتف' : 'Phone'}</span><span class="font-medium text-slate-700">${resident.phone || '-'}</span></div>`;
-            }
-
-            const leases = data.leases || [];
-            if (leases.length) {
-                document.getElementById('dash-leases-wrap').classList.remove('hidden');
-                document.getElementById('dash-leases').innerHTML = leases.map(l => `
-                    <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-800">${l.unit?.title || l.unit?.code || '-'}</span>
-                            <span class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${l.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${l.status}</span>
-                        </div>
-                        <div class="mt-1 text-xs text-slate-400">${l.unit?.property_name || ''}</div>
-                        <div class="mt-2 flex items-center gap-3 text-[11px] text-slate-500">
-                            <span>${l.start_date || '-'} → ${l.end_date || '-'}</span>
-                        </div>
-                    </div>`).join('');
-            }
-        } else {
-            // Staff / owner view
-            document.getElementById('dash-staff').classList.remove('hidden');
-            const m = data.dashboard?.metrics || {};
-            document.getElementById('m-properties').textContent = m.properties ?? 0;
-            document.getElementById('m-units').textContent = m.units ?? 0;
-            document.getElementById('m-leases').textContent = m.active_leases ?? 0;
-            document.getElementById('m-occupancy').textContent = m.occupancy_rate ?? 0;
-            document.getElementById('m-currency').textContent = m.rent_currency || 'JOD';
-            document.getElementById('m-rent').textContent = new Intl.NumberFormat().format(m.monthly_rent ?? 0);
-            document.getElementById('m-occupied').textContent = m.occupied_units ?? 0;
-            document.getElementById('m-vacant').textContent = m.vacant_units ?? 0;
-            document.getElementById('m-maintenance').textContent = m.open_maintenance ?? 0;
-
-            // Upcoming leases
-            const upcoming = data.dashboard?.upcomingLeases || [];
-            if (upcoming.length) {
-                document.getElementById('dash-upcoming-wrap').classList.remove('hidden');
-                document.getElementById('dash-upcoming').innerHTML = upcoming.map(l => `
-                    <div class="flex items-center justify-between rounded-xl bg-white p-3.5 shadow-sm ring-1 ring-slate-200">
-                        <div>
-                            <div class="text-xs font-bold text-slate-800">${l.unit?.title || l.unit?.code || '-'}</div>
-                            <div class="text-[10px] text-slate-400">${l.property?.name || ''}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[10px] font-semibold text-amber-600">${lang === 'ar' ? 'ينتهي' : 'Expires'} ${l.end_date || ''}</div>
-                        </div>
-                    </div>`).join('');
-            }
-        }
-    } catch (e) {
-        loading.classList.add('hidden');
-        errorEl.classList.remove('hidden');
-        document.getElementById('dash-error-title').textContent = lang === 'ar' ? 'خطأ' : 'Error';
-        document.getElementById('dash-error-msg').textContent = e.message || 'Connection error';
-    }
-})();
-</script>
+    @include('mobile.partials.dashboard-script', ['strings' => $strings])
 @endpush

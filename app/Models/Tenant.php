@@ -91,4 +91,9 @@ class Tenant extends Model
     {
         return $this->hasMany(Unit::class);
     }
+
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
 }

@@ -17,6 +17,8 @@ class MobileMarketplaceController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $this->abortIfNotCentralDomain($request);
+
         try {
             return $this->queryMarketplace($request);
         } catch (\Illuminate\Database\QueryException $e) {
@@ -31,6 +33,14 @@ class MobileMarketplaceController extends Controller
                 'tenants' => [],
             ]);
         }
+    }
+
+    private function abortIfNotCentralDomain(Request $request): void
+    {
+        $baseDomain = (string) config('tenancy.base_domain');
+        $host = $request->getHost();
+
+        abort_unless(in_array($host, [$baseDomain, 'www.' . $baseDomain], true), 404);
     }
 
     private function queryMarketplace(Request $request): JsonResponse

@@ -2,8 +2,9 @@
     @php $isAr = app()->getLocale() === 'ar'; @endphp
 
     <div class="mb-7">
-        <h2 class="text-[24px] font-extrabold tracking-tight leading-tight" style="color:var(--dark)">{{ __('Welcome back') }}</h2>
-        <p class="text-[14px] text-slate-500 mt-1.5">{{ __('Sign in to your property management dashboard') }}</p>
+        <p class="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[color:var(--market-brass)]">{{ $isAr ? 'متابعة الرحلة' : 'Continue the journey' }}</p>
+        <h2 class="mt-3 text-[28px] font-extrabold tracking-tight leading-tight" style="color:var(--dark)">{{ $isAr ? 'مرحباً بعودتك إلى عقاري سمارت' : 'Welcome back to Aqari Smart' }}</h2>
+        <p class="mt-2 text-[14px] leading-7 text-slate-500">{{ $isAr ? 'سجّل الدخول للانتقال من السوق العام إلى مساحة العمل ولوحة التحكم من دون كسر في التجربة.' : 'Sign in to move from the public marketplace into your workspace and dashboard without breaking the experience.' }}</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />

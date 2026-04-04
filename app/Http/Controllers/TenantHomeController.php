@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Unit;
+use App\Models\Subcategory;
 use App\Services\Tenancy\TenantManager;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 
 class TenantHomeController extends Controller
 {
@@ -33,8 +35,10 @@ class TenantHomeController extends Controller
             return redirect()->route('tenant.search', $request->query());
         }
 
-        $unitsQuery = Unit::with(['property','subcategory.category','agents','agent'])
-            ->whereIn('status', ['vacant', 'occupied'])
+        $publicUnitsBase = Unit::with(['property','subcategory.category','agents','agent'])
+            ->whereIn('status', ['vacant', 'occupied']);
+
+        $unitsQuery = (clone $publicUnitsBase)
             ->where('listing_type', $listing_type)
             ->when($beds > 0, fn ($q2) => $q2->where('beds', '>=', $beds))
             ->when($baths > 0, fn ($q2) => $q2->where('baths', '>=', $baths))
@@ -55,10 +59,28 @@ class TenantHomeController extends Controller
                 });
             });
 
-        $units = (clone $unitsQuery)
+        $units = (clone $publicUnitsBase)
             ->orderByDesc('id')
             ->paginate(12)
             ->withQueryString();
+
+        $spotlightUnits = (clone $publicUnitsBase)
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $typeCounts = (clone $publicUnitsBase)
+            ->whereNotNull('subcategory_id')
+            ->selectRaw('subcategory_id, COUNT(*) as units_count')
+            ->groupBy('subcategory_id')
+            ->pluck('units_count', 'subcategory_id');
+
+        $stats = [
+            'total' => (clone $publicUnitsBase)->count(),
+            'sale' => (clone $publicUnitsBase)->where('listing_type', Unit::LISTING_SALE)->count(),
+            'rent' => (clone $publicUnitsBase)->where('listing_type', Unit::LISTING_RENT)->count(),
+            'types' => (clone $publicUnitsBase)->whereNotNull('subcategory_id')->distinct('subcategory_id')->count('subcategory_id'),
+        ];
 
         // Build list of subcategories that have available units under current filters (excluding subcategory filter)
         $availableSubcategoryIds = (clone $unitsQuery)
@@ -68,18 +90,65 @@ class TenantHomeController extends Controller
             ->pluck('subcategory_id');
 
         $categories = \App\Models\Category::with('subcategories')->orderBy('name')->get();
-        $types = \App\Models\Subcategory::whereIn('id', $availableSubcategoryIds)->orderBy('name')->get();
+        $types = Subcategory::whereIn('id', $availableSubcategoryIds)
+            ->orderBy('name')
+            ->get()
+            ->map(function (Subcategory $subcategory) use ($typeCounts) {
+                $subcategory->setAttribute('units_count', (int) ($typeCounts[$subcategory->id] ?? 0));
+                return $subcategory;
+            });
 
-        // Fake popular cities data (placeholder)
-        $popularCities = [
-            ['name' => 'Irbid', 'count' => 942, 'image' => 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1200&auto=format&fit=crop'],
-            ['name' => 'Irbid', 'count' => 942, 'image' => 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1200&auto=format&fit=crop'],
-            ['name' => 'Aqaba', 'count' => 503, 'image' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop'],
-            ['name' => 'Zarqa', 'count' => 321, 'image' => 'https://images.unsplash.com/photo-1505764706515-aa95265c5abc?q=80&w=1200&auto=format&fit=crop'],
-            ['name' => 'Irbid', 'count' => 942, 'image' => 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1200&auto=format&fit=crop'],
-        ];
+        $popularCities = (clone $publicUnitsBase)
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy(function (Unit $unit) {
+                $location = trim((string) $unit->location);
+                $prefix = trim(Str::before($location, '-'));
+                return $prefix !== '' ? $prefix : __('Various areas');
+            })
+            ->map(function ($cityUnits, $cityName) use ($tenant) {
+                $firstUnit = $cityUnits->first();
+                $photo = null;
+
+                if (is_array($firstUnit?->photos) && filled($firstUnit->photos[0] ?? null)) {
+                    $rawPhoto = $firstUnit->photos[0];
+                    $photo = Str::startsWith($rawPhoto, ['http://', 'https://'])
+                        ? $rawPhoto
+                        : url('/') . '/' . (Str::startsWith($rawPhoto, 'storage/') ? $rawPhoto : 'storage/' . ltrim($rawPhoto, '/'));
+                }
+
+                return [
+                    'name' => $cityName,
+                    'count' => $cityUnits->count(),
+                    'image' => $photo,
+                    'link' => route('tenant.search', ['tenant_slug' => $tenant->slug, 'q' => $cityName]),
+                ];
+            })
+            ->take(6)
+            ->values();
+
+        $mapUnits = (clone $publicUnitsBase)
+            ->orderByDesc('id')
+            ->limit(12)
+            ->get();
         
-        return view('tenant.home', compact('tenant', 'units', 'beds', 'baths', 'max', 'category', 'subcategory', 'q', 'categories', 'types', 'popularCities', 'listing_type'));
+        return view('tenant.home', compact(
+            'tenant',
+            'units',
+            'spotlightUnits',
+            'stats',
+            'mapUnits',
+            'beds',
+            'baths',
+            'max',
+            'category',
+            'subcategory',
+            'q',
+            'categories',
+            'types',
+            'popularCities',
+            'listing_type'
+        ));
     }
 
     public function search(Request $request): View

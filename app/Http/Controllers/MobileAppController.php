@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tenant;
 use App\Models\Unit;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 
 class MobileAppController extends Controller
@@ -23,8 +24,10 @@ class MobileAppController extends Controller
         return view('mobile.auth.register');
     }
 
-    public function marketplace(): View
+    public function marketplace(Request $request): View
     {
+        $this->abortIfNotCentralDomain($request);
+
         return view('mobile.marketplace');
     }
 
@@ -47,9 +50,14 @@ class MobileAppController extends Controller
     {
         $unit->load([
             'property',
+            'tenant',
+            'subcategory.category',
             'city',
+            'area',
             'subcategory',
             'agent',
+            'officialInfo',
+            'owner',
             'unitAttributes.attributeField',
         ]);
 
@@ -79,5 +87,13 @@ class MobileAppController extends Controller
     public function about(): View
     {
         return view('mobile.about');
+    }
+
+    private function abortIfNotCentralDomain(Request $request): void
+    {
+        $baseDomain = (string) config('tenancy.base_domain');
+        $host = $request->getHost();
+
+        abort_unless(in_array($host, [$baseDomain, 'www.' . $baseDomain], true), 404);
     }
 }

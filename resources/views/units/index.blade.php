@@ -354,13 +354,20 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200/50 bg-white">
                         @forelse($units as $u)
+                            @php
+                                $assignedAgentNames = collect([$u->agent?->name])
+                                    ->merge($u->agents->pluck('name'))
+                                    ->filter()
+                                    ->unique()
+                                    ->values();
+                            @endphp
                             <tr class="hover:bg-slate-50">
                                 <td class="px-4 py-3 text-right">
                                     <div class="text-sm font-medium text-slate-900">{{ is_array($u->title) ? ($u->title['ar'] ?? $u->title['en'] ?? $u->code) : ($u->title ?? $u->code) }}</div>
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                                        {{ $u->property?->category?->name ?? 'N/A' }}
+                                        {{ $u->subcategory?->name ?? $u->property?->category?->name ?? 'N/A' }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
@@ -385,12 +392,16 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <div class="text-sm font-semibold text-slate-900">${{ number_format($u->price / 100, 0) }}</div>
-                                    <div class="text-xs text-slate-500">{{ __('per year') }}</div>
+                                    <div class="text-sm font-semibold text-slate-900">{{ number_format((float) $u->price, 2) }} {{ $u->currency ?? 'JOD' }}</div>
+                                    <div class="text-xs text-slate-500">{{ $u->listing_type === 'rent' ? __('per year') : __('sale price') }}</div>
                                 </td>
                                 @if(! auth()->user()?->agent_id)
                                     <td class="px-4 py-3 text-right">
-                                        <span class="text-xs text-slate-500">{{ __('Unassigned') }}</span>
+                                        @if($assignedAgentNames->isNotEmpty())
+                                            <span class="text-xs text-slate-700">{{ $assignedAgentNames->join(', ') }}</span>
+                                        @else
+                                            <span class="text-xs text-slate-500">{{ __('Unassigned') }}</span>
+                                        @endif
                                     </td>
                                 @endif
                                 <td class="px-4 py-3 text-right">

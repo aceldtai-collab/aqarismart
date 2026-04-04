@@ -1,10 +1,539 @@
-@extends('mobile.layouts.app', ['title' => app()->getLocale() === 'ar' ? 'عقاري سمارت' : 'Aqari Smart', 'subtitle' => '', 'show_back_button' => false])
+@extends('mobile.layouts.app', [
+    'title' => app()->getLocale() === 'ar' ? 'عقاري سمارت' : 'Aqari Smart',
+    'subtitle' => '',
+    'show_back_button' => false,
+    'body_class' => 'mobile-marketplace-shell',
+])
 
 @section('full_width', true)
+
+@push('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --market-ink:#1f2a24;
+        --market-palm:#0f5a46;
+        --market-river:#2f7a72;
+        --market-brass:#b6842f;
+        --market-clay:#9d5a3b;
+        --market-sand:#efe4cf;
+        --market-cream:#fbf7ef;
+        --market-line:rgba(130,94,38,.16);
+        --market-soft:rgba(255,252,246,.94);
+        --market-soft-strong:rgba(255,248,235,.98);
+    }
+    body.mobile-marketplace-shell{
+        background:
+            radial-gradient(circle at top left, rgba(182,132,47,.14), transparent 22%),
+            radial-gradient(circle at top right, rgba(15,90,70,.1), transparent 24%),
+            linear-gradient(180deg, #eee2cc 0, #f7efdf 300px, #fbf7ef 100%);
+        color:var(--market-ink);
+        font-family:'Manrope',system-ui,sans-serif;
+    }
+    html[dir="rtl"] body.mobile-marketplace-shell{
+        font-family:'Cairo','Manrope',system-ui,sans-serif;
+    }
+    body.mobile-marketplace-shell aside{
+        background:rgba(252,248,241,.98);
+        color:var(--market-ink);
+    }
+    body.mobile-marketplace-shell aside .bg-gradient-to-br.from-emerald-600.to-emerald-700{
+        background:linear-gradient(145deg, rgba(15,32,26,.96), rgba(15,90,70,.9) 56%, rgba(48,33,15,.86)) !important;
+    }
+    body.mobile-marketplace-shell header.sticky{
+        background:linear-gradient(145deg, rgba(15,32,26,.96), rgba(15,90,70,.9) 56%, rgba(48,33,15,.86));
+        box-shadow:0 16px 36px -24px rgba(28,22,10,.55);
+    }
+    body.mobile-marketplace-shell .mobile-market-page{
+        min-height:100vh;
+    }
+    .mm-shell{padding-inline:1rem}
+    .mm-card{
+        border:1px solid var(--market-line);
+        background:var(--market-soft);
+        box-shadow:0 24px 54px -36px rgba(57,42,16,.34);
+    }
+    .mm-surface{
+        background:linear-gradient(180deg, rgba(255,249,239,.98), rgba(247,237,214,.9));
+        border:1px solid rgba(182,132,47,.22);
+        box-shadow:0 24px 54px -36px rgba(57,42,16,.28);
+    }
+    .mm-ornament{
+        height:10px;
+        width:104px;
+        border-radius:999px;
+        background:
+            linear-gradient(90deg, rgba(15,90,70,.16), rgba(182,132,47,.32), rgba(15,90,70,.16)),
+            repeating-linear-gradient(90deg, transparent 0 10px, rgba(182,132,47,.56) 10px 14px, transparent 14px 24px);
+    }
+    .mm-hero{
+        position:relative;
+        overflow:hidden;
+        border-radius:2rem;
+        background:
+            radial-gradient(circle at top left, rgba(255,255,255,.14), transparent 28%),
+            linear-gradient(145deg, rgba(15,32,26,.96), rgba(15,90,70,.88) 54%, rgba(48,33,15,.82));
+        color:#fff8ea;
+        box-shadow:0 30px 64px -34px rgba(28,22,10,.58);
+    }
+    .mm-hero::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+            linear-gradient(180deg, rgba(10,16,13,.04), rgba(10,16,13,.22)),
+            radial-gradient(circle at 85% 14%, rgba(255,255,255,.08), transparent 24%);
+        pointer-events:none;
+    }
+    .mm-hero-copy,.mm-section-copy{
+        position:relative;
+        z-index:1;
+    }
+    .mm-kicker{
+        font-size:.7rem;
+        font-weight:800;
+        letter-spacing:.22em;
+        text-transform:uppercase;
+        color:rgba(255,241,212,.74);
+    }
+    .mm-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:.55rem;
+        border-radius:999px;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(255,255,255,.08);
+        padding:.68rem .95rem;
+        font-size:.68rem;
+        font-weight:800;
+        letter-spacing:.14em;
+        text-transform:uppercase;
+        color:rgba(255,248,236,.88);
+        backdrop-filter:blur(12px);
+    }
+    .mm-chip::before{
+        content:"";
+        width:.45rem;
+        height:.45rem;
+        border-radius:999px;
+        background:var(--market-brass);
+        box-shadow:0 0 0 4px rgba(182,132,47,.16);
+    }
+    .mm-stat{
+        border:1px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.08);
+        border-radius:1.35rem;
+        padding:.9rem .95rem;
+        backdrop-filter:blur(14px);
+    }
+    .mm-stat-label{
+        font-size:.65rem;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+        color:rgba(255,244,221,.62);
+        font-weight:700;
+    }
+    .mm-stat-value{
+        margin-top:.35rem;
+        font-size:1rem;
+        line-height:1.2;
+        font-weight:800;
+        color:#fff8ea;
+    }
+    .mm-filter-shell{
+        border:1px solid rgba(182,132,47,.22);
+        background:rgba(255,248,235,.97);
+        box-shadow:0 26px 54px -34px rgba(19,24,20,.44);
+    }
+    .mm-toggle{
+        display:flex;
+        gap:.35rem;
+        border-radius:1.2rem;
+        background:rgba(15,90,70,.08);
+        padding:.3rem;
+    }
+    .mm-toggle button{
+        flex:1;
+        border-radius:1rem;
+        padding:.8rem .75rem;
+        font-size:.82rem;
+        font-weight:800;
+        color:#6d7069;
+        transition:all .18s ease;
+    }
+    .mm-toggle button.is-active{
+        background:linear-gradient(135deg, var(--market-palm), var(--market-brass));
+        color:#fff;
+        box-shadow:0 16px 26px -18px rgba(15,90,70,.8);
+    }
+    .mm-input{
+        border:1px solid rgba(130,94,38,.16);
+        background:rgba(255,255,255,.82);
+        color:var(--market-ink);
+        transition:border-color .2s ease, box-shadow .2s ease;
+    }
+    .mm-input:focus{
+        outline:none;
+        border-color:rgba(182,132,47,.72);
+        box-shadow:0 0 0 4px rgba(182,132,47,.12);
+    }
+    .mm-search-submit{
+        background:linear-gradient(135deg, var(--market-palm), var(--market-brass));
+        color:#fff;
+        box-shadow:0 18px 34px -18px rgba(15,90,70,.8);
+    }
+    .mm-anchor{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:999px;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(255,255,255,.08);
+        padding:.7rem .9rem;
+        font-size:.72rem;
+        font-weight:800;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        color:#fff8ea;
+        text-decoration:none;
+        backdrop-filter:blur(10px);
+    }
+    .mm-section-head{
+        display:flex;
+        align-items:end;
+        justify-content:space-between;
+        gap:1rem;
+        margin-bottom:1rem;
+    }
+    .mm-section-kicker{
+        font-size:.68rem;
+        font-weight:800;
+        letter-spacing:.2em;
+        text-transform:uppercase;
+        color:var(--market-brass);
+    }
+    .mm-section-title{
+        margin-top:.35rem;
+        font-size:1.5rem;
+        line-height:1.1;
+        font-weight:900;
+        letter-spacing:-.04em;
+        color:var(--market-ink);
+    }
+    .mm-section-link{
+        font-size:.74rem;
+        font-weight:800;
+        letter-spacing:.14em;
+        text-transform:uppercase;
+        color:var(--market-palm);
+        text-decoration:none;
+    }
+    .mm-scroll{
+        display:flex;
+        gap:.85rem;
+        overflow-x:auto;
+        padding-bottom:.25rem;
+        scroll-snap-type:x mandatory;
+        -ms-overflow-style:none;
+        scrollbar-width:none;
+    }
+    .mm-scroll::-webkit-scrollbar{display:none}
+    .mm-category-card,.mm-agency-card,.mm-city-card,.mm-unit-card{
+        border:1px solid var(--market-line);
+        background:rgba(255,252,246,.96);
+        box-shadow:0 22px 46px -34px rgba(55,38,12,.36);
+    }
+    .mm-category-card{
+        min-width:112px;
+        border-radius:1.4rem;
+        padding:1rem .8rem;
+        text-align:center;
+    }
+    .mm-category-card.is-active{
+        background:linear-gradient(145deg, rgba(15,90,70,.92), rgba(48,122,114,.84));
+        color:#fff;
+        border-color:transparent;
+    }
+    .mm-category-icon{
+        display:flex;
+        height:3.35rem;
+        width:3.35rem;
+        align-items:center;
+        justify-content:center;
+        margin:0 auto .7rem;
+        border-radius:999px;
+        background:rgba(15,90,70,.08);
+        color:var(--market-palm);
+    }
+    .mm-category-card.is-active .mm-category-icon{
+        background:rgba(255,255,255,.14);
+        color:#fff;
+    }
+    .mm-agency-card{
+        min-width:258px;
+        border-radius:1.6rem;
+        padding:1rem;
+        text-decoration:none;
+        color:inherit;
+        scroll-snap-align:start;
+    }
+    .mm-agency-logo{
+        height:3.1rem;
+        width:3.1rem;
+        overflow:hidden;
+        border-radius:1rem;
+        border:1px solid rgba(130,94,38,.14);
+        background:rgba(255,255,255,.8);
+    }
+    .mm-agency-stat{
+        border-top:1px solid rgba(130,94,38,.12);
+        margin-top:.85rem;
+        padding-top:.85rem;
+        display:flex;
+        gap:1rem;
+        align-items:center;
+    }
+    .mm-agency-stat strong{
+        display:block;
+        font-size:1rem;
+        font-weight:900;
+        color:var(--market-ink);
+    }
+    .mm-agency-stat span{
+        font-size:.68rem;
+        font-weight:800;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        color:#81857d;
+    }
+    .mm-city-grid{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:.8rem;
+    }
+    .mm-city-card{
+        position:relative;
+        overflow:hidden;
+        border-radius:1.45rem;
+        text-decoration:none;
+        color:#fff;
+        min-height:148px;
+    }
+    .mm-city-card img{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }
+    .mm-city-card::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:linear-gradient(180deg, rgba(10,14,12,.04), rgba(10,14,12,.72));
+    }
+    .mm-city-copy{
+        position:relative;
+        z-index:1;
+        display:flex;
+        height:100%;
+        flex-direction:column;
+        justify-content:flex-end;
+        padding:1rem;
+    }
+    .mm-slider{
+        position:relative;
+        overflow:hidden;
+        border-radius:1.35rem 1.35rem 0 0;
+        background:#ece4d5;
+    }
+    .mm-slider-track{
+        display:flex;
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        -ms-overflow-style:none;
+        scrollbar-width:none;
+    }
+    .mm-slider-track::-webkit-scrollbar{display:none}
+    .mm-slide{
+        width:100%;
+        flex:0 0 100%;
+        scroll-snap-align:start;
+    }
+    .mm-slider-btn{
+        position:absolute;
+        top:50%;
+        z-index:6;
+        display:flex;
+        height:2rem;
+        width:2rem;
+        align-items:center;
+        justify-content:center;
+        border-radius:999px;
+        background:rgba(14,19,17,.46);
+        color:#fff;
+        transform:translateY(-50%);
+        backdrop-filter:blur(10px);
+    }
+    .mm-slider-btn.prev{left:.65rem}
+    .mm-slider-btn.next{right:.65rem}
+    .mm-slider-dots{
+        position:absolute;
+        left:50%;
+        bottom:.7rem;
+        z-index:6;
+        display:flex;
+        gap:.3rem;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:rgba(0,0,0,.35);
+        padding:.35rem .5rem;
+        backdrop-filter:blur(8px);
+    }
+    .mm-slider-dot{
+        height:.35rem;
+        width:.35rem;
+        border-radius:999px;
+        background:rgba(255,255,255,.42);
+    }
+    .mm-slider-dot.is-active{background:#fff}
+    .mm-unit-card{
+        overflow:hidden;
+        border-radius:1.6rem;
+        text-decoration:none;
+        color:inherit;
+    }
+    .mm-unit-card.compact{
+        min-width:280px;
+        scroll-snap-align:start;
+    }
+    .mm-unit-card-body{padding:1rem}
+    .mm-unit-badge{
+        display:inline-flex;
+        align-items:center;
+        border-radius:999px;
+        padding:.45rem .7rem;
+        font-size:.62rem;
+        font-weight:800;
+        letter-spacing:.14em;
+        text-transform:uppercase;
+        color:#fff;
+        backdrop-filter:blur(10px);
+    }
+    .mm-unit-badge.sale{background:rgba(182,132,47,.88)}
+    .mm-unit-badge.rent{background:rgba(15,90,70,.88)}
+    .mm-price-pill{
+        display:inline-flex;
+        align-items:center;
+        border-radius:999px;
+        background:rgba(255,249,239,.94);
+        padding:.5rem .78rem;
+        font-size:.82rem;
+        font-weight:900;
+        color:var(--market-ink);
+        box-shadow:0 12px 24px -20px rgba(0,0,0,.42);
+    }
+    .mm-unit-meta{
+        display:flex;
+        flex-wrap:wrap;
+        gap:.45rem;
+        margin-top:.75rem;
+    }
+    .mm-pill{
+        border-radius:999px;
+        padding:.38rem .7rem;
+        font-size:.62rem;
+        font-weight:800;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+    }
+    .mm-pill.palm{background:rgba(15,90,70,.08); color:var(--market-palm)}
+    .mm-pill.brass{background:rgba(182,132,47,.12); color:var(--market-brass)}
+    .mm-pill.clay{background:rgba(157,90,59,.08); color:var(--market-clay)}
+    .mm-map-card{
+        overflow:hidden;
+        border-radius:1.6rem;
+        border:1px solid rgba(130,94,38,.14);
+        background:linear-gradient(145deg, rgba(248,240,221,.96), rgba(244,229,199,.92));
+        box-shadow:0 24px 54px -38px rgba(57,42,16,.3);
+    }
+    .mm-map-note{
+        border:1px solid rgba(130,94,38,.12);
+        background:rgba(255,252,246,.9);
+        border-radius:1.35rem;
+        padding:.95rem 1rem;
+    }
+    .mm-feed{
+        display:grid;
+        gap:1rem;
+    }
+    .mm-empty{
+        border:1px dashed rgba(130,94,38,.22);
+        background:rgba(255,252,246,.82);
+        border-radius:1.5rem;
+        padding:2rem 1.2rem;
+        text-align:center;
+    }
+    .mm-loading{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:.65rem;
+        border-radius:1.5rem;
+        background:rgba(255,252,246,.86);
+        padding:1.4rem 1rem;
+        border:1px solid rgba(130,94,38,.12);
+    }
+    .mm-spinner{
+        height:1.1rem;
+        width:1.1rem;
+        border-radius:999px;
+        border:2px solid rgba(15,90,70,.2);
+        border-top-color:var(--market-palm);
+        animation:mm-spin .9s linear infinite;
+    }
+    .mm-map-popup{
+        min-width:180px;
+        font-family:inherit;
+    }
+    .mm-map-popup-title{
+        font-size:.9rem;
+        line-height:1.3;
+        font-weight:800;
+        color:var(--market-ink);
+    }
+    .mm-map-popup-meta{
+        margin-top:.3rem;
+        font-size:.75rem;
+        line-height:1.5;
+        color:#63675f;
+    }
+    .mm-map-popup-link{
+        margin-top:.55rem;
+        display:inline-flex;
+        align-items:center;
+        gap:.35rem;
+        font-size:.72rem;
+        font-weight:800;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        color:var(--market-palm);
+        text-decoration:none;
+    }
+    .mobile-marketplace-shell .leaflet-container{
+        background:#e7ddca;
+        font:inherit;
+    }
+    @keyframes mm-spin{to{transform:rotate(360deg)}}
+</style>
+@endpush
 
 @section('content')
     @php
         $locale = app()->getLocale() === 'ar' ? 'ar' : 'en';
+        $isAr = $locale === 'ar';
         $mobileTestData = config('mobiletestdata');
         $hero = $mobileTestData['hero'] ?? [];
 
@@ -12,129 +541,188 @@
             if (is_array($value)) {
                 return $value[$locale] ?? $value['en'] ?? $fallback;
             }
+
             return $value ?? $fallback;
         };
 
-        $baseDomain = config('tenancy.base_domain');
-        $currentHost = request()->getHost();
-        $isTenantDomain = $currentHost !== $baseDomain && $currentHost !== 'www.' . $baseDomain;
-        $tenantSlug = $isTenantDomain ? explode('.', $currentHost)[0] : null;
+        $tx = [
+            'heroEyebrow' => $isAr ? 'سوق عقاري معاصر' : 'A Modern Property Market',
+            'heroTitle' => $t($hero['title'] ?? null, $isAr ? 'من السوق إلى بيتك القادم' : 'From the marketplace to your next place'),
+            'heroSubtitle' => $t($hero['subtitle'] ?? null, $isAr ? 'واجهة دافئة تعرض العقارات والوكالات والمواقع بطريقة أوضح وأقرب لرحلة المستخدم على الموبايل.' : 'A warmer mobile storefront for listings, agencies, and locations with a clearer, more guided property journey.'),
+            'heroSearch' => $t($hero['search_placeholder'] ?? null, $isAr ? 'ابحث باسم العقار أو المدينة أو الوكالة' : 'Search property, city, or agency'),
+            'heroHint' => $isAr ? 'ابدأ بالبحث، ثم تحرك بين الوكالات والعقارات والخريطة من نفس الصفحة.' : 'Start with a search, then move across agencies, listings, and the map from one consistent page.',
+            'all' => $isAr ? 'الكل' : 'All',
+            'buy' => $isAr ? 'شراء' : 'Buy',
+            'rent' => $isAr ? 'إيجار' : 'Rent',
+            'resultsStat' => $isAr ? 'العروض' : 'Listings',
+            'agenciesStat' => $isAr ? 'الوكالات' : 'Agencies',
+            'citiesStat' => $isAr ? 'المدن' : 'Cities',
+            'recommendedKicker' => $isAr ? 'مختاراتنا' : 'Curated Picks',
+            'recommendedTitle' => $isAr ? 'موصى به لك' : 'Recommended for you',
+            'categoriesKicker' => $isAr ? 'الأنواع' : 'Property Types',
+            'categoriesTitle' => $isAr ? 'تصفح حسب الفئة' : 'Browse by category',
+            'agenciesKicker' => $isAr ? 'الوكالات' : 'Agencies',
+            'agenciesTitle' => $isAr ? 'أبرز الوكالات' : 'Top agencies',
+            'citiesKicker' => $isAr ? 'المناطق' : 'Popular Areas',
+            'citiesTitle' => $isAr ? 'استكشف حسب المدينة' : 'Explore by city',
+            'mapKicker' => $isAr ? 'الخريطة' : 'Map',
+            'mapTitle' => $isAr ? 'اقرأ السوق على الخريطة' : 'Read the market on a map',
+            'mapText' => $isAr ? 'العقارات التي تملك إحداثيات تظهر هنا لقراءة أسرع للمواقع النشطة.' : 'Listings with saved coordinates appear here so visitors can read active areas faster.',
+            'mapHint' => $isAr ? 'اضغط على العلامة للانتقال إلى صفحة العقار.' : 'Tap a marker to jump into the property page.',
+            'feedKicker' => $isAr ? 'النتائج' : 'Results',
+            'feedTitle' => $isAr ? 'نتائج البحث' : 'Search results',
+            'viewAll' => $isAr ? 'عرض الكل' : 'View all',
+            'jumpResults' => $isAr ? 'النتائج' : 'Results',
+            'jumpAgencies' => $isAr ? 'الوكالات' : 'Agencies',
+            'jumpMap' => $isAr ? 'الخريطة' : 'Map',
+            'searchAction' => $isAr ? 'استكشف' : 'Explore',
+        ];
     @endphp
 
-    <div class="bg-gray-50 min-h-screen pb-12">
+    <div class="mobile-market-page pb-12">
+        <section class="mm-shell px-4 pb-2 pt-4">
+            <div class="mm-hero px-5 py-6">
+                <div class="mm-hero-copy">
+                    <div class="mm-ornament"></div>
+                    <p class="mm-kicker mt-5">{{ $tx['heroEyebrow'] }}</p>
+                    <h1 class="mt-3 text-[2rem] font-black leading-[1.02] tracking-[-0.05em] text-[#fff8ea]">{{ $tx['heroTitle'] }}</h1>
+                    <p class="mt-3 max-w-xl text-sm leading-7 text-white/78">{{ $tx['heroSubtitle'] }}</p>
 
-        {{-- ═══ Hero Section ═══ --}}
-        <section class="bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-900 text-white">
-            <div class="px-5 pb-7 pt-6">
-                <div class="mb-5">
-                    <h1 class="text-2xl font-bold leading-snug tracking-tight">{{ $t($hero['title'] ?? null, 'Find your next property') }}</h1>
-                    <p class="mt-1.5 text-sm leading-relaxed text-emerald-100/80">{{ $t($hero['subtitle'] ?? null, 'Curated apartments, villas, offices, and investment opportunities.') }}</p>
+                    <div class="mt-5 flex flex-wrap gap-2 {{ $isAr ? 'justify-end' : '' }}">
+                        <a href="#feed-section" class="mm-anchor">{{ $tx['jumpResults'] }}</a>
+                        <a href="#agencies-section" class="mm-anchor">{{ $tx['jumpAgencies'] }}</a>
+                        <a href="#map-section" class="mm-anchor">{{ $tx['jumpMap'] }}</a>
+                    </div>
+
+                    <div class="mt-5 grid grid-cols-3 gap-2.5">
+                        <div class="mm-stat">
+                            <div class="mm-stat-label">{{ $tx['resultsStat'] }}</div>
+                            <div class="mm-stat-value" id="mm-stat-results">--</div>
+                        </div>
+                        <div class="mm-stat">
+                            <div class="mm-stat-label">{{ $tx['agenciesStat'] }}</div>
+                            <div class="mm-stat-value" id="mm-stat-agencies">--</div>
+                        </div>
+                        <div class="mm-stat">
+                            <div class="mm-stat-label">{{ $tx['citiesStat'] }}</div>
+                            <div class="mm-stat-value" id="mm-stat-cities">--</div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                {{-- Search Form --}}
+            <div class="mm-surface mm-filter-shell -mt-8 rounded-[1.8rem] p-4">
                 <form id="mobile-marketplace-filter" class="space-y-3">
-                    {{-- Segmented Buy / Rent Toggle --}}
-                    <div class="flex rounded-xl bg-white/10 p-1 backdrop-blur-sm" id="listing-type-toggle">
-                        <button type="button" data-value="" class="listing-toggle flex-1 rounded-lg py-2.5 text-center text-sm font-bold transition-all active:scale-[0.97] bg-white text-emerald-800 shadow-sm">
-                            {{ app()->getLocale() === 'ar' ? 'الكل' : 'All' }}
-                        </button>
-                        <button type="button" data-value="sale" class="listing-toggle flex-1 rounded-lg py-2.5 text-center text-sm font-bold transition-all active:scale-[0.97] text-white/70 hover:text-white">
-                            {{ app()->getLocale() === 'ar' ? 'شراء' : 'Buy' }}
-                        </button>
-                        <button type="button" data-value="rent" class="listing-toggle flex-1 rounded-lg py-2.5 text-center text-sm font-bold transition-all active:scale-[0.97] text-white/70 hover:text-white">
-                            {{ app()->getLocale() === 'ar' ? 'إيجار' : 'Rent' }}
-                        </button>
+                    <div id="listing-type-toggle" class="mm-toggle">
+                        <button type="button" class="listing-toggle is-active" data-value="">{{ $tx['all'] }}</button>
+                        <button type="button" class="listing-toggle" data-value="sale">{{ $tx['buy'] }}</button>
+                        <button type="button" class="listing-toggle" data-value="rent">{{ $tx['rent'] }}</button>
                     </div>
                     <input type="hidden" name="listing_type" id="listing_type_input" value="">
-
-                    {{-- Search Input + Button --}}
-                    <div class="flex gap-2">
-                        <div class="relative flex-1">
-                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 rtl:right-0 rtl:left-auto rtl:pr-3.5">
-                                <svg class="h-4.5 w-4.5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            </div>
-                            <input name="q" placeholder="{{ $t($hero['search_placeholder'] ?? null, 'Search city, area, or agent') }}" class="w-full rounded-xl border border-white/20 bg-white/10 py-3 pl-10 pr-4 rtl:pl-4 rtl:pr-10 text-sm text-white placeholder-white/50 backdrop-blur-sm transition-all focus:border-emerald-300/50 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-emerald-300/30">
-                        </div>
-                        <button type="submit" class="flex items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-emerald-800 shadow-sm transition-all hover:bg-emerald-50 active:scale-95">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        </button>
-                    </div>
-
                     <input type="hidden" name="category_id" id="filter_category_id" value="">
                     <input type="hidden" name="city_id" id="filter_city_id" value="">
+
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 rtl:left-auto rtl:right-0 rtl:pr-3.5">
+                                <svg class="h-4.5 w-4.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <input name="q" placeholder="{{ $tx['heroSearch'] }}" class="mm-input h-12 w-full rounded-2xl py-3 pl-10 pr-4 rtl:pl-4 rtl:pr-10 text-sm font-medium placeholder:text-slate-400">
+                        </div>
+                        <button type="submit" class="mm-search-submit inline-flex h-12 items-center justify-center rounded-2xl px-4 text-sm font-extrabold tracking-[0.14em] uppercase">
+                            {{ $tx['searchAction'] }}
+                        </button>
+                    </div>
                 </form>
+                <p class="mt-3 text-xs leading-6 text-slate-500">{{ $tx['heroHint'] }}</p>
             </div>
         </section>
 
-        {{-- ═══ 1. Browse by Category ═══ --}}
-        <section class="mt-6 px-5">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800">{{ app()->getLocale() === 'ar' ? 'تصفح حسب الفئة' : 'Browse by category' }}</h2>
-                <p class="mt-0.5 text-xs font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'اختر نوع العقار المناسب لك' : 'Find the right property type' }}</p>
+        <section class="mm-shell mt-7 px-4">
+            <div class="mm-section-head">
+                <div class="mm-section-copy">
+                    <div class="mm-section-kicker">{{ $tx['recommendedKicker'] }}</div>
+                    <h2 class="mm-section-title">{{ $tx['recommendedTitle'] }}</h2>
+                </div>
+                <a href="#feed-section" class="mm-section-link">{{ $tx['viewAll'] }}</a>
             </div>
-            <div id="mp-categories" class="flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <button type="button" class="category-filter shrink-0 snap-start flex flex-col items-center justify-center rounded-2xl bg-white px-5 py-3.5 shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-emerald-400 active:scale-95" data-id="">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-2">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    </div>
-                    <span class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'الكل' : 'All' }}</span>
-                </button>
-            </div>
-        </section>
-
-        {{-- ═══ 2. Explore by City ═══ --}}
-        <section class="mt-7 px-5">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800">{{ app()->getLocale() === 'ar' ? 'استكشف حسب المدينة' : 'Explore by city' }}</h2>
-                <p class="mt-0.5 text-xs font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'تصفح المدن ذات الطلب المرتفع' : 'Browse high-demand cities' }}</p>
-            </div>
-            <div id="mp-cities" class="grid grid-cols-2 gap-2.5"></div>
-        </section>
-
-        {{-- ═══ 3. Top Agencies ═══ --}}
-        <section class="mt-7 px-5">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800">{{ app()->getLocale() === 'ar' ? 'أبرز الوكالات' : 'Top agencies' }}</h2>
-                <p class="mt-0.5 text-xs font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'وكالات عقارية موثوقة' : 'Trusted real estate agencies' }}</p>
-            </div>
-            <div id="mp-tenants" class="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
-        </section>
-
-        {{-- ═══ 4. Recommended for You (latest units) ═══ --}}
-        <section class="mt-7 px-5">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800">{{ app()->getLocale() === 'ar' ? 'موصى به لك' : 'Recommended for you' }}</h2>
-                <p class="mt-0.5 text-xs font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'أحدث العقارات المتاحة' : 'Latest available properties' }}</p>
-            </div>
-            <div id="mp-recommended" class="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
-        </section>
-
-        {{-- ═══ 5. Live Map ═══ --}}
-        <section class="mt-7 px-5" id="map-section">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800">{{ app()->getLocale() === 'ar' ? 'خريطة العقارات' : 'Properties map' }}</h2>
-                <p class="mt-0.5 text-xs font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'استكشف العقارات على الخريطة' : 'Explore listings on the map' }}</p>
-            </div>
-            <div id="mp-map" class="relative h-[280px] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-sm ring-1 ring-slate-200">
-                <div id="mp-map-placeholder" class="flex h-full flex-col items-center justify-center text-center">
-                    <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
-                        <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </div>
-                    <p class="text-sm font-semibold text-slate-600">{{ app()->getLocale() === 'ar' ? 'جاري تحميل الخريطة...' : 'Loading map...' }}</p>
+            <div id="mp-recommended" class="mm-scroll">
+                <div class="mm-loading w-full">
+                    <span class="mm-spinner"></span>
+                    <span class="text-sm font-semibold text-slate-500">{{ $isAr ? 'جاري التحميل...' : 'Loading...' }}</span>
                 </div>
             </div>
         </section>
 
-        {{-- ═══ 6. Search Results Feed ═══ --}}
-        <section class="mt-7 px-5" id="feed-section">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800">{{ app()->getLocale() === 'ar' ? 'نتائج البحث' : 'Search results' }}</h2>
-                <p class="mt-0.5 text-xs font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'العقارات المطابقة لمعايير بحثك' : 'Properties matching your criteria' }}</p>
+        <section class="mm-shell mt-7 px-4">
+            <div class="mm-section-head">
+                <div class="mm-section-copy">
+                    <div class="mm-section-kicker">{{ $tx['categoriesKicker'] }}</div>
+                    <h2 class="mm-section-title">{{ $tx['categoriesTitle'] }}</h2>
+                </div>
             </div>
-            <div id="mobile-marketplace-results" class="grid gap-3 sm:grid-cols-2">
-                <div class="col-span-full flex flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-                    <div class="h-5 w-5 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent mb-3"></div>
-                    <p class="text-xs font-semibold text-slate-500">{{ app()->getLocale() === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+            <div id="mp-categories" class="mm-scroll"></div>
+        </section>
+
+        <section class="mm-shell mt-7 px-4" id="agencies-section">
+            <div class="mm-section-head">
+                <div class="mm-section-copy">
+                    <div class="mm-section-kicker">{{ $tx['agenciesKicker'] }}</div>
+                    <h2 class="mm-section-title">{{ $tx['agenciesTitle'] }}</h2>
+                </div>
+            </div>
+            <div id="mp-tenants" class="mm-scroll">
+                <div class="mm-loading w-full">
+                    <span class="mm-spinner"></span>
+                    <span class="text-sm font-semibold text-slate-500">{{ $isAr ? 'جاري التحميل...' : 'Loading...' }}</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="mm-shell mt-7 px-4">
+            <div class="mm-section-head">
+                <div class="mm-section-copy">
+                    <div class="mm-section-kicker">{{ $tx['citiesKicker'] }}</div>
+                    <h2 class="mm-section-title">{{ $tx['citiesTitle'] }}</h2>
+                </div>
+            </div>
+            <div id="mp-cities" class="mm-city-grid"></div>
+        </section>
+
+        <section class="mm-shell mt-7 px-4" id="map-section">
+            <div class="mm-section-head">
+                <div class="mm-section-copy">
+                    <div class="mm-section-kicker">{{ $tx['mapKicker'] }}</div>
+                    <h2 class="mm-section-title">{{ $tx['mapTitle'] }}</h2>
+                </div>
+            </div>
+            <div class="mm-map-note mb-3 text-sm leading-7 text-slate-600">
+                <strong class="block text-sm font-extrabold text-[color:var(--market-ink)]">{{ $tx['mapText'] }}</strong>
+                <span class="mt-1 block text-xs text-slate-500">{{ $tx['mapHint'] }}</span>
+            </div>
+            <div class="mm-map-card">
+                <div id="mp-map" class="relative h-[290px] w-full">
+                    <div id="mp-map-placeholder" class="flex h-full flex-col items-center justify-center px-6 text-center">
+                        <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(15,90,70,.08)] text-[color:var(--market-palm)]">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-600">{{ $isAr ? 'جاري التحميل...' : 'Loading...' }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mm-shell mt-7 px-4" id="feed-section">
+            <div class="mm-section-head">
+                <div class="mm-section-copy">
+                    <div class="mm-section-kicker">{{ $tx['feedKicker'] }}</div>
+                    <h2 class="mm-section-title">{{ $tx['feedTitle'] }}</h2>
+                </div>
+            </div>
+            <div id="mobile-marketplace-results" class="mm-feed">
+                <div class="mm-loading">
+                    <span class="mm-spinner"></span>
+                    <span class="text-sm font-semibold text-slate-500">{{ $isAr ? 'جاري التحميل...' : 'Loading...' }}</span>
                 </div>
             </div>
         </section>
@@ -142,7 +730,6 @@
 @endsection
 
 @push('scripts')
-{{-- Leaflet CSS + JS for map --}}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
@@ -150,189 +737,406 @@
 const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const marketplaceForm = document.getElementById('mobile-marketplace-filter');
 const marketplaceResults = document.getElementById('mobile-marketplace-results');
+const statResults = document.getElementById('mm-stat-results');
+const statAgencies = document.getElementById('mm-stat-agencies');
+const statCities = document.getElementById('mm-stat-cities');
+const tx = {
+    noResults: lang === 'ar' ? 'لا توجد نتائج حالياً' : 'No results right now',
+    noResultsHint: lang === 'ar' ? 'جرّب تغيير البحث أو الفلاتر.' : 'Try adjusting the search or filters.',
+    noLocations: lang === 'ar' ? 'لا توجد مواقع متاحة بعد' : 'No map locations yet',
+    noLocationsHint: lang === 'ar' ? 'ستظهر العقارات هنا عند توفر الإحداثيات.' : 'Listings will appear here once coordinates are available.',
+    loading: lang === 'ar' ? 'جاري التحميل...' : 'Loading...',
+    sale: lang === 'ar' ? 'للبيع' : 'For Sale',
+    rent: lang === 'ar' ? 'للإيجار' : 'For Rent',
+    beds: lang === 'ar' ? 'غرف' : 'beds',
+    baths: lang === 'ar' ? 'حمامات' : 'baths',
+    sqft: lang === 'ar' ? 'قدم²' : 'sq ft',
+    listings: lang === 'ar' ? 'إعلانات' : 'Listings',
+    active: lang === 'ar' ? 'نشط' : 'Active',
+    viewProperty: lang === 'ar' ? 'عرض العقار' : 'View property',
+    allCategories: lang === 'ar' ? 'الكل' : 'All',
+    allCategoriesHint: lang === 'ar' ? 'كل الفئات' : 'All categories',
+    viewAll: lang === 'ar' ? 'عرض الكل' : 'View all',
+};
+
 let sectionsLoaded = false;
 let mapInstance = null;
 let mapMarkers = [];
+let debounceTimer = null;
 
-function t(obj, fallback) {
-    if (typeof obj === 'object' && obj !== null) return obj[lang] ?? obj['en'] ?? fallback;
-    return obj ?? fallback;
+function formatNumber(value) {
+    return new Intl.NumberFormat().format(Number(value || 0));
 }
 
-// ── Segmented Toggle ──
-document.querySelectorAll('.listing-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.getElementById('listing_type_input').value = btn.dataset.value;
-        document.querySelectorAll('.listing-toggle').forEach(b => {
-            b.classList.remove('bg-white', 'text-emerald-800', 'shadow-sm');
-            b.classList.add('text-white/70');
-        });
-        btn.classList.remove('text-white/70');
-        btn.classList.add('bg-white', 'text-emerald-800', 'shadow-sm');
-        loadMarketplace();
-    });
-});
+function money(value, currency = 'JOD') {
+    return `${currency} ${formatNumber(value)}`;
+}
 
-// ── Unit Card ──
-function unitCardHtml(unit) {
-    const title = unit.translated_title ?? unit.title ?? unit.code;
-    const photo = (unit.photos && unit.photos[0]) ? unit.photos[0] : 'https://picsum.photos/seed/aqarismart-fallback/900/640';
-    const cityName = lang === 'ar' ? (unit.city?.name_ar ?? unit.city?.name_en ?? '') : (unit.city?.name_en ?? '');
-    const propName = unit.property?.name ?? '';
-    const loc = propName && cityName ? `${propName} · ${cityName}` : (propName || cityName);
-    const typeBadge = unit.listing_type === 'sale' ? (lang === 'ar' ? 'للبيع' : 'Sale') : (lang === 'ar' ? 'للإيجار' : 'Rent');
-    const badgeClass = unit.listing_type === 'sale' ? 'bg-emerald-600/90' : 'bg-sky-600/90';
-    return `<a href="/mobile/units/${unit.code}" class="group block overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-emerald-400">
-        <div class="relative aspect-[16/10] bg-slate-100">
-            <img src="${photo}" alt="${title}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
-            <div class="absolute left-3 top-3"><span class="inline-flex items-center rounded-lg ${badgeClass} backdrop-blur-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">${typeBadge}</span></div>
-            <div class="absolute bottom-3 left-3"><span class="inline-flex items-center rounded-lg bg-white/95 backdrop-blur-sm px-2.5 py-1 text-sm font-bold text-slate-900 shadow-sm">${unit.currency ?? 'JOD'} ${new Intl.NumberFormat().format(unit.price ?? 0)}</span></div>
-        </div>
-        <div class="p-3.5">
-            <h3 class="text-sm font-bold text-slate-900 line-clamp-1">${title}</h3>
-            <p class="mt-1 flex items-center text-xs font-medium text-slate-400 line-clamp-1">
-                <svg class="mr-1 h-3 w-3 shrink-0 rtl:ml-1 rtl:mr-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-                ${loc}
-            </p>
-            <div class="mt-3 flex items-center gap-3 border-t border-slate-100 pt-3 text-[11px] font-semibold text-slate-500">
-                <span>${unit.bedrooms ?? unit.beds ?? 0} ${lang === 'ar' ? 'غرف' : 'beds'}</span>
-                <span class="text-slate-200">·</span>
-                <span>${unit.bathrooms ?? unit.baths ?? 0} ${lang === 'ar' ? 'حمامات' : 'baths'}</span>
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+    })[char]);
+}
+
+function categoryIcon() {
+    return `<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2.5a2 2 0 012 2v2.5a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm9.5 0a2 2 0 012-2H18a2 2 0 012 2v2.5a2 2 0 01-2 2h-2.5a2 2 0 01-2-2V6zM4 15.5a2 2 0 012-2h2.5a2 2 0 012 2V18a2 2 0 01-2 2H6a2 2 0 01-2-2v-2.5zm9.5 0a2 2 0 012-2H18a2 2 0 012 2V18a2 2 0 01-2 2h-2.5a2 2 0 01-2-2v-2.5z"/></svg>`;
+}
+
+function unitTitle(unit) {
+    return unit.translated_title ?? unit.title ?? unit.code;
+}
+
+function unitLocation(unit) {
+    const parts = [];
+    if (unit.property?.name) parts.push(unit.property.name);
+    if (unit.city?.name_en || unit.city?.name_ar) parts.push(lang === 'ar' ? (unit.city?.name_ar ?? unit.city?.name_en) : (unit.city?.name_en ?? unit.city?.name_ar));
+    if (parts.length) return parts.join(' · ');
+    if (unit.location) return unit.location;
+    return lang === 'ar' ? 'تفاصيل الموقع قريباً' : 'Location details coming soon';
+}
+
+function typeLabel(listingType) {
+    return listingType === 'sale' ? tx.sale : tx.rent;
+}
+
+function typeClass(listingType) {
+    return listingType === 'sale' ? 'sale' : 'rent';
+}
+
+function unitGalleryHtml(unit, options = {}) {
+    const photos = Array.isArray(unit.photos) && unit.photos.length
+        ? unit.photos
+        : ['https://picsum.photos/seed/aqarismart-fallback/960/680'];
+    const sliderId = `slider-${unit.code}-${options.compact ? 'compact' : 'feed'}`;
+    const heightClass = options.compact ? 'h-44' : 'h-56';
+    const title = escapeHtml(unitTitle(unit));
+
+    return `
+        <div class="mm-slider ${heightClass}" data-slider="${sliderId}">
+            <div class="mm-slider-track h-full" data-slider-track>
+                ${photos.map((photo, index) => `
+                    <div class="mm-slide h-full">
+                        <img src="${photo}" alt="${title}" class="h-full w-full object-cover" loading="lazy" data-slide-index="${index}">
+                    </div>
+                `).join('')}
             </div>
+            ${photos.length > 1 ? `
+                <button type="button" class="mm-slider-btn prev" data-slider-prev aria-label="${lang === 'ar' ? 'الصورة السابقة' : 'Previous image'}">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${lang === 'ar' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'}"/></svg>
+                </button>
+                <button type="button" class="mm-slider-btn next" data-slider-next aria-label="${lang === 'ar' ? 'الصورة التالية' : 'Next image'}">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${lang === 'ar' ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'}"/></svg>
+                </button>
+                <div class="mm-slider-dots">
+                    ${photos.map((_, index) => `<span class="mm-slider-dot ${index === 0 ? 'is-active' : ''}" data-slider-dot data-slide="${index}"></span>`).join('')}
+                </div>
+            ` : ''}
         </div>
-    </a>`;
+    `;
 }
 
-// ── Render Sections ──
+function unitCardHtml(unit, options = {}) {
+    const title = escapeHtml(unitTitle(unit));
+    const location = escapeHtml(unitLocation(unit));
+    const beds = unit.bedrooms ?? unit.beds ?? 0;
+    const baths = unit.bathrooms ?? unit.baths ?? 0;
+    const area = unit.sqft ?? unit.area_m2 ?? 0;
+    const compact = !!options.compact;
+    return `
+        <article class="mm-unit-card ${compact ? 'compact' : ''}" data-unit-card>
+            <div class="relative">
+                ${unitGalleryHtml(unit, { compact })}
+                <a href="/mobile/units/${unit.code}" class="absolute inset-0 z-[4]" aria-label="${title}"></a>
+                <div class="pointer-events-none absolute left-3 top-3 z-[5]">
+                    <span class="mm-unit-badge ${typeClass(unit.listing_type)}">${typeLabel(unit.listing_type)}</span>
+                </div>
+                <div class="pointer-events-none absolute bottom-3 left-3 z-[5]">
+                    <span class="mm-price-pill">${money(unit.price ?? 0, unit.currency ?? 'JOD')}</span>
+                </div>
+            </div>
+            <div class="mm-unit-card-body">
+                <div class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-[color:var(--market-brass)]">${escapeHtml(unit.subcategory?.name ?? typeLabel(unit.listing_type))}</div>
+                <h3 class="mt-2 text-lg font-black leading-tight tracking-[-0.03em] text-[color:var(--market-ink)]">${title}</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-500">${location}</p>
+                <div class="mm-unit-meta">
+                    <span class="mm-pill palm">${formatNumber(beds)} ${tx.beds}</span>
+                    <span class="mm-pill brass">${formatNumber(baths)} ${tx.baths}</span>
+                    ${area ? `<span class="mm-pill clay">${formatNumber(area)} ${tx.sqft}</span>` : ''}
+                </div>
+                <div class="mt-5 inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[color:var(--market-palm)]">
+                    <span>${tx.viewProperty}</span>
+                    <svg class="h-3.5 w-3.5 ${lang === 'ar' ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </div>
+            </div>
+        </article>
+    `;
+}
+
+function setupUnitSliders(scope = document) {
+    scope.querySelectorAll('[data-slider]').forEach((slider) => {
+        if (slider.dataset.bound === 'true') return;
+        slider.dataset.bound = 'true';
+
+        const track = slider.querySelector('[data-slider-track]');
+        const dots = Array.from(slider.querySelectorAll('[data-slider-dot]'));
+        const prev = slider.querySelector('[data-slider-prev]');
+        const next = slider.querySelector('[data-slider-next]');
+        if (!track) return;
+
+        const updateDots = () => {
+            if (!dots.length) return;
+            const width = track.clientWidth || 1;
+            const currentIndex = Math.max(0, Math.min(dots.length - 1, Math.round(track.scrollLeft / width)));
+            dots.forEach((dot, index) => dot.classList.toggle('is-active', index === currentIndex));
+        };
+
+        const scrollToIndex = (index) => {
+            const width = track.clientWidth || 1;
+            track.scrollTo({ left: width * index, behavior: 'smooth' });
+        };
+
+        prev?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const width = track.clientWidth || 1;
+            const currentIndex = Math.round(track.scrollLeft / width);
+            scrollToIndex(currentIndex <= 0 ? dots.length - 1 : currentIndex - 1);
+        });
+
+        next?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const width = track.clientWidth || 1;
+            const currentIndex = Math.round(track.scrollLeft / width);
+            scrollToIndex(currentIndex >= dots.length - 1 ? 0 : currentIndex + 1);
+        });
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                scrollToIndex(index);
+            });
+        });
+
+        track.addEventListener('scroll', updateDots, { passive: true });
+        window.addEventListener('resize', updateDots, { passive: true });
+        updateDots();
+    });
+}
+
+function updateStats(json) {
+    if (statResults) statResults.textContent = formatNumber(json?.data?.length ?? 0);
+    if (statAgencies) statAgencies.textContent = formatNumber(json?.tenants?.length ?? 0);
+    if (statCities) statCities.textContent = formatNumber(json?.cities?.length ?? 0);
+}
+
 function renderCategories(categories) {
     const container = document.getElementById('mp-categories');
-    if (!container || !categories?.length) return;
-    const allBtn = container.querySelector('.category-filter');
-    container.innerHTML = '';
-    if (allBtn) container.appendChild(allBtn);
-    categories.forEach(cat => {
-        const name = t(cat.name, 'Category');
-        const hasImage = cat.image && !cat.image.includes('unsplash.com/photo-1564013799919');
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'category-filter shrink-0 snap-start flex flex-col items-center justify-center rounded-2xl bg-white px-5 py-3.5 shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-emerald-400 active:scale-95 min-w-[100px]';
-        btn.dataset.id = cat.id ?? '';
-        if (hasImage) {
-            btn.innerHTML = `<div class="h-12 w-12 mb-2 overflow-hidden rounded-full ring-2 ring-slate-100"><img src="${cat.image}" alt="${name}" class="h-full w-full object-cover" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'flex h-full w-full items-center justify-center bg-emerald-50 text-emerald-600\\'><svg class=\\'h-6 w-6\\' fill=\\'none\\' stroke=\\'currentColor\\' viewBox=\\'0 0 24 24\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1.5\\' d=\\'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5\\'/></svg></div>'"></div>
-                <span class="text-xs font-bold text-slate-700 truncate max-w-[80px]">${name}</span>
-                <span class="text-[10px] font-medium text-slate-400">${new Intl.NumberFormat().format(cat.count ?? 0)}</span>`;
-        } else {
-            btn.innerHTML = `<div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-2">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
-                <span class="text-xs font-bold text-slate-700 truncate max-w-[80px]">${name}</span>
-                <span class="text-[10px] font-medium text-slate-400">${new Intl.NumberFormat().format(cat.count ?? 0)}</span>`;
-        }
-        container.appendChild(btn);
-    });
+    if (!container) return;
+
+    const items = [{ id: '', name: tx.allCategories, count: 0, isAll: true }, ...(categories ?? [])];
+    container.innerHTML = items.map((cat, index) => {
+        const name = typeof cat.name === 'object' ? (cat.name[lang] ?? cat.name.en ?? tx.allCategories) : (cat.name ?? tx.allCategories);
+        const count = cat.count ?? cat.units_count ?? 0;
+        return `
+            <button type="button" class="category-filter mm-category-card ${index === 0 ? 'is-active' : ''}" data-id="${cat.id ?? ''}">
+                <div class="mm-category-icon">${categoryIcon()}</div>
+                <div class="text-xs font-black leading-tight">${escapeHtml(name)}</div>
+                <div class="mt-2 text-[10px] font-extrabold uppercase tracking-[0.14em] ${index === 0 ? 'text-white/76' : 'text-slate-400'}">${formatNumber(count)} ${cat.isAll ? tx.allCategoriesHint : tx.listings}</div>
+            </button>
+        `;
+    }).join('');
+
     bindCategoryFilters();
 }
 
 function renderCities(cities) {
     const container = document.getElementById('mp-cities');
-    if (!container || !cities?.length) return;
-    container.innerHTML = cities.map(city => {
-        const name = lang === 'ar' ? (city.name_ar ?? city.name_en ?? '') : (city.name_en ?? '');
-        return `<button type="button" class="city-filter text-left group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-emerald-400 active:scale-[0.97]" data-id="${city.id ?? ''}">
-            <div class="relative h-24 w-full"><img src="${city.image}" alt="${name}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
-            <div class="absolute bottom-2.5 left-3 right-3"><h3 class="text-sm font-bold text-white">${name}</h3><p class="text-[10px] font-bold text-emerald-300">${new Intl.NumberFormat().format(city.units_count ?? 0)} ${lang === 'ar' ? 'عقار' : 'properties'}</p></div></div></button>`;
+    if (!container) return;
+
+    if (!cities?.length) {
+        container.innerHTML = `<div class="mm-empty col-span-full">
+            <div class="text-base font-black tracking-[-0.03em] text-[color:var(--market-ink)]">${tx.noResults}</div>
+            <p class="mt-2 text-sm leading-7 text-slate-500">${tx.noResultsHint}</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = cities.map((city) => {
+        const name = lang === 'ar' ? (city.name_ar ?? city.name_en ?? '') : (city.name_en ?? city.name_ar ?? '');
+        return `
+            <button type="button" class="city-filter mm-city-card text-left" data-id="${city.id ?? ''}">
+                <img src="${city.image}" alt="${escapeHtml(name)}" loading="lazy">
+                <div class="mm-city-copy">
+                    <div class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[rgba(255,241,212,.86)]">${formatNumber(city.units_count ?? 0)} ${tx.listings}</div>
+                    <h3 class="mt-2 text-lg font-black leading-tight tracking-[-0.03em] text-white">${escapeHtml(name)}</h3>
+                </div>
+            </button>
+        `;
     }).join('');
+
     bindCityFilters();
 }
 
 function renderTenants(tenants) {
     const container = document.getElementById('mp-tenants');
-    if (!container || !tenants?.length) return;
-    container.innerHTML = tenants.map(t => {
-        const logo = t.branding?.logo_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&color=059669&background=ecfdf5&bold=true`;
-        const desc = t.summary?.description ?? (lang === 'ar' ? 'وكالة عقارية' : 'Real estate agency');
-        return `<a href="/mobile/tenants/${t.slug}" class="block min-w-[240px] snap-start rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-emerald-400">
-            <div class="flex items-center gap-3"><div class="h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-slate-50 ring-1 ring-slate-100"><img src="${logo}" alt="${t.name}" class="h-full w-full object-cover" loading="lazy"></div>
-            <div class="flex-1 min-w-0"><h3 class="text-sm font-bold text-slate-900 truncate">${t.name}</h3><p class="text-[11px] font-medium text-slate-400 truncate">${desc}</p></div></div>
-            <div class="mt-3 flex items-center gap-4 border-t border-slate-100 pt-3">
-                <div><span class="text-sm font-bold text-slate-800">${t.stats?.units_count ?? 0}</span> <span class="text-[10px] font-medium text-slate-400">${lang === 'ar' ? 'عقار' : 'listings'}</span></div>
-                <div><span class="text-sm font-bold text-emerald-600">${t.stats?.active_units_count ?? 0}</span> <span class="text-[10px] font-medium text-slate-400">${lang === 'ar' ? 'نشط' : 'active'}</span></div>
-            </div></a>`;
+    if (!container) return;
+
+    if (!tenants?.length) {
+        container.innerHTML = `<div class="mm-empty w-full">
+            <div class="text-base font-black tracking-[-0.03em] text-[color:var(--market-ink)]">${tx.noResults}</div>
+            <p class="mt-2 text-sm leading-7 text-slate-500">${tx.noResultsHint}</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = tenants.map((tenant) => {
+        const logo = tenant.branding?.logo_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(tenant.name)}&background=efe4cf&color=0f5a46&bold=true`;
+        const desc = tenant.summary?.description ?? (lang === 'ar' ? 'واجهة عقارية موثوقة' : 'A trusted real estate storefront');
+        return `
+            <a href="/mobile/tenants/${tenant.slug}" class="mm-agency-card">
+                <div class="flex items-center gap-3">
+                    <div class="mm-agency-logo">
+                        <img src="${logo}" alt="${escapeHtml(tenant.name)}" class="h-full w-full object-cover" loading="lazy">
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[color:var(--market-brass)]">${tx.viewAll}</div>
+                        <h3 class="mt-1 truncate text-lg font-black leading-tight tracking-[-0.03em] text-[color:var(--market-ink)]">${escapeHtml(tenant.name)}</h3>
+                        <p class="mt-1 line-clamp-2 text-xs leading-6 text-slate-500">${escapeHtml(desc)}</p>
+                    </div>
+                </div>
+                <div class="mm-agency-stat">
+                    <div>
+                        <strong>${formatNumber(tenant.stats?.units_count ?? 0)}</strong>
+                        <span>${tx.listings}</span>
+                    </div>
+                    <div>
+                        <strong>${formatNumber(tenant.stats?.active_units_count ?? 0)}</strong>
+                        <span>${tx.active}</span>
+                    </div>
+                </div>
+            </a>
+        `;
     }).join('');
 }
 
 function renderUnitScroll(containerId, units) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    if (!units?.length) { container.innerHTML = `<div class="flex items-center justify-center rounded-2xl bg-white p-6 text-xs font-medium text-slate-400 shadow-sm ring-1 ring-slate-200">${lang === 'ar' ? 'لا توجد عقارات حالياً' : 'No properties yet'}</div>`; return; }
-    container.innerHTML = units.map(u => {
-        const title = u.translated_title ?? u.title ?? u.code;
-        const photo = (u.photos && u.photos[0]) ? u.photos[0] : 'https://picsum.photos/seed/aqarismart-fallback/900/640';
-        const typeBadge = u.listing_type === 'sale' ? (lang === 'ar' ? 'للبيع' : 'Sale') : (lang === 'ar' ? 'للإيجار' : 'Rent');
-        const badgeClass = u.listing_type === 'sale' ? 'bg-emerald-600/90' : 'bg-sky-600/90';
-        return `<a href="/mobile/units/${u.code}" class="group block w-[260px] shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-emerald-400">
-            <div class="relative h-40 w-full overflow-hidden bg-slate-100"><img src="${photo}" alt="${title}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
-            <div class="absolute left-2.5 top-2.5"><span class="inline-flex items-center rounded-lg ${badgeClass} backdrop-blur-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">${typeBadge}</span></div>
-            <div class="absolute bottom-2.5 left-2.5"><span class="inline-flex items-center rounded-lg bg-white/95 backdrop-blur-sm px-2 py-1 text-xs font-bold text-slate-900 shadow-sm">${u.currency ?? 'JOD'} ${new Intl.NumberFormat().format(u.price ?? 0)}</span></div></div>
-            <div class="p-3"><h3 class="text-sm font-bold text-slate-900 line-clamp-1">${title}</h3>
-            <div class="mt-2 flex items-center gap-3 text-[11px] font-semibold text-slate-400"><span>${u.bedrooms ?? u.beds ?? 0} ${lang === 'ar' ? 'غرف' : 'beds'}</span><span class="text-slate-200">·</span><span>${u.bathrooms ?? u.baths ?? 0} ${lang === 'ar' ? 'حمامات' : 'baths'}</span></div></div></a>`;
-    }).join('');
+
+    if (!units?.length) {
+        container.innerHTML = `<div class="mm-empty w-full">
+            <div class="text-base font-black tracking-[-0.03em] text-[color:var(--market-ink)]">${tx.noResults}</div>
+            <p class="mt-2 text-sm leading-7 text-slate-500">${tx.noResultsHint}</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = units.map((unit) => unitCardHtml(unit, { compact: true })).join('');
+    setupUnitSliders(container);
 }
 
-// ── Map ──
+function renderFeed(units) {
+    if (!units?.length) {
+        marketplaceResults.innerHTML = `<div class="mm-empty">
+            <div class="text-lg font-black tracking-[-0.03em] text-[color:var(--market-ink)]">${tx.noResults}</div>
+            <p class="mt-2 text-sm leading-7 text-slate-500">${tx.noResultsHint}</p>
+        </div>`;
+        return;
+    }
+
+    marketplaceResults.innerHTML = units.map((unit) => unitCardHtml(unit)).join('');
+    setupUnitSliders(marketplaceResults);
+}
+
 function renderMap(units) {
     const mapEl = document.getElementById('mp-map');
     const placeholder = document.getElementById('mp-map-placeholder');
     if (!mapEl) return;
 
-    const geoUnits = (units || []).filter(u => u.lat && u.lng && u.lat !== 0 && u.lng !== 0);
-
+    const geoUnits = (units || []).filter((unit) => unit.lat && unit.lng && Number(unit.lat) !== 0 && Number(unit.lng) !== 0);
     if (!geoUnits.length) {
-        if (placeholder) placeholder.innerHTML = `<div class="flex h-full flex-col items-center justify-center text-center p-6">
-            <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-50"><svg class="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></div>
-            <p class="text-sm font-semibold text-slate-600">${lang === 'ar' ? 'لا توجد مواقع متاحة بعد' : 'No locations available yet'}</p>
-            <p class="mt-1 text-xs text-slate-400">${lang === 'ar' ? 'ستظهر العقارات على الخريطة عند إضافة إحداثياتها' : 'Properties will appear once coordinates are added'}</p></div>`;
+        if (placeholder) {
+            placeholder.innerHTML = `<div class="flex h-full flex-col items-center justify-center px-6 text-center">
+                <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(15,90,70,.08)] text-[color:var(--market-palm)]">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                </div>
+                <p class="text-sm font-semibold text-slate-600">${tx.noLocations}</p>
+                <p class="mt-1 text-xs leading-6 text-slate-400">${tx.noLocationsHint}</p>
+            </div>`;
+        }
         return;
     }
 
     if (placeholder) placeholder.style.display = 'none';
 
     if (!mapInstance) {
-        mapInstance = L.map(mapEl, { zoomControl: false, attributionControl: false }).setView([geoUnits[0].lat, geoUnits[0].lng], 10);
+        mapInstance = L.map(mapEl, { zoomControl: false, attributionControl: false, scrollWheelZoom: false }).setView([Number(geoUnits[0].lat), Number(geoUnits[0].lng)], 10);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(mapInstance);
         L.control.zoom({ position: 'topright' }).addTo(mapInstance);
-        L.control.attribution({ position: 'bottomright', prefix: false }).addTo(mapInstance).addAttribution('© <a href="https://osm.org">OSM</a>');
-        setTimeout(() => mapInstance.invalidateSize(), 200);
+        setTimeout(() => mapInstance.invalidateSize(), 180);
     }
 
-    mapMarkers.forEach(m => m.remove());
+    mapMarkers.forEach((marker) => marker.remove());
     mapMarkers = [];
 
     const bounds = L.latLngBounds();
-    geoUnits.forEach(u => {
-        const title = u.translated_title ?? u.title ?? u.code;
-        const price = `${u.currency ?? 'JOD'} ${new Intl.NumberFormat().format(u.price ?? 0)}`;
-        const marker = L.marker([u.lat, u.lng]).addTo(mapInstance);
-        marker.bindPopup(`<div style="min-width:160px"><b style="font-size:13px">${title}</b><br><span style="color:#059669;font-weight:700">${price}</span><br><a href="/mobile/units/${u.code}" style="color:#059669;font-size:12px;font-weight:600">View →</a></div>`);
+    geoUnits.forEach((unit) => {
+        const lat = Number(unit.lat);
+        const lng = Number(unit.lng);
+        const marker = L.circleMarker([lat, lng], {
+            radius: 8,
+            color: '#fff4dc',
+            weight: 3,
+            fillColor: unit.listing_type === 'sale' ? '#b6842f' : '#2f7a72',
+            fillOpacity: 1,
+        }).addTo(mapInstance);
+
+        marker.bindPopup(`
+            <div class="mm-map-popup" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
+                <div class="mm-map-popup-title">${escapeHtml(unitTitle(unit))}</div>
+                <div class="mm-map-popup-meta">${escapeHtml(money(unit.price ?? 0, unit.currency ?? 'JOD'))} · ${escapeHtml(unitLocation(unit))}</div>
+                <a class="mm-map-popup-link" href="/mobile/units/${unit.code}">${tx.viewProperty}</a>
+            </div>
+        `);
+        marker.on('click', () => marker.openPopup());
         mapMarkers.push(marker);
-        bounds.extend([u.lat, u.lng]);
+        bounds.extend([lat, lng]);
     });
 
-    if (bounds.isValid()) mapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
-}
-
-// ── Feed ──
-function renderFeed(units) {
-    if (!units?.length) {
-        marketplaceResults.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-            <svg class="h-8 w-8 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <p class="text-sm font-semibold text-slate-700">${lang === 'ar' ? 'لم يتم العثور على نتائج' : 'No results found'}</p>
-            <p class="mt-1 text-xs text-slate-400">${lang === 'ar' ? 'حاول تغيير معايير البحث' : 'Try adjusting your search criteria'}</p></div>`;
-        return;
+    if (bounds.isValid()) {
+        mapInstance.fitBounds(bounds, { padding: [28, 28], maxZoom: 13 });
     }
-    marketplaceResults.innerHTML = units.map(unitCardHtml).join('');
 }
 
-// ── Load Marketplace ──
+function bindCategoryFilters() {
+    document.querySelectorAll('.category-filter').forEach((button) => {
+        button.addEventListener('click', async () => {
+            document.querySelectorAll('.category-filter').forEach((card) => card.classList.remove('is-active'));
+            button.classList.add('is-active');
+            const categoryField = document.getElementById('filter_category_id');
+            if (categoryField) categoryField.value = button.dataset.id ?? '';
+            await loadMarketplace();
+        });
+    });
+}
+
+function bindCityFilters() {
+    document.querySelectorAll('.city-filter').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const cityField = document.getElementById('filter_city_id');
+            if (cityField) cityField.value = button.dataset.id ?? '';
+            await loadMarketplace();
+            document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+}
+
 async function loadMarketplace() {
     const params = new URLSearchParams(new FormData(marketplaceForm));
     const apiBase = window.__AQARI_API_BASE || '';
@@ -347,46 +1151,29 @@ async function loadMarketplace() {
         sectionsLoaded = true;
     }
 
+    updateStats(json);
     renderFeed(json.data ?? []);
     renderMap(json.data ?? []);
 }
 
-// ── Bindings ──
-function bindCategoryFilters() {
-    document.querySelectorAll('.category-filter').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            document.querySelectorAll('.category-filter').forEach(b => b.classList.remove('ring-emerald-500', 'bg-emerald-50'));
-            btn.classList.add('ring-emerald-500', 'bg-emerald-50');
-            const f = document.getElementById('filter_category_id');
-            if (f) f.value = btn.dataset.id ?? '';
-            await loadMarketplace();
-        });
+document.querySelectorAll('.listing-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+        document.getElementById('listing_type_input').value = button.dataset.value;
+        document.querySelectorAll('.listing-toggle').forEach((toggle) => toggle.classList.remove('is-active'));
+        button.classList.add('is-active');
+        loadMarketplace();
     });
-}
+});
 
-function bindCityFilters() {
-    document.querySelectorAll('.city-filter').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const f = document.getElementById('filter_city_id');
-            if (f) f.value = btn.dataset.id ?? '';
-            await loadMarketplace();
-            document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    });
-}
-
-bindCategoryFilters();
-
-marketplaceForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+marketplaceForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
     await loadMarketplace();
     document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
-let debounceTimer;
 marketplaceForm?.querySelector('input[name="q"]')?.addEventListener('input', () => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => loadMarketplace(), 500);
+    debounceTimer = setTimeout(() => loadMarketplace(), 450);
 });
 
 loadMarketplace();
