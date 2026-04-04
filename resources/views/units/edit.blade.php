@@ -138,25 +138,44 @@
                 <div class="border-b pb-4">
                     <h3 class="font-medium text-gray-900 mb-4">{{ __('Photos') }}</h3>
                     <div>
-                        @if (count($unit->photos) > 0)
-                            <div class="mb-4">
-                                <p class="mb-2 text-sm font-medium text-gray-700">{{ __('Current Photos') }}</p>
-                                <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                                    @foreach ($unit->photos as $photo)
-                                        <div class="relative group">
-                                            <img src="{{ $photo }}" alt="Unit photo" 
-                                                 class="h-32 w-full rounded-md object-cover cursor-pointer hover:opacity-75 transition"
-                                                 onclick="window.open('{{ $photo }}', '_blank')"
-                                                 onerror="this.onerror=null;this.src='https://placehold.co/300x200?text=Photo';" />
-                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition rounded-md pointer-events-none"></div>
-                                        </div>
-                                    @endforeach
-                                </div>
+                        @php
+                            $currentPhotos = collect(old('keep_photos', is_array($unit->photos ?? null) ? $unit->photos : []))
+                                ->filter(fn ($photo) => filled($photo))
+                                ->values();
+                        @endphp
+                        <input type="hidden" name="keep_photos_present" value="1">
+                        <div class="mb-4">
+                            <div class="mb-2 flex items-center justify-between gap-3">
+                                <p class="text-sm font-medium text-gray-700">{{ __('Current Photos') }}</p>
+                                <p class="text-xs text-gray-500">{{ __('Remove any old image before saving if it no longer belongs to this unit.') }}</p>
                             </div>
-                        @endif
+                            <div id="current-photo-grid" class="grid grid-cols-2 gap-4 md:grid-cols-4 {{ $currentPhotos->isEmpty() ? 'hidden' : '' }}">
+                                @foreach ($currentPhotos as $photo)
+                                    <div class="relative group current-photo-card">
+                                        <input type="hidden" name="keep_photos[]" value="{{ $photo }}">
+                                        <img src="{{ $photo }}" alt="Unit photo"
+                                             class="h-32 w-full rounded-md object-cover cursor-pointer hover:opacity-75 transition"
+                                             onclick="window.open('{{ $photo }}', '_blank')"
+                                             onerror="this.onerror=null;this.src='https://placehold.co/300x200?text=Photo';" />
+                                        <button type="button"
+                                                class="remove-current-photo absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-600/90 text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                                aria-label="{{ __('Remove image') }}"
+                                                title="{{ __('Remove image') }}">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition rounded-md pointer-events-none"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div id="current-photo-empty" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-500 {{ $currentPhotos->isEmpty() ? '' : 'hidden' }}">
+                                {{ __('No existing photos will be kept after this update.') }}
+                            </div>
+                        </div>
                         <div id="photo-preview" class="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4" style="display: none;"></div>
                         <input type="file" name="photos[]" id="photo-input" multiple accept="image/*" class="w-full border rounded px-3 py-2">
-                        <p class="mt-1 text-xs text-gray-500">{{ __('You can upload unlimited images. Existing photos will be kept. Click on any image to view it full size.') }}</p>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('You can upload unlimited images. Kept photos stay attached, removed photos will be deleted after save, and new uploads will be added.') }}</p>
                     </div>
                 </div>
 
@@ -339,6 +358,27 @@
         });
     }
     
+    const currentPhotoGrid = document.getElementById('current-photo-grid');
+    const currentPhotoEmpty = document.getElementById('current-photo-empty');
+
+    function syncCurrentPhotoState() {
+        if (!currentPhotoGrid || !currentPhotoEmpty) return;
+        const hasCards = currentPhotoGrid.querySelectorAll('.current-photo-card').length > 0;
+        currentPhotoGrid.classList.toggle('hidden', !hasCards);
+        currentPhotoEmpty.classList.toggle('hidden', hasCards);
+    }
+
+    currentPhotoGrid?.addEventListener('click', function(event) {
+        const button = event.target.closest('.remove-current-photo');
+        if (!button) return;
+
+        const card = button.closest('.current-photo-card');
+        card?.remove();
+        syncCurrentPhotoState();
+    });
+
+    syncCurrentPhotoState();
+
     // Photo preview functionality for new uploads
     document.getElementById('photo-input').addEventListener('change', function(e) {
         const previewContainer = document.getElementById('photo-preview');

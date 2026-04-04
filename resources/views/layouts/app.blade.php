@@ -137,6 +137,7 @@
             ]);
             $showBack = ! request()->routeIs(['tenant.home', 'home']);
             $showNav = $authUser && (! $tenantCtx || ! $isResident) && ! $navSuppressed;
+            $showMobileNav = $tenantCtx || request()->is('admin*');
             $rtl = app()->getLocale()==='ar';
             $useBrandHeader = (! $showNav) && request()->routeIs('settings.*');
         @endphp
@@ -147,11 +148,15 @@
                     <div class="max-w-7xl mx-auto px-4 lg:px-6">
                         <div class="flex items-center justify-between h-16">
                             <!-- Mobile Menu Button (Left in LTR, Right in RTL) -->
-                            <button @click="$store.mobilemenu.open = true" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 ltr:order-1 rtl:order-3">
-                                <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                                </svg>
-                            </button>
+                            @if($showMobileNav)
+                                <button @click="$store.mobilemenu.open = true" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 ltr:order-1 rtl:order-3">
+                                    <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                    </svg>
+                                </button>
+                            @else
+                                <div class="lg:hidden w-10 ltr:order-1 rtl:order-3"></div>
+                            @endif
                             
                             <!-- Logo (Center on mobile, Left/Right on desktop) -->
                             <div class="flex items-center gap-3 ltr:order-2 rtl:order-2">
@@ -216,7 +221,9 @@
                 </nav>
                 
                 <!-- Mobile Sidebar Menu -->
-                @include('layouts.navigation-mobile')
+                @if($showMobileNav)
+                    @include('layouts.navigation-mobile')
+                @endif
                 
                 <!-- Sub Navigation -->
                 <div class="bg-white border-b border-slate-200 hidden lg:block">

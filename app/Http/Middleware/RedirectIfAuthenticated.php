@@ -40,10 +40,19 @@ class RedirectIfAuthenticated
                 return redirect()->away($this->tenants->tenantUrl($tenant, '/dashboard'));
             }
 
-            return redirect()->intended('/admin');
+            $user = Auth::guard($guard)->user();
+            $superAdminEmails = collect(config('auth.super_admin_emails', []))
+                ->map(fn ($email) => strtolower((string) $email))
+                ->filter();
+            $isSuperAdmin = $user
+                ? $superAdminEmails->contains(strtolower((string) $user->email))
+                : false;
+
+            return redirect()->intended(
+                $isSuperAdmin ? '/admin' : route('profile.edit')
+            );
         }
 
         return $next($request);
     }
 }
-

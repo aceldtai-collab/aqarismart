@@ -17,13 +17,11 @@ class EnsureSuperAdmin
         }
 
         $emails = config('auth.super_admin_emails', []);
-
         if ($emails === []) {
             return $next($request);
         }
 
         $email = strtolower((string) $user->email);
-
         if (! in_array($email, $emails, true)) {
             abort(403);
         }

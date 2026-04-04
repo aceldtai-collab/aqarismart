@@ -1,3 +1,16 @@
+@php
+    $labelTranslations = is_array($customAttribute->label_translations ?? null)
+        ? $customAttribute->label_translations
+        : [];
+    $enumOptions = old('options');
+    if (! is_array($enumOptions)) {
+        $enumOptions = is_array($customAttribute->options ?? null)
+            ? $customAttribute->options
+            : [];
+    }
+    $isEnum = old('type', $customAttribute->type) === 'enum';
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-lg font-semibold text-slate-900">{{ __('Edit Custom Attribute') }}</h2>
@@ -9,7 +22,6 @@
                 @csrf
                 @method('PUT')
 
-                {{-- Subcategory --}}
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Unit Category') }} <span class="text-red-500">*</span></label>
                     <select name="subcategory_id" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" required>
@@ -24,21 +36,19 @@
                     <x-input-error :messages="$errors->get('subcategory_id')" class="mt-2" />
                 </div>
 
-                {{-- Labels --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Name (English)') }} <span class="text-red-500">*</span></label>
-                        <input name="label_en" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" value="{{ old('label_en', $customAttribute->label_translations['en'] ?? $customAttribute->label) }}" required>
+                        <input name="label_en" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" value="{{ old('label_en', data_get($labelTranslations, 'en', $customAttribute->label)) }}" required>
                         <x-input-error :messages="$errors->get('label_en')" class="mt-2" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Name (Arabic)') }}</label>
-                        <input name="label_ar" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" value="{{ old('label_ar', $customAttribute->label_translations['ar'] ?? '') }}" dir="rtl">
+                        <input name="label_ar" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" value="{{ old('label_ar', data_get($labelTranslations, 'ar', '')) }}" dir="rtl">
                         <x-input-error :messages="$errors->get('label_ar')" class="mt-2" />
                     </div>
                 </div>
 
-                {{-- Type --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Field Type') }} <span class="text-red-500">*</span></label>
@@ -64,21 +74,18 @@
                     </div>
                 </div>
 
-                {{-- Unit of measurement --}}
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Unit of Measurement') }}</label>
-                    <input name="unit" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" value="{{ old('unit', $customAttribute->unit) }}" placeholder="{{ __('e.g. m², kg, years') }}">
+                    <input name="unit" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" value="{{ old('unit', $customAttribute->unit) }}" placeholder="{{ __('e.g. m2, kg, years') }}">
                     <p class="mt-1 text-xs text-slate-400">{{ __('Optional. Shown next to the field value.') }}</p>
                     <x-input-error :messages="$errors->get('unit')" class="mt-2" />
                 </div>
 
-                {{-- Dropdown options --}}
-                @php $isEnum = old('type', $customAttribute->type) === 'enum'; @endphp
                 <div id="options-section" class="{{ $isEnum ? '' : 'hidden' }}">
                     <label class="block text-sm font-medium text-slate-700 mb-2">{{ __('Dropdown Options') }} <span class="text-red-500">*</span></label>
                     <div id="options-container" class="space-y-2">
-                        @if($isEnum && is_array($customAttribute->options))
-                            @foreach($customAttribute->options as $optKey => $optVal)
+                        @if($isEnum && $enumOptions !== [])
+                            @foreach($enumOptions as $optKey => $optVal)
                                 <div class="flex gap-2">
                                     <input type="text" placeholder="{{ __('Option value') }}" class="flex-1 border border-slate-300 rounded-lg py-2 px-3 text-sm option-key" value="{{ $optKey }}">
                                     <input type="text" placeholder="{{ __('Display label') }}" class="flex-1 border border-slate-300 rounded-lg py-2 px-3 text-sm option-value" value="{{ $optVal }}">
@@ -103,7 +110,6 @@
                     </button>
                 </div>
 
-                {{-- Actions --}}
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                     <a href="{{ route('custom-attributes.index', request()->only('lang')) }}" class="px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">{{ __('Cancel') }}</a>
                     <button type="submit" class="px-4 py-2.5 text-sm font-semibold text-white bg-gray-50 rounded-lg hover:bg-slate-800 transition-colors shadow-sm">{{ __('Save Changes') }}</button>

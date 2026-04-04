@@ -43,6 +43,10 @@ class AuthenticatedSessionController extends Controller
 
         // Resolve user's role on this tenant
         $user = $request->user();
+        $superAdminEmails = collect(config('auth.super_admin_emails', []))
+            ->map(fn ($email) => strtolower((string) $email))
+            ->filter();
+        $isSuperAdmin = $superAdminEmails->contains(strtolower((string) $user->email));
 
         if ($tenant) {
             $pivotRole = strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role));
@@ -64,7 +68,11 @@ class AuthenticatedSessionController extends Controller
         }
 
         // No tenant context (central domain) → admin panel
-        return redirect()->intended('/admin');
+        if ($isSuperAdmin) {
+            return redirect()->intended('/admin');
+        }
+
+        return redirect()->intended(route('profile.edit'));
     }
 
     /**
