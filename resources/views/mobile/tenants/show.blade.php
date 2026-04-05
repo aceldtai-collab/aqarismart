@@ -81,6 +81,7 @@
         'heroHint' => $isAr ? 'ابدأ بالبحث ثم تنقّل بين المختارات والخريطة وكل العقارات من نفس الصفحة.' : 'Start with search, then move through featured listings, the map, and the full inventory from one place.',
         'visitWebsite' => $isAr ? 'زيارة موقع الوكالة' : 'Visit tenant website',
         'backMarketplace' => $isAr ? 'العودة إلى السوق' : 'Back to marketplace',
+        'fullSearch' => $isAr ? 'بحث متقدم' : 'Full search',
         'staffLogin' => $isAr ? 'دخول الموظفين' : 'Staff Login',
         'listings' => $isAr ? 'العقارات' : 'Listings',
         'rent' => $isAr ? 'إيجار' : 'Rent',
@@ -705,7 +706,7 @@
                         <span id="mts-current-mode" class="rounded-full border border-white/16 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/76">{{ $ui['rent'] }}</span>
                     </div>
 
-                    <form id="mts-search-form" class="mt-3.5">
+                    <form id="mts-search-form" class="mt-3.5" action="{{ route('mobile.tenants.search', $tenant) }}" method="GET">
                         <div class="relative">
                             <div class="pointer-events-none absolute inset-y-0 {{ $isAr ? 'right-3.5' : 'left-3.5' }} flex items-center text-slate-400">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -726,6 +727,7 @@
                             <button type="button" class="mts-listing-toggle" data-value="sale">{{ $ui['sale'] }}</button>
                         </div>
                         <div class="flex w-full flex-wrap gap-2">
+                            <a href="{{ route('mobile.tenants.search', $tenant) }}" id="mts-full-search-link" class="mts-cta mts-cta-primary flex-1">{{ $ui['fullSearch'] }}</a>
                             <a href="{{ $tenantWebsite }}" target="_blank" rel="noopener noreferrer" class="mts-cta mts-cta-primary flex-1">{{ $ui['visitWebsite'] }}</a>
                             <a href="{{ route('mobile.marketplace') }}" class="mts-cta mts-cta-secondary flex-1">{{ $ui['backMarketplace'] }}</a>
                             <button type="button" id="mts-login-btn" class="mts-cta mts-cta-secondary hidden w-full">{{ $ui['staffLogin'] }}</button>
@@ -896,6 +898,8 @@ const apiBase = window.__AQARI_API_BASE || '';
 const heroDescriptionEl = document.getElementById('mts-hero-description');
 const heroHasCustomDescription = heroDescriptionEl?.dataset.hasCustomDescription === 'true';
 const searchField = document.getElementById('mts-search-q');
+const fullSearchLink = document.getElementById('mts-full-search-link');
+const fullSearchBaseUrl = @json(route('mobile.tenants.search', $tenant));
 const loadMoreWrap = document.getElementById('mts-load-more');
 const loadMoreButton = document.getElementById('mts-load-more-btn');
 const numberFormatter = new Intl.NumberFormat(locale);
@@ -927,7 +931,15 @@ function money(value, currency) {
     return `${escapeHtml(currency || 'JOD')} ${formatNumber(value)}`;
 }
 
+function priceValue(unit) {
+    return unit.display_price ?? unit.price ?? 0;
+}
+
 function locationText(unit) {
+    if (unit.location_label) {
+        return unit.location_label;
+    }
+
     const city = lang === 'ar'
         ? (unit.city?.name_ar || unit.city?.name_en || '')
         : (unit.city?.name_en || unit.city?.name_ar || '');
@@ -946,6 +958,31 @@ function locationText(unit) {
 
 function categoryText(unit) {
     return unit.subcategory?.name || unit.property?.property_type || unit.property?.type || (lang === 'ar' ? 'عقار' : 'Property');
+}
+
+function attributeHighlightsHtml(unit) {
+    const attributes = Array.isArray(unit.attribute_highlights) ? unit.attribute_highlights.slice(0, 3) : [];
+    return attributes.map((attribute) => {
+        const tone = attribute.featured ? 'palm' : 'clay';
+        return `<span class="mts-pill ${tone}">${escapeHtml(attribute.label)}: ${escapeHtml(attribute.value)}</span>`;
+    }).join('');
+}
+
+function tenantSearchUrl() {
+    const params = new URLSearchParams();
+    if (currentListingType) {
+        params.set('listing_type', currentListingType);
+    }
+    if (searchField?.value.trim()) {
+        params.set('q', searchField.value.trim());
+    }
+    return `${fullSearchBaseUrl}?${params.toString()}`;
+}
+
+function syncTenantSearchHref() {
+    if (fullSearchLink) {
+        fullSearchLink.href = tenantSearchUrl();
+    }
 }
 
 function typeLabel(type) {
@@ -1000,7 +1037,7 @@ function featuredCardHtml(unit) {
                     <span class="mts-badge ${unit.listing_type === 'sale' ? 'sale' : 'rent'}">${typeLabel(unit.listing_type)}</span>
                     <span class="mts-badge soft">${escapeHtml(categoryText(unit))}</span>
                 </div>
-                <span class="mts-price pointer-events-none">${money(unit.price ?? 0, unit.currency ?? 'JOD')}</span>
+                <span class="mts-price pointer-events-none">${money(priceValue(unit), unit.currency ?? 'JOD')}</span>
             </div>
             <div class="mts-unit-body">
                 <div class="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[color:var(--tenant-brass)]">${escapeHtml(categoryText(unit))}</div>
@@ -1010,6 +1047,7 @@ function featuredCardHtml(unit) {
                     <span class="mts-pill palm">${formatNumber(beds)} ${strings.beds}</span>
                     <span class="mts-pill brass">${formatNumber(baths)} ${strings.baths}</span>
                     ${area ? `<span class="mts-pill clay">${formatNumber(area)} ${strings.sqft}</span>` : ''}
+                    ${attributeHighlightsHtml(unit)}
                 </div>
                 <div class="mt-4 inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[rgb(var(--tenant-primary-rgb))]">
                     <span>${strings.viewProperty}</span>
@@ -1036,7 +1074,7 @@ function feedCardHtml(unit) {
                     <span class="mts-badge ${unit.listing_type === 'sale' ? 'sale' : 'rent'}">${typeLabel(unit.listing_type)}</span>
                     <span class="mts-badge soft">${escapeHtml(categoryText(unit))}</span>
                 </div>
-                <span class="mts-price pointer-events-none">${money(unit.price ?? 0, unit.currency ?? 'JOD')}</span>
+                <span class="mts-price pointer-events-none">${money(priceValue(unit), unit.currency ?? 'JOD')}</span>
             </div>
             <div class="mts-unit-body">
                 <div class="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[color:var(--tenant-brass)]">${escapeHtml(categoryText(unit))}</div>
@@ -1046,6 +1084,7 @@ function feedCardHtml(unit) {
                     <span class="mts-pill palm">${formatNumber(beds)} ${strings.beds}</span>
                     <span class="mts-pill brass">${formatNumber(baths)} ${strings.baths}</span>
                     ${area ? `<span class="mts-pill clay">${formatNumber(area)} ${strings.sqft}</span>` : ''}
+                    ${attributeHighlightsHtml(unit)}
                 </div>
             </div>
         </article>
@@ -1252,7 +1291,7 @@ function renderMap(units) {
         marker.bindPopup(`
             <div class="mts-map-popup" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
                 <div class="mts-map-popup-title">${escapeHtml(unit.translated_title || unit.title || unit.code)}</div>
-                <div class="mts-map-popup-meta">${money(unit.price ?? 0, unit.currency ?? 'JOD')} · ${escapeHtml(locationText(unit))}</div>
+                <div class="mts-map-popup-meta">${money(priceValue(unit), unit.currency ?? 'JOD')} · ${escapeHtml(locationText(unit))}</div>
                 <a class="mts-map-popup-link" href="/mobile/units/${escapeHtml(unit.code)}">${strings.viewProperty}</a>
             </div>
         `);
@@ -1314,6 +1353,7 @@ document.querySelectorAll('.mts-listing-toggle').forEach((button) => {
         document.querySelectorAll('.mts-listing-toggle').forEach((item) => item.classList.remove('is-active'));
         button.classList.add('is-active');
         currentListingType = button.dataset.value || 'rent';
+        syncTenantSearchHref();
 
         try {
             await loadTenantHome(1);
@@ -1328,6 +1368,7 @@ searchField?.addEventListener('input', () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(async () => {
         searchQuery = searchField.value.trim();
+        syncTenantSearchHref();
         try {
             await loadTenantHome(1);
         } catch (error) {
@@ -1338,13 +1379,7 @@ searchField?.addEventListener('input', () => {
 
 document.getElementById('mts-search-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    searchQuery = searchField?.value.trim() || '';
-
-    try {
-        await loadTenantHome(1);
-    } catch (error) {
-        console.error(error);
-    }
+    window.location.href = tenantSearchUrl();
 });
 
 loadMoreButton?.addEventListener('click', async () => {
@@ -1443,6 +1478,7 @@ loginForm?.addEventListener('submit', async (event) => {
     }
 });
 
+syncTenantSearchHref();
 loadTenantHome(1).catch((error) => {
     console.error(error);
     document.getElementById('mts-empty')?.classList.remove('hidden');

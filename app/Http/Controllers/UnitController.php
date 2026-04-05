@@ -486,7 +486,7 @@ class UnitController extends Controller
             $data['price'] = $unit?->price ?? 0;
         }
         if (! array_key_exists('currency', $data) || $data['currency'] === null) {
-            $data['currency'] = $unit?->currency ?? 'JOD';
+            $data['currency'] = $unit?->currency ?? 'IQD';
         }
 
         return $data;

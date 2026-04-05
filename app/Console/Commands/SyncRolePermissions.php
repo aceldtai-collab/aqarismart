@@ -70,6 +70,7 @@ class SyncRolePermissions extends Command
     {
         // Ensure all permissions exist in the DB
         $this->ensurePermissionsExist();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $tenantId = $this->option('tenant');
         $query = Tenant::query();
@@ -98,15 +99,23 @@ class SyncRolePermissions extends Command
 
     protected function ensurePermissionsExist(): void
     {
-        $existing = Permission::pluck('name')->toArray();
-        $missing = array_diff($this->allPermissions, $existing);
+        $created = 0;
 
-        foreach ($missing as $name) {
-            Permission::create(['name' => $name, 'guard_name' => 'web']);
+        foreach ($this->allPermissions as $name) {
+            $exists = Permission::query()
+                ->where('name', $name)
+                ->where('guard_name', 'web')
+                ->exists();
+
+            Permission::findOrCreate($name, 'web');
+
+            if (! $exists) {
+                $created++;
+            }
         }
 
-        if (count($missing) > 0) {
-            $this->info('Created ' . count($missing) . ' missing permission(s).');
+        if ($created > 0) {
+            $this->info('Created ' . $created . ' missing permission(s).');
         }
     }
 

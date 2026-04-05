@@ -612,7 +612,7 @@
             </div>
 
             <div class="mm-surface mm-filter-shell -mt-8 rounded-[1.8rem] p-4">
-                <form id="mobile-marketplace-filter" class="space-y-3">
+                <form id="mobile-marketplace-filter" class="space-y-3" action="{{ route('mobile.search') }}" method="GET">
                     <div id="listing-type-toggle" class="mm-toggle">
                         <button type="button" class="listing-toggle is-active" data-value="">{{ $tx['all'] }}</button>
                         <button type="button" class="listing-toggle" data-value="sale">{{ $tx['buy'] }}</button>
@@ -644,7 +644,7 @@
                     <div class="mm-section-kicker">{{ $tx['recommendedKicker'] }}</div>
                     <h2 class="mm-section-title">{{ $tx['recommendedTitle'] }}</h2>
                 </div>
-                <a href="#feed-section" class="mm-section-link">{{ $tx['viewAll'] }}</a>
+                <a href="{{ route('mobile.search') }}" class="mm-section-link" id="mm-full-search-link">{{ $tx['viewAll'] }}</a>
             </div>
             <div id="mp-recommended" class="mm-scroll">
                 <div class="mm-loading w-full">
@@ -737,6 +737,8 @@
 const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const marketplaceForm = document.getElementById('mobile-marketplace-filter');
 const marketplaceResults = document.getElementById('mobile-marketplace-results');
+const fullSearchLink = document.getElementById('mm-full-search-link');
+const fullSearchBaseUrl = @json(route('mobile.search'));
 const statResults = document.getElementById('mm-stat-results');
 const statAgencies = document.getElementById('mm-stat-agencies');
 const statCities = document.getElementById('mm-stat-cities');
@@ -754,6 +756,7 @@ const tx = {
     listings: lang === 'ar' ? 'إعلانات' : 'Listings',
     active: lang === 'ar' ? 'نشط' : 'Active',
     viewProperty: lang === 'ar' ? 'عرض العقار' : 'View property',
+    perYear: lang === 'ar' ? 'سنوياً' : 'per year',
     allCategories: lang === 'ar' ? 'الكل' : 'All',
     allCategoriesHint: lang === 'ar' ? 'كل الفئات' : 'All categories',
     viewAll: lang === 'ar' ? 'عرض الكل' : 'View all',
@@ -788,6 +791,40 @@ function categoryIcon() {
 
 function unitTitle(unit) {
     return unit.translated_title ?? unit.title ?? unit.code;
+}
+
+function resolvedUnitLocation(unit) {
+    if (unit.location_label) return unit.location_label;
+    return unitLocation(unit);
+}
+
+function priceValue(unit) {
+    return unit.display_price ?? unit.price ?? 0;
+}
+
+function attributeHighlightsHtml(unit) {
+    const attributes = Array.isArray(unit.attribute_highlights) ? unit.attribute_highlights.slice(0, 3) : [];
+    return attributes.map((attribute) => {
+        const tone = attribute.featured ? 'palm' : 'clay';
+        return `<span class="mm-pill ${tone}">${escapeHtml(attribute.label)}: ${escapeHtml(attribute.value)}</span>`;
+    }).join('');
+}
+
+function marketplaceSearchUrl() {
+    const params = new URLSearchParams();
+    for (const [key, value] of new FormData(marketplaceForm).entries()) {
+        if (String(value ?? '').trim() !== '') {
+            params.set(key, value);
+        }
+    }
+    const query = params.toString();
+    return query ? `${fullSearchBaseUrl}?${query}` : fullSearchBaseUrl;
+}
+
+function syncMarketplaceSearchHref() {
+    if (fullSearchLink) {
+        fullSearchLink.href = marketplaceSearchUrl();
+    }
 }
 
 function unitLocation(unit) {
@@ -841,7 +878,7 @@ function unitGalleryHtml(unit, options = {}) {
 
 function unitCardHtml(unit, options = {}) {
     const title = escapeHtml(unitTitle(unit));
-    const location = escapeHtml(unitLocation(unit));
+    const location = escapeHtml(resolvedUnitLocation(unit));
     const beds = unit.bedrooms ?? unit.beds ?? 0;
     const baths = unit.bathrooms ?? unit.baths ?? 0;
     const area = unit.sqft ?? unit.area_m2 ?? 0;
@@ -855,7 +892,7 @@ function unitCardHtml(unit, options = {}) {
                     <span class="mm-unit-badge ${typeClass(unit.listing_type)}">${typeLabel(unit.listing_type)}</span>
                 </div>
                 <div class="pointer-events-none absolute bottom-3 left-3 z-[5]">
-                    <span class="mm-price-pill">${money(unit.price ?? 0, unit.currency ?? 'JOD')}</span>
+                    <span class="mm-price-pill">${money(priceValue(unit), unit.currency ?? 'JOD')}${unit.listing_type === 'rent' && priceValue(unit) ? ` <span class="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-500">${tx.perYear}</span>` : ''}</span>
                 </div>
             </div>
             <div class="mm-unit-card-body">
@@ -866,6 +903,7 @@ function unitCardHtml(unit, options = {}) {
                     <span class="mm-pill palm">${formatNumber(beds)} ${tx.beds}</span>
                     <span class="mm-pill brass">${formatNumber(baths)} ${tx.baths}</span>
                     ${area ? `<span class="mm-pill clay">${formatNumber(area)} ${tx.sqft}</span>` : ''}
+                    ${attributeHighlightsHtml(unit)}
                 </div>
                 <div class="mt-5 inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[color:var(--market-palm)]">
                     <span>${tx.viewProperty}</span>
@@ -1121,6 +1159,7 @@ function bindCategoryFilters() {
             button.classList.add('is-active');
             const categoryField = document.getElementById('filter_category_id');
             if (categoryField) categoryField.value = button.dataset.id ?? '';
+            syncMarketplaceSearchHref();
             await loadMarketplace();
         });
     });
@@ -1131,6 +1170,7 @@ function bindCityFilters() {
         button.addEventListener('click', async () => {
             const cityField = document.getElementById('filter_city_id');
             if (cityField) cityField.value = button.dataset.id ?? '';
+            syncMarketplaceSearchHref();
             await loadMarketplace();
             document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
@@ -1161,21 +1201,25 @@ document.querySelectorAll('.listing-toggle').forEach((button) => {
         document.getElementById('listing_type_input').value = button.dataset.value;
         document.querySelectorAll('.listing-toggle').forEach((toggle) => toggle.classList.remove('is-active'));
         button.classList.add('is-active');
+        syncMarketplaceSearchHref();
         loadMarketplace();
     });
 });
 
 marketplaceForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    await loadMarketplace();
-    document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.location.href = marketplaceSearchUrl();
 });
 
 marketplaceForm?.querySelector('input[name="q"]')?.addEventListener('input', () => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => loadMarketplace(), 450);
+    debounceTimer = setTimeout(() => {
+        syncMarketplaceSearchHref();
+        loadMarketplace();
+    }, 450);
 });
 
+syncMarketplaceSearchHref();
 loadMarketplace();
 </script>
 @endpush

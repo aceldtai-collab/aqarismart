@@ -11,112 +11,131 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $propertyCategories = [
+        $categories = [
             [
-                'key' => 'residential',
-                'ar'  => 'سكني',
-                'en'  => 'Residential',
+                'slug' => 'residential',
+                'name' => ['en' => 'Residential', 'ar' => 'سكني'],
+                'description' => [
+                    'en' => 'Homes, apartments, villas, and family residences.',
+                    'ar' => 'وحدات سكنية تشمل الشقق والفلل والمساكن العائلية.',
+                ],
                 'subcategories' => [
-                    ['key' => 'apartment',           'ar' => 'شقة',              'en' => 'Apartment'],
-                    ['key' => 'furnished_apartment', 'ar' => 'شقة مفروشة',       'en' => 'Furnished Apartment'],
-                    ['key' => 'floor_unit',          'ar' => 'طابق مستقل',        'en' => 'Floor Unit'],
-                    ['key' => 'duplex',              'ar' => 'دوبلكس',            'en' => 'Duplex'],
-                    ['key' => 'villa',               'ar' => 'فيلا',              'en' => 'Villa'],
-                    ['key' => 'townhouse',           'ar' => 'تاونهاوس',          'en' => 'Townhouse'],
-                    ['key' => 'studio',              'ar' => 'ستوديو',            'en' => 'Studio'],
-                    ['key' => 'penthouse',           'ar' => 'بنتهاوس',           'en' => 'Penthouse'],
-                    ['key' => 'rooftop_unit',        'ar' => 'رووف/سطح',          'en' => 'Rooftop Unit'],
-                    ['key' => 'basement_unit',       'ar' => 'تسوية/قبو',         'en' => 'Basement Unit'],
-                    ['key' => 'room',                'ar' => 'غرفة',              'en' => 'Room'],
-                    ['key' => 'bed_space',           'ar' => 'سكن مشترك/سرير',    'en' => 'Bed Space'],
-                    ['key' => 'chalet',              'ar' => 'شاليه/استراحة',     'en' => 'Chalet'],
+                    ['slug' => 'apartment', 'name' => ['en' => 'Apartment', 'ar' => 'شقة']],
+                    ['slug' => 'furnished_apartment', 'name' => ['en' => 'Furnished Apartment', 'ar' => 'شقة مفروشة']],
+                    ['slug' => 'floor_unit', 'name' => ['en' => 'Floor Unit', 'ar' => 'طابق مستقل']],
+                    ['slug' => 'duplex', 'name' => ['en' => 'Duplex', 'ar' => 'دوبلكس']],
+                    ['slug' => 'villa', 'name' => ['en' => 'Villa', 'ar' => 'فيلا']],
+                    ['slug' => 'townhouse', 'name' => ['en' => 'Townhouse', 'ar' => 'تاون هاوس']],
+                    ['slug' => 'studio', 'name' => ['en' => 'Studio', 'ar' => 'ستوديو']],
+                    ['slug' => 'penthouse', 'name' => ['en' => 'Penthouse', 'ar' => 'بنتهاوس']],
+                    ['slug' => 'rooftop_unit', 'name' => ['en' => 'Rooftop Unit', 'ar' => 'وحدة روف']],
+                    ['slug' => 'basement_unit', 'name' => ['en' => 'Basement Unit', 'ar' => 'وحدة تسوية']],
+                    ['slug' => 'room', 'name' => ['en' => 'Room', 'ar' => 'غرفة']],
+                    ['slug' => 'bed_space', 'name' => ['en' => 'Bed Space', 'ar' => 'سرير مشترك']],
+                    ['slug' => 'chalet', 'name' => ['en' => 'Chalet', 'ar' => 'شاليه']],
                 ],
             ],
             [
-                'key' => 'commercial_office',
-                'ar'  => 'تجاري/إداري',
-                'en'  => 'Commercial / Office',
+                'slug' => 'commercial_office',
+                'name' => ['en' => 'Commercial / Office', 'ar' => 'تجاري وإداري'],
+                'description' => [
+                    'en' => 'Offices, shops, showrooms, and business spaces.',
+                    'ar' => 'مكاتب ومحلات ومعارض ومساحات أعمال.',
+                ],
                 'subcategories' => [
-                    ['key' => 'office',          'ar' => 'مكتب',           'en' => 'Office'],
-                    ['key' => 'retail_shop',     'ar' => 'محل تجاري',      'en' => 'Retail Shop'],
-                    ['key' => 'showroom',        'ar' => 'معرض',           'en' => 'Showroom'],
-                    ['key' => 'restaurant_cafe', 'ar' => 'مطعم/كافيه',     'en' => 'Restaurant/Café'],
-                    ['key' => 'clinic',          'ar' => 'عيادة',          'en' => 'Clinic'],
-                    ['key' => 'pharmacy',        'ar' => 'صيدلية',         'en' => 'Pharmacy'],
-                    ['key' => 'salon_spa',       'ar' => 'صالون/سبا',      'en' => 'Salon/Spa'],
-                    ['key' => 'warehouse',       'ar' => 'مستودع',         'en' => 'Warehouse'],
-                    ['key' => 'storage',         'ar' => 'مخزن',           'en' => 'Storage'],
-                    ['key' => 'workshop',        'ar' => 'ورشة',           'en' => 'Workshop'],
-                    ['key' => 'kiosk',           'ar' => 'كشك/كيـوسك',     'en' => 'Kiosk'],
+                    ['slug' => 'office', 'name' => ['en' => 'Office', 'ar' => 'مكتب']],
+                    ['slug' => 'retail_shop', 'name' => ['en' => 'Retail Shop', 'ar' => 'محل تجاري']],
+                    ['slug' => 'showroom', 'name' => ['en' => 'Showroom', 'ar' => 'معرض']],
+                    ['slug' => 'restaurant_cafe', 'name' => ['en' => 'Restaurant / Cafe', 'ar' => 'مطعم أو مقهى']],
+                    ['slug' => 'clinic', 'name' => ['en' => 'Clinic', 'ar' => 'عيادة']],
+                    ['slug' => 'pharmacy', 'name' => ['en' => 'Pharmacy', 'ar' => 'صيدلية']],
+                    ['slug' => 'salon_spa', 'name' => ['en' => 'Salon / Spa', 'ar' => 'صالون أو سبا']],
+                    ['slug' => 'warehouse', 'name' => ['en' => 'Warehouse', 'ar' => 'مستودع']],
+                    ['slug' => 'storage', 'name' => ['en' => 'Storage', 'ar' => 'مخزن']],
+                    ['slug' => 'workshop', 'name' => ['en' => 'Workshop', 'ar' => 'ورشة']],
+                    ['slug' => 'kiosk', 'name' => ['en' => 'Kiosk', 'ar' => 'كشك']],
                 ],
             ],
             [
-                'key' => 'industrial_logistics',
-                'ar'  => 'صناعي/لوجستي',
-                'en'  => 'Industrial / Logistics',
+                'slug' => 'industrial_logistics',
+                'name' => ['en' => 'Industrial / Logistics', 'ar' => 'صناعي ولوجستي'],
+                'description' => [
+                    'en' => 'Factories, industrial yards, and logistics facilities.',
+                    'ar' => 'مصانع وساحات صناعية ومرافق لوجستية.',
+                ],
                 'subcategories' => [
-                    ['key' => 'factory',       'ar' => 'مصنع',        'en' => 'Factory'],
-                    ['key' => 'hangar',        'ar' => 'هنغر/عنبر',   'en' => 'Hangar'],
-                    ['key' => 'storage_yard',  'ar' => 'ساحة تخزين',  'en' => 'Yard'],
+                    ['slug' => 'factory', 'name' => ['en' => 'Factory', 'ar' => 'مصنع']],
+                    ['slug' => 'hangar', 'name' => ['en' => 'Hangar', 'ar' => 'هنغر']],
+                    ['slug' => 'storage_yard', 'name' => ['en' => 'Storage Yard', 'ar' => 'ساحة تخزين']],
                 ],
             ],
             [
-                'key' => 'land',
-                'ar'  => 'أراضٍ',
-                'en'  => 'Land',
+                'slug' => 'land',
+                'name' => ['en' => 'Land', 'ar' => 'أراضٍ'],
+                'description' => [
+                    'en' => 'Residential, commercial, agricultural, and investment land.',
+                    'ar' => 'أراضٍ سكنية وتجارية وزراعية واستثمارية.',
+                ],
                 'subcategories' => [
-                    ['key' => 'residential_land', 'ar' => 'أرض سكنية',     'en' => 'Residential Land'],
-                    ['key' => 'commercial_land',  'ar' => 'أرض تجارية',     'en' => 'Commercial Land'],
-                    ['key' => 'agricultural_land','ar' => 'أرض زراعية',     'en' => 'Agricultural Land'],
-                    ['key' => 'industrial_land',  'ar' => 'أرض صناعية',     'en' => 'Industrial Land'],
-                    ['key' => 'investment_land',  'ar' => 'أرض استثمارية',  'en' => 'Investment Land'],
-                    ['key' => 'farm_land',        'ar' => 'مزرعة',          'en' => 'Farm Land'],
+                    ['slug' => 'residential_land', 'name' => ['en' => 'Residential Land', 'ar' => 'أرض سكنية']],
+                    ['slug' => 'commercial_land', 'name' => ['en' => 'Commercial Land', 'ar' => 'أرض تجارية']],
+                    ['slug' => 'agricultural_land', 'name' => ['en' => 'Agricultural Land', 'ar' => 'أرض زراعية']],
+                    ['slug' => 'industrial_land', 'name' => ['en' => 'Industrial Land', 'ar' => 'أرض صناعية']],
+                    ['slug' => 'investment_land', 'name' => ['en' => 'Investment Land', 'ar' => 'أرض استثمارية']],
+                    ['slug' => 'farm_land', 'name' => ['en' => 'Farm Land', 'ar' => 'مزرعة']],
                 ],
             ],
             [
-                'key' => 'hospitality_education',
-                'ar'  => 'ضيافة وتعليم',
-                'en'  => 'Hospitality & Education',
+                'slug' => 'hospitality_education',
+                'name' => ['en' => 'Hospitality & Education', 'ar' => 'ضيافة وتعليم'],
+                'description' => [
+                    'en' => 'Hotels, guest houses, schools, and training facilities.',
+                    'ar' => 'فنادق وبيوت ضيافة ومدارس ومراكز تدريب.',
+                ],
                 'subcategories' => [
-                    ['key' => 'hotel',         'ar' => 'فندق/شقق فندقية', 'en' => 'Hotel/Serviced Apartments'],
-                    ['key' => 'guest_house',   'ar' => 'بيت ضيافة',        'en' => 'Guest House'],
-                    ['key' => 'school',        'ar' => 'مدرسة/روضة',       'en' => 'School/Kindergarten'],
-                    ['key' => 'training_center','ar'=> 'مركز تدريب',       'en' => 'Training Center'],
+                    ['slug' => 'hotel', 'name' => ['en' => 'Hotel / Serviced Apartments', 'ar' => 'فندق أو شقق فندقية']],
+                    ['slug' => 'guest_house', 'name' => ['en' => 'Guest House', 'ar' => 'بيت ضيافة']],
+                    ['slug' => 'school', 'name' => ['en' => 'School / Kindergarten', 'ar' => 'مدرسة أو روضة']],
+                    ['slug' => 'training_center', 'name' => ['en' => 'Training Center', 'ar' => 'مركز تدريب']],
                 ],
             ],
             [
-                'key' => 'parking_facilities',
-                'ar'  => 'مواقف ومرافق',
-                'en'  => 'Parking & Facilities',
+                'slug' => 'parking_facilities',
+                'name' => ['en' => 'Parking & Facilities', 'ar' => 'مواقف ومرافق'],
+                'description' => [
+                    'en' => 'Parking spaces and service rooms.',
+                    'ar' => 'مواقف سيارات وغرف خدمات ومرافق مساندة.',
+                ],
                 'subcategories' => [
-                    ['key' => 'parking_spot',  'ar' => 'موقف سيارة',       'en' => 'Parking Spot'],
-                    ['key' => 'utility_room',  'ar' => 'مخزن خدمات/غرفة مرافق', 'en' => 'Utility/Service Room'],
+                    ['slug' => 'parking_spot', 'name' => ['en' => 'Parking Spot', 'ar' => 'موقف سيارة']],
+                    ['slug' => 'utility_room', 'name' => ['en' => 'Utility / Service Room', 'ar' => 'غرفة خدمات']],
                 ],
             ],
         ];
 
-        DB::transaction(function () use ($propertyCategories) {
-            $catOrder = 0;
-            foreach ($propertyCategories as $cat) {
+        DB::transaction(function () use ($categories): void {
+            foreach ($categories as $categorySort => $payload) {
+                $subcategories = $payload['subcategories'];
+                unset($payload['subcategories']);
+
                 $category = Category::updateOrCreate(
-                    ['slug' => $cat['key']],
+                    ['slug' => $payload['slug']],
                     [
-                        'name' => ['en' => $cat['en'], 'ar' => $cat['ar'] ?? $cat['en']],
-                        'description' => ['en' => $cat['en'], 'ar' => $cat['ar'] ?? $cat['en']],
+                        'name' => $payload['name'],
+                        'description' => $payload['description'],
                         'is_active' => true,
-                        'sort_order' => $catOrder++,
+                        'sort_order' => $categorySort + 1,
                     ]
                 );
 
-                $subOrder = 0;
-                foreach ($cat['subcategories'] as $sub) {
+                foreach ($subcategories as $subSort => $subcategoryPayload) {
                     Subcategory::updateOrCreate(
-                        ['category_id' => $category->id, 'slug' => $sub['key']],
+                        ['category_id' => $category->id, 'slug' => $subcategoryPayload['slug']],
                         [
-                            'name' => ['en' => $sub['en'], 'ar' => $sub['ar'] ?? $sub['en']],
-                            'description' => ['en' => $sub['en'], 'ar' => $sub['ar'] ?? $sub['en']],
+                            'name' => $subcategoryPayload['name'],
+                            'description' => $subcategoryPayload['name'],
                             'is_active' => true,
-                            'sort_order' => $subOrder++,
+                            'sort_order' => $subSort + 1,
                         ]
                     );
                 }

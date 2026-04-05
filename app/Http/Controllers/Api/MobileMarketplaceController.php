@@ -12,6 +12,7 @@ use App\Models\Tenant;
 use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class MobileMarketplaceController extends Controller
 {
@@ -37,16 +38,55 @@ class MobileMarketplaceController extends Controller
 
     private function abortIfNotCentralDomain(Request $request): void
     {
-        $baseDomain = (string) config('tenancy.base_domain');
-        $host = $request->getHost();
+        abort_unless($this->isAllowedCentralHost($request), 404);
+    }
 
-        abort_unless(in_array($host, [$baseDomain, 'www.' . $baseDomain], true), 404);
+    private function isAllowedCentralHost(Request $request): bool
+    {
+        $host = strtolower((string) $request->getHost());
+        $baseDomain = strtolower(trim((string) config('tenancy.base_domain')));
+        $appHost = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
+        $centralDomains = array_filter(array_map(
+            static fn (string $domain): string => strtolower(trim($domain)),
+            explode(',', (string) env('CENTRAL_DOMAINS', ''))
+        ));
+
+        $allowedHosts = array_filter(array_unique([
+            $baseDomain,
+            $baseDomain !== '' ? 'www.' . $baseDomain : '',
+            $appHost,
+            'localhost',
+            '127.0.0.1',
+            '::1',
+            '[::1]',
+            'nativephp-mobile',
+            ...$centralDomains,
+        ]));
+
+        if (in_array($host, $allowedHosts, true)) {
+            return true;
+        }
+
+        if (! app()->environment(['local', 'development', 'testing'])) {
+            return false;
+        }
+
+        $normalizedHost = trim($host, '[]');
+        if (filter_var($normalizedHost, FILTER_VALIDATE_IP)) {
+            return true;
+        }
+
+        if ($baseDomain !== '' && Str::endsWith($host, '.' . $baseDomain)) {
+            return false;
+        }
+
+        return true;
     }
 
     private function queryMarketplace(Request $request): JsonResponse
     {
         $baseQuery = Unit::withoutGlobalScope('tenant')
-            ->with(['tenant.activeSubscription.package', 'property', 'subcategory.category', 'city'])
+            ->with(['tenant.activeSubscription.package', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
             ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
             ->where('status', Unit::STATUS_VACANT);
 
@@ -58,7 +98,11 @@ class MobileMarketplaceController extends Controller
                 $builder->where('title', 'like', "%{$q}%")
                     ->orWhere('description', 'like', "%{$q}%")
                     ->orWhere('code', 'like', "%{$q}%")
-                    ->orWhereHas('property', fn ($p) => $p->where('name', 'like', "%{$q}%"));
+                    ->orWhere('location', 'like', "%{$q}%")
+                    ->orWhereHas('property', fn ($p) => $p
+                        ->where('name', 'like', "%{$q}%")
+                        ->orWhere('address', 'like', "%{$q}%")
+                        ->orWhere('city', 'like', "%{$q}%"));
             });
         }
 
@@ -75,21 +119,44 @@ class MobileMarketplaceController extends Controller
         }
 
         if ($request->filled('bedrooms')) {
-            $query->where('bedrooms', '>=', (int) $request->input('bedrooms'));
+            $query->where(function ($builder) use ($request) {
+                $bedrooms = (int) $request->input('bedrooms');
+                $builder->where('bedrooms', '>=', $bedrooms)
+                    ->orWhere('beds', '>=', $bedrooms);
+            });
         }
 
-        if ($request->filled('price_min')) {
-            $query->where('price', '>=', (float) $request->input('price_min'));
-        }
+        $priceMin = $request->filled('price_min') ? (float) $request->input('price_min') : null;
+        $priceMax = $request->filled('price_max') ? (float) $request->input('price_max') : null;
 
-        if ($request->filled('price_max')) {
-            $query->where('price', '<=', (float) $request->input('price_max'));
+        if ($priceMin !== null || $priceMax !== null) {
+            $query->where(function ($priceQuery) use ($priceMin, $priceMax) {
+                $priceQuery
+                    ->where(function ($rentQuery) use ($priceMin, $priceMax) {
+                        $rentQuery->where('listing_type', Unit::LISTING_RENT);
+                        if ($priceMin !== null) {
+                            $rentQuery->whereRaw('COALESCE(NULLIF(market_rent, 0), price) >= ?', [$priceMin]);
+                        }
+                        if ($priceMax !== null) {
+                            $rentQuery->whereRaw('COALESCE(NULLIF(market_rent, 0), price) <= ?', [$priceMax]);
+                        }
+                    })
+                    ->orWhere(function ($saleQuery) use ($priceMin, $priceMax) {
+                        $saleQuery->where('listing_type', Unit::LISTING_SALE);
+                        if ($priceMin !== null) {
+                            $saleQuery->where('price', '>=', $priceMin);
+                        }
+                        if ($priceMax !== null) {
+                            $saleQuery->where('price', '<=', $priceMax);
+                        }
+                    });
+            });
         }
 
         $sort = $request->input('sort', 'latest');
         $query = match ($sort) {
-            'price_asc' => $query->orderBy('price'),
-            'price_desc' => $query->orderByDesc('price'),
+            'price_asc' => $query->orderByRaw("CASE WHEN listing_type = 'rent' THEN COALESCE(NULLIF(market_rent, 0), price) ELSE price END asc"),
+            'price_desc' => $query->orderByRaw("CASE WHEN listing_type = 'rent' THEN COALESCE(NULLIF(market_rent, 0), price) ELSE price END desc"),
             'oldest' => $query->oldest(),
             default => $query->latest(),
         };
@@ -154,15 +221,16 @@ class MobileMarketplaceController extends Controller
             });
             
         $featuredSectionUnits = Unit::withoutGlobalScope('tenant')
-            ->with(['tenant', 'property', 'subcategory', 'city'])
+            ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
             ->where('status', Unit::STATUS_VACANT)
             ->where('listing_type', Unit::LISTING_SALE)
+            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
             ->latest()
             ->limit(5)
             ->get();
 
         $recommendedSectionUnits = Unit::withoutGlobalScope('tenant')
-            ->with(['tenant', 'property', 'subcategory', 'city'])
+            ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
             ->where('status', Unit::STATUS_VACANT)
             ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
             ->latest()

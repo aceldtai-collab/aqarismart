@@ -96,10 +96,7 @@ php artisan migrate --force
 # ── Step 7: Seed required data ──
 echo ""
 echo "[7/10] Seeding required data..."
-php artisan db:seed --class=PackageSeeder --force
-php artisan db:seed --class=CategorySeeder --force
-php artisan db:seed --class=LocationsSeeder --force
-php artisan db:seed --class=AttributeFieldsSeeder --force
+php artisan db:seed --class=DatabaseSeeder --force
 echo "  ✓ Core seeders complete"
 
 # ── Step 8: Storage symlink ──

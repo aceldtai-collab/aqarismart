@@ -23,12 +23,14 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         return view('mobile.auth.register');
     })->name('register');
     Route::get('/marketplace', [MobileAppController::class, 'marketplace'])->name('marketplace');
+    Route::get('/search', [MobileAppController::class, 'search'])->name('search');
     Route::get('/dashboard', [MobileAppController::class, 'dashboard'])->name('dashboard');
     Route::get('/units', [MobileAppController::class, 'units'])->name('units.index');
     Route::get('/units/create', [MobileAppController::class, 'createUnit'])->name('units.create');
     Route::get('/units/{unit:code}', [MobileAppController::class, 'showUnit'])->name('units.show');
     Route::get('/units/{unit:code}/edit', [MobileAppController::class, 'editUnit'])->name('units.edit');
     Route::get('/tenants', [MobileAppController::class, 'tenants'])->name('tenants.index');
+    Route::get('/tenants/{tenant:slug}/search', [MobileAppController::class, 'tenantSearch'])->name('tenants.search');
     Route::get('/tenants/{tenant:slug}', [MobileAppController::class, 'showTenant'])->name('tenants.show');
     Route::get('/profile', [MobileAppController::class, 'profile'])->name('profile');
     Route::get('/about', [MobileAppController::class, 'about'])->name('about');

@@ -153,8 +153,9 @@
                             
                             <div>
                                 <select name="currency" class="border rounded py-2 px-3 w-full @error('currency') border-red-500 @enderror">
-                                    <option value="JOD" @selected(old('currency', 'JOD') == 'JOD')>{{ __('JOD') }}</option>
-                                    <option value="USD" @selected(old('currency', 'JOD') == 'USD')>{{ __('USD') }}</option>
+                                    <option value="IQD" @selected(old('currency', 'IQD') == 'IQD')>{{ __('IQD') }}</option>
+                                    <option value="JOD" @selected(old('currency', 'IQD') == 'JOD')>{{ __('JOD') }}</option>
+                                    <option value="USD" @selected(old('currency', 'IQD') == 'USD')>{{ __('USD') }}</option>
                                 </select>
                                 @error('currency')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

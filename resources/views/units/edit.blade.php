@@ -101,8 +101,9 @@
                             <input type="number" step="0.01" name="price" placeholder="{{ __('Price') }}" class="border rounded px-3 py-2" value="{{ old('price', $unit->price) }}">
                             
                             <select name="currency" class="border rounded py-2 px-3">
-                                <option value="JOD" @selected(old('currency', $unit->currency ?? 'JOD') == 'JOD')>{{ __('JOD') }}</option>
-                                <option value="USD" @selected(old('currency', $unit->currency ?? 'JOD') == 'USD')>{{ __('USD') }}</option>
+                                <option value="IQD" @selected(old('currency', $unit->currency ?? 'IQD') == 'IQD')>{{ __('IQD') }}</option>
+                                <option value="JOD" @selected(old('currency', $unit->currency ?? 'IQD') == 'JOD')>{{ __('JOD') }}</option>
+                                <option value="USD" @selected(old('currency', $unit->currency ?? 'IQD') == 'USD')>{{ __('USD') }}</option>
                             </select>
                             
                             <select name="listing_type" class="border rounded py-2 px-3">

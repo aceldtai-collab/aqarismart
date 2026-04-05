@@ -17,7 +17,7 @@ cd "$APP_DIR"
 
 # ── Step 1: Maintenance mode ──
 echo "[1/7] Entering maintenance mode..."
-php artisan down --secret="aqari-deploy-bypass" || true
+php artisan down --render="errors.503" --secret="aqari-deploy-bypass" || true
 echo "  ✓ Maintenance mode ON (bypass: /aqari-deploy-bypass)"
 
 # ── Step 2: Pull latest code ──

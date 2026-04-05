@@ -100,6 +100,12 @@
         ['label' => $tx['rent_nav'], 'href' => '#properties-for-rent'],
         ['label' => $tx['contact_nav'], 'href' => '#contact-us'],
     ];
+    $sellWithUsUrl = Route::has('sales-flow')
+        ? route('sales-flow')
+        : (Route::has('book-call') ? route('book-call') : '#contact-us');
+    $loginUrl = Route::has('login') ? route('login') : null;
+    $registerUrl = Route::has('register') ? route('register') : null;
+    $showGuestHeroActions = auth()->guest();
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $loc }}" dir="{{ $isAr ? 'rtl' : 'ltr' }}">
@@ -220,6 +226,46 @@
             font-weight:800;
             color:#fff8ec;
         }
+        .market-hero-actions{
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:.85rem;
+        }
+        .market-hero-action{
+            display:inline-flex;
+            min-height:3.6rem;
+            align-items:center;
+            justify-content:center;
+            gap:.55rem;
+            border-radius:999px;
+            padding:.95rem 1.35rem;
+            font-size:.83rem;
+            font-weight:800;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+            transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+        }
+        .market-hero-action:hover{transform:translateY(-2px)}
+        .market-hero-action-primary{
+            background:linear-gradient(135deg, rgba(255,247,231,.98), rgba(245,230,194,.96));
+            color:var(--market-ink);
+            box-shadow:0 24px 42px -24px rgba(255,244,220,.7);
+        }
+        .market-hero-action-primary:hover{box-shadow:0 28px 50px -26px rgba(255,244,220,.78)}
+        .market-hero-action-warm{
+            background:linear-gradient(135deg, rgba(182,132,47,.96), rgba(157,90,59,.94));
+            color:#fff8ed;
+            box-shadow:0 22px 40px -24px rgba(157,90,59,.72);
+        }
+        .market-hero-action-warm:hover{box-shadow:0 28px 48px -24px rgba(157,90,59,.8)}
+        .market-hero-action-ghost{
+            border:1px solid rgba(255,255,255,.18);
+            background:rgba(255,255,255,.08);
+            color:#fff9ef;
+            backdrop-filter:blur(14px);
+        }
+        .market-hero-action-ghost:hover{background:rgba(255,255,255,.14)}
         .market-search-wrap{
             border:1px solid rgba(182,132,47,.22);
             background:rgba(255,248,235,.97);
@@ -253,16 +299,71 @@
         .market-soft-surface{
             background:linear-gradient(180deg, rgba(255,249,239,.96), rgba(250,244,229,.86));
         }
+        .market-mobile-guest-bar{
+            position:fixed;
+            inset-inline:0;
+            bottom:0;
+            z-index:45;
+            padding:0 1rem calc(env(safe-area-inset-bottom, 0px) + 1rem);
+            pointer-events:none;
+        }
+        .market-mobile-guest-bar-shell{
+            pointer-events:auto;
+            border:1px solid rgba(130,94,38,.16);
+            background:rgba(255,248,235,.96);
+            box-shadow:0 26px 54px -28px rgba(42,29,10,.42);
+            backdrop-filter:blur(16px);
+        }
+        .market-mobile-guest-link{
+            display:inline-flex;
+            min-height:3.2rem;
+            align-items:center;
+            justify-content:center;
+            border-radius:1.1rem;
+            padding:.85rem .8rem;
+            text-align:center;
+            font-size:.72rem;
+            font-weight:800;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            color:var(--market-ink);
+            transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+        }
+        .market-mobile-guest-link:hover{transform:translateY(-1px)}
+        .market-mobile-guest-link-primary{
+            background:linear-gradient(135deg, var(--market-palm), var(--market-river));
+            color:#fffaf1;
+            box-shadow:0 18px 30px -18px rgba(15,90,70,.82);
+        }
+        .market-mobile-guest-link-secondary{
+            background:linear-gradient(135deg, rgba(182,132,47,.16), rgba(157,90,59,.12));
+        }
+        .market-mobile-guest-link-outline{
+            border:1px solid rgba(130,94,38,.16);
+            background:#fffdf8;
+        }
+        .marketplace-guest-pad{padding-bottom:6.75rem}
         html[dir="rtl"] .market-hero-copy{text-align:right}
         html[dir="rtl"] .market-hero-chip-row{justify-content:flex-end}
         html[dir="rtl"] .market-hero-subtitle{margin-left:auto;margin-right:0}
         html[dir="rtl"] .market-hero-panel{text-align:right}
+        html[dir="rtl"] .market-hero-actions{justify-content:center}
+        @media (min-width:1024px){
+            html[dir="rtl"] .market-hero-actions{justify-content:flex-end}
+        }
+        @media (max-width:767px){
+            .market-mobile-guest-link{font-size:.68rem;letter-spacing:.05em}
+        }
+        @media (min-width:768px){
+            .market-mobile-guest-bar{display:none}
+            body.marketplace-guest-pad{padding-bottom:0}
+        }
         @include('public.partials.market-nav-styles')
         .scroll-hidden{-ms-overflow-style:none;scrollbar-width:none}
         .scroll-hidden::-webkit-scrollbar{display:none}
     </style>
 </head>
-<body>
+<body class="{{ $showGuestHeroActions ? 'marketplace-guest-pad' : '' }}">
     @include('public.partials.market-nav', [
         'isAr' => $isAr,
         'navTx' => array_merge($tx, ['guest_subtitle' => $tx['hero_subtitle']]),
@@ -271,9 +372,7 @@
         'navBrandLabel' => $tx['brand'],
         'urlEn' => $urlEn,
         'urlAr' => $urlAr,
-        'sellWithUsUrl' => Route::has('sales-flow')
-            ? route('sales-flow')
-            : (Route::has('book-call') ? route('book-call') : '#contact-us'),
+        'sellWithUsUrl' => $sellWithUsUrl,
     ])
     {{--
     <!-- Header -->
@@ -440,6 +539,17 @@
                     <p class="market-kicker mb-4 text-xs font-semibold uppercase text-white/68">{{ $tx['hero_eyebrow'] }}</p>
                     <h1 class="mb-5 text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl lg:text-[4.2rem]">{{ $tx['hero_title'] }}</h1>
                     <p class="market-hero-subtitle mx-auto mb-8 max-w-2xl text-base leading-8 text-white/78 sm:text-lg lg:mx-0">{{ $tx['hero_subtitle'] }}</p>
+                    @if($showGuestHeroActions)
+                        <div class="market-hero-actions mb-8">
+                            @if($registerUrl)
+                                <a href="{{ $registerUrl }}" class="market-hero-action market-hero-action-primary">{{ $tx['register_cta'] }}</a>
+                            @endif
+                            <a href="{{ $sellWithUsUrl }}" class="market-hero-action market-hero-action-warm">{{ $tx['sell_cta'] }}</a>
+                            @if($loginUrl)
+                                <a href="{{ $loginUrl }}" class="market-hero-action market-hero-action-ghost">{{ $tx['login_cta'] }}</a>
+                            @endif
+                        </div>
+                    @endif
                     <div class="grid gap-3 sm:grid-cols-3">
                         <div class="market-note"><div class="market-note-label">{{ $tx['properties'] }}</div><div class="market-note-value">{{ $tx['categories_title'] }}</div></div>
                         <div class="market-note"><div class="market-note-label">{{ $tx['agencies_title'] }}</div><div class="market-note-value">{{ $tx['agencies_subtitle'] }}</div></div>
@@ -459,7 +569,7 @@
                     </div>
                 </aside>
             </div>
-            <form id="hero-search-form" class="market-search-wrap mx-auto mt-12 max-w-6xl rounded-[30px] p-4 sm:p-5">
+            <form id="hero-search-form" method="GET" action="{{ route('public.search') }}" class="market-search-wrap mx-auto mt-12 max-w-6xl rounded-[30px] p-4 sm:p-5">
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-5">
                     <div class="md:col-span-2">
                         <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="{{ $tx['keyword'] }}" class="market-search-input h-14 w-full rounded-2xl border px-4 text-sm font-medium text-slate-900 outline-none transition">
@@ -525,7 +635,7 @@
 
             <!-- Properties For Sale — populated by JS -->
             <section id="properties-for-sale" class="space-y-6">
-                <div class="flex items-end justify-between gap-4"><div><p class="market-kicker mb-2 text-xs font-semibold uppercase market-accent-warm">{{ $tx['sale_eyebrow'] }}</p><h2 class="market-section-title text-3xl font-extrabold text-slate-900">{{ $tx['sale_title'] }}</h2></div><a href="?listing_type=sale#catalog" class="market-warm-link text-sm font-semibold">{{ $tx['view_all'] }}</a></div>
+                <div class="flex items-end justify-between gap-4"><div><p class="market-kicker mb-2 text-xs font-semibold uppercase market-accent-warm">{{ $tx['sale_eyebrow'] }}</p><h2 class="market-section-title text-3xl font-extrabold text-slate-900">{{ $tx['sale_title'] }}</h2></div><a href="{{ route('public.search', ['listing_type' => 'sale']) }}" class="market-warm-link text-sm font-semibold">{{ $tx['view_all'] }}</a></div>
                 <div id="web-sale" class="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-hidden pb-4">
                     <div class="text-sm text-slate-400 py-8">{{ $tx['loading'] }}</div>
                 </div>
@@ -533,7 +643,7 @@
 
             <!-- Properties For Rent — populated by JS -->
             <section id="properties-for-rent" class="space-y-6">
-                <div class="flex items-end justify-between gap-4"><div><p class="market-kicker mb-2 text-xs font-semibold uppercase market-accent-warm">{{ $tx['rent_eyebrow'] }}</p><h2 class="market-section-title text-3xl font-extrabold text-slate-900">{{ $tx['rent_title'] }}</h2></div><a href="?listing_type=rent#catalog" class="market-warm-link text-sm font-semibold">{{ $tx['view_all'] }}</a></div>
+                <div class="flex items-end justify-between gap-4"><div><p class="market-kicker mb-2 text-xs font-semibold uppercase market-accent-warm">{{ $tx['rent_eyebrow'] }}</p><h2 class="market-section-title text-3xl font-extrabold text-slate-900">{{ $tx['rent_title'] }}</h2></div><a href="{{ route('public.search', ['listing_type' => 'rent']) }}" class="market-warm-link text-sm font-semibold">{{ $tx['view_all'] }}</a></div>
                 <div id="web-rent" class="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-hidden pb-4">
                     <div class="text-sm text-slate-400 py-8">{{ $tx['loading'] }}</div>
                 </div>
@@ -591,6 +701,22 @@
             <div><div class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-white">{{ $tx['footer_cta'] }}</div><a href="{{ route('book-call') }}" class="inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-white/92">{{ $tx['book'] }}</a></div>
         </div>
     </footer>
+
+    @if($showGuestHeroActions)
+        <div class="market-mobile-guest-bar md:hidden">
+            <div class="market-shell mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="market-mobile-guest-bar-shell grid grid-cols-3 gap-2 rounded-[24px] p-3">
+                    @if($registerUrl)
+                        <a href="{{ $registerUrl }}" class="market-mobile-guest-link market-mobile-guest-link-primary">{{ $tx['register_cta'] }}</a>
+                    @endif
+                    <a href="{{ $sellWithUsUrl }}" class="market-mobile-guest-link market-mobile-guest-link-secondary">{{ $tx['sell_cta'] }}</a>
+                    @if($loginUrl)
+                        <a href="{{ $loginUrl }}" class="market-mobile-guest-link market-mobile-guest-link-outline">{{ $tx['login_cta'] }}</a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 
     <script>
     const lang = '{{ $loc }}';
@@ -842,22 +968,6 @@
         loadCatalog();
         document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
-    document.getElementById('hero-search-form')?.addEventListener('submit', e => {
-        e.preventDefault();
-        const heroForm = e.target;
-        const catalogForm = document.getElementById('catalog-filter-form');
-        catalogForm.querySelector('[name="q"]').value = heroForm.querySelector('[name="q"]').value;
-        ['city_id', 'listing_type'].forEach(name => {
-            const heroVal = heroForm.querySelector(`[name="${name}"]`)?.value ?? '';
-            let catalogInput = catalogForm.querySelector(`[name="${name}"]`);
-            if (!catalogInput) { catalogInput = document.createElement('input'); catalogInput.type = 'hidden'; catalogInput.name = name; catalogForm.appendChild(catalogInput); }
-            catalogInput.value = heroVal;
-        });
-        catalogPage = 1;
-        loadCatalog();
-        document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
 
     document.getElementById('catalog-filter-form')?.addEventListener('submit', e => {
         e.preventDefault();

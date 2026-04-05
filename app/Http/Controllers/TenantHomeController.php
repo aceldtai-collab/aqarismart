@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Unit;
 use App\Models\Subcategory;
+use App\Services\Search\SearchExperienceBuilder;
 use App\Services\Tenancy\TenantManager;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -151,7 +152,7 @@ class TenantHomeController extends Controller
         ));
     }
 
-    public function search(Request $request): View
+    public function search(Request $request, SearchExperienceBuilder $searchExperienceBuilder): View
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
@@ -165,12 +166,31 @@ class TenantHomeController extends Controller
         $rawListingType = trim((string) $request->query('listing_type', ''));
         $listing_type = in_array($rawListingType, Unit::LISTING_TYPES, true) ? $rawListingType : Unit::LISTING_RENT;
 
-        $unitsQuery = Unit::with(['property','subcategory.category','agents','agent'])
+        $unitsQuery = Unit::with(['property.city','property.state','subcategory.category','agents','agent','tenant','city','area','unitAttributes.attributeField'])
             ->whereIn('status', ['vacant', 'occupied'])
             ->where('listing_type', $listing_type)
             ->when($beds > 0, fn ($q2) => $q2->where('beds', '>=', $beds))
             ->when($baths > 0, fn ($q2) => $q2->where('baths', '>=', $baths))
-            ->when($max > 0, fn ($q2) => $q2->where('market_rent', '<=', $max * 100))
+            ->when($max > 0, function ($q2) use ($max, $listing_type) {
+                if ($listing_type === Unit::LISTING_SALE) {
+                    $q2->where('price', '<=', $max);
+                    return;
+                }
+
+                $q2->where(function ($priceQuery) use ($max) {
+                    $priceQuery
+                        ->where(function ($rentQuery) use ($max) {
+                            $rentQuery->where('market_rent', '>', 0)->where('market_rent', '<=', $max);
+                        })
+                        ->orWhere(function ($fallbackQuery) use ($max) {
+                            $fallbackQuery
+                                ->where(function ($emptyRentQuery) {
+                                    $emptyRentQuery->whereNull('market_rent')->orWhere('market_rent', 0);
+                                })
+                                ->where('price', '<=', $max);
+                        });
+                });
+            })
             ->when($subcategory > 0, fn ($q2) => $q2->where('subcategory_id', $subcategory))
             ->when($category > 0, function ($q2) use ($category) {
                 $q2->where(function ($inner) use ($category) {
@@ -183,7 +203,8 @@ class TenantHomeController extends Controller
                     $inner->whereHas('property', function ($qq) use ($q) {
                         $qq->where('name', 'like', "%$q%");
                     })->orWhere('code', 'like', "%$q%")
-                      ->orWhere('title', 'like', "%$q%");
+                      ->orWhere('title', 'like', "%$q%")
+                      ->orWhere('location', 'like', "%$q%");
                 });
             });
 
@@ -192,10 +213,32 @@ class TenantHomeController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $categories = \App\Models\Category::orderBy('name')->get();
-        $subcategories = \App\Models\Subcategory::when($category > 0, fn($q3) => $q3->where('category_id', $category))->orderBy('name')->get();
-        return view('tenant.search', compact('tenant', 'units', 'beds', 'baths', 'max', 'category', 'subcategory', 'q', 'listing_type') + [
-            'subcategories' => $subcategories,
+        $searchUnits = (clone $unitsQuery)
+            ->orderByDesc('id')
+            ->limit(72)
+            ->get();
+
+        $categories = \App\Models\Category::with('subcategories')->orderBy('name')->get();
+        $filters = [
+            'q' => $q,
+            'listing_type' => $listing_type,
+            'category' => $category,
+            'subcategory' => $subcategory,
+            'beds' => $beds,
+            'baths' => $baths,
+            'max' => $max,
+        ];
+
+        return view('tenant.search', [
+            'tenant' => $tenant,
+            'units' => $units,
+            'categories' => $categories,
+            'filters' => $filters,
+            'searchExperience' => $searchExperienceBuilder->build($searchUnits, [
+                'scope' => 'tenant',
+                'tenant' => $tenant,
+                'total' => $units->total(),
+            ]),
         ]);
     }
 

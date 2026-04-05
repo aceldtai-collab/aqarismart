@@ -1,8 +1,9 @@
 <?php
 
 return [
-    'default' => '+962',
+    'default' => '+964',
     'codes' => [
+        '+964' => 'Iraq (+964)',
         '+962' => 'Jordan (+962)',
         '+966' => 'Saudi Arabia (+966)',
         '+971' => 'United Arab Emirates (+971)',

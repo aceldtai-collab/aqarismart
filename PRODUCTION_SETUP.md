@@ -43,6 +43,9 @@ DB_PASSWORD=your_secure_password
 # ═══════════════════════════════════════════════════════════
 
 SUPER_ADMIN_EMAILS=admin@aqarismart.com
+SEED_SUPER_ADMIN_PASSWORD=Admin@123456
+SEED_TENANT_OWNER_PASSWORD=Owner@123456
+SEED_AGENT_PASSWORD=Agent@123456
 
 # ═══════════════════════════════════════════════════════════
 # MAIL CONFIGURATION
@@ -202,9 +205,7 @@ rm -rf public/storage  # if exists as directory
 php artisan storage:link
 
 # Seed initial data (if needed)
-php artisan db:seed --class=CategorySeeder
-php artisan db:seed --class=LocationsSeeder
-# php artisan db:seed --class=DemoPmsSeeder  # Only for demo tenants
+php artisan db:seed --class=DatabaseSeeder --force
 
 # Clear and rebuild caches
 php artisan optimize:clear

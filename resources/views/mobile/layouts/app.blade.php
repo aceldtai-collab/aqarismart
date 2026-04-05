@@ -19,7 +19,7 @@
     if (empty($countryCodes)) {
         $countryCodes = [$defaultCountry => $defaultCountry];
     }
-    $showResidentRegister = request()->routeIs('mobile.marketplace');
+    $showResidentRegister = request()->routeIs('mobile.marketplace') || request()->routeIs('mobile.search');
 @endphp
 <body class="bg-gray-50 min-h-screen text-slate-800 {{ $body_class ?? '' }}">
     <div
@@ -29,7 +29,7 @@
             profileUrl: @js(route('mobile.profile')),
             dashboardUrl: @js(route('mobile.dashboard')),
             residentRegisterPath: @js(route('api.mobile.auth.register-resident', [], false)),
-            shouldAutoOpenRegister: @js(request()->routeIs('mobile.marketplace') && request()->query('auth') === 'register'),
+            shouldAutoOpenRegister: @js((request()->routeIs('mobile.marketplace') || request()->routeIs('mobile.search')) && request()->query('auth') === 'register'),
         })"
         x-init="if (shouldAutoOpenRegister) openResidentRegister()"
         class="min-h-screen"
@@ -53,13 +53,13 @@
             </div>
 
             <nav class="flex flex-col gap-1 px-4 py-5">
-                <a href="{{ route('mobile.marketplace') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.marketplace') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('mobile.marketplace') ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600' }} transition-colors">
+                <a href="{{ route('mobile.marketplace') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.marketplace') || request()->routeIs('mobile.search') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('mobile.marketplace') || request()->routeIs('mobile.search') ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600' }} transition-colors">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     </div>
                     <div>
                         <div class="text-sm font-semibold">{{ app()->getLocale() === 'ar' ? 'السوق' : 'Marketplace' }}</div>
-                        <div class="text-[11px] font-medium {{ request()->routeIs('mobile.marketplace') ? 'text-emerald-500' : 'text-slate-400' }}">{{ app()->getLocale() === 'ar' ? 'تصفح العقارات' : 'Browse properties' }}</div>
+                        <div class="text-[11px] font-medium {{ request()->routeIs('mobile.marketplace') || request()->routeIs('mobile.search') ? 'text-emerald-500' : 'text-slate-400' }}">{{ app()->getLocale() === 'ar' ? 'تصفح العقارات' : 'Browse properties' }}</div>
                     </div>
                 </a>
                 <a href="{{ route('mobile.tenants.index') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-150 {{ request()->routeIs('mobile.tenants.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50' }}">

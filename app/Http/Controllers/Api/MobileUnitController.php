@@ -340,8 +340,8 @@ class MobileUnitController extends Controller
             'description.ar' => ['nullable', 'string', 'max:2000'],
             'city_id' => ['nullable', 'integer', 'exists:cities,id'],
             'area_id' => ['nullable', 'integer', 'exists:states,id'],
-            'price' => ['required', 'numeric', 'min:0', 'max:999999'],
-            'currency' => ['required', 'string', 'size:3', 'in:USD,JOD'],
+            'price' => ['required', 'numeric', 'min:0', 'max:9999999999.99'],
+            'currency' => ['required', 'string', 'size:3', 'in:USD,JOD,IQD'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'status' => ['required', 'string', 'in:' . implode(',', Unit::STATUSES)],
@@ -362,7 +362,7 @@ class MobileUnitController extends Controller
             $data['price'] = $unit?->price ?? 0;
         }
         if (! array_key_exists('currency', $data) || $data['currency'] === null) {
-            $data['currency'] = $unit?->currency ?? 'JOD';
+            $data['currency'] = $unit?->currency ?? 'IQD';
         }
 
         return $data;

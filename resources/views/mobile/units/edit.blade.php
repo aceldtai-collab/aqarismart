@@ -37,7 +37,7 @@
             </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-white">{{ app()->getLocale() === 'ar' ? 'العملة' : 'Currency' }}</label>
-                <select name="currency" id="mobile-unit-edit-currency" class="w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"><option value="JOD">JOD</option><option value="USD">USD</option></select>
+                <select name="currency" id="mobile-unit-edit-currency" class="w-full rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"><option value="IQD">IQD</option><option value="JOD">JOD</option><option value="USD">USD</option></select>
             </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-white">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</label>
@@ -101,7 +101,7 @@ async function loadUnitEditMeta() {
     document.getElementById('mobile-unit-edit-description-en').value = unit.description?.en || '';
     document.getElementById('mobile-unit-edit-description-ar').value = unit.description?.ar || '';
     document.getElementById('mobile-unit-edit-price').value = unit.price || '';
-    document.getElementById('mobile-unit-edit-currency').value = unit.currency || 'JOD';
+    document.getElementById('mobile-unit-edit-currency').value = unit.currency || 'IQD';
     document.getElementById('mobile-unit-edit-status').value = unit.status || 'vacant';
     document.getElementById('mobile-unit-edit-listing-type').value = unit.listing_type || 'rent';
     document.getElementById('mobile-unit-edit-location-url').value = unit.location_url || '';

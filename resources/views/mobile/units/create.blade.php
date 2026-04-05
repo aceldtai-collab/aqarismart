@@ -37,7 +37,7 @@
             </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-white">{{ app()->getLocale() === 'ar' ? 'العملة' : 'Currency' }}</label>
-                <select name="currency" id="mobile-unit-currency" class="w-full rounded-2xl border border-emerald-300/20 bg-emerald-600/50 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"><option value="JOD">JOD</option><option value="USD">USD</option><option value="EUR">EUR</option></select>
+                <select name="currency" id="mobile-unit-currency" class="w-full rounded-2xl border border-emerald-300/20 bg-emerald-600/50 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"><option value="IQD">IQD</option><option value="JOD">JOD</option><option value="USD">USD</option></select>
             </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-white">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</label>

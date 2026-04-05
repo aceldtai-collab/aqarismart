@@ -97,20 +97,22 @@
                         <div>
                             <x-input-label for="currency" :value="__('Currency')" />
                             @php
-                                $currency = $tenant->settings['currency'] ?? 'USD';
+                                $currency = $tenant->settings['currency'] ?? 'IQD';
                             @endphp
                             <select id="currency" name="currency" class="mt-1 block w-full rounded-md border-gray-300">
+                                <option value="IQD" @selected($currency==='IQD')>{{ __('IQD (Iraqi Dinar)') }}</option>
                                 <option value="USD" @selected($currency==='USD')>{{ __('USD (US Dollar)') }}</option>
-                                <option value="JD" @selected($currency==='JD')>{{ __('JD (Jordanian Dinar)') }}</option>
+                                <option value="JOD" @selected(in_array($currency, ['JOD', 'JD'], true))>{{ __('JOD (Jordanian Dinar)') }}</option>
                             </select>
                             <x-input-error :messages="$errors->get('currency')" class="mt-2" />
                         </div>
                         <div>
                             <x-input-label for="country" :value="__('Country')" />
                             @php
-                                $country = $tenant->settings['country'] ?? 'US';
+                                $country = $tenant->settings['country'] ?? 'IQ';
                             @endphp
                             <select id="country" name="country" class="mt-1 block w-full rounded-md border-gray-300">
+                                <option value="IQ" @selected($country==='IQ')>{{ __('Iraq') }}</option>
                                 <option value="US" @selected($country==='US')>{{ __('USA') }}</option>
                                 <option value="JO" @selected($country==='JO')>{{ __('Jordan') }}</option>
                             </select>
@@ -189,7 +191,7 @@
                         </div>
                         <div>
                             <x-input-label for="contact_phone" :value="__('Contact phone')" />
-                            <x-text-input id="contact_phone" name="contact_phone" class="mt-1 block w-full" :value="old('contact_phone', $settings['contact_phone'] ?? '')" placeholder="+962 7X XXX XXXX" />
+                            <x-text-input id="contact_phone" name="contact_phone" class="mt-1 block w-full" :value="old('contact_phone', $settings['contact_phone'] ?? '')" placeholder="+964 7XX XXX XXXX" />
                             <x-input-error :messages="$errors->get('contact_phone')" class="mt-2" />
                         </div>
                     </div>

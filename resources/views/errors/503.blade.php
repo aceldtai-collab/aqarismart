@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Aqari Smart | Page Not Found</title>
+    <title>Aqari Smart | Maintenance</title>
     <style>
         :root {
             color-scheme: light;
@@ -48,7 +48,8 @@
             width: min(1080px, 100%);
             border-radius: 32px;
             overflow: hidden;
-            background: linear-gradient(135deg, rgba(255, 252, 245, 0.96), rgba(249, 241, 227, 0.9));
+            background:
+                linear-gradient(135deg, rgba(255, 252, 245, 0.96), rgba(249, 241, 227, 0.9));
             border: 1px solid rgba(183, 138, 53, 0.18);
             box-shadow: var(--shadow);
         }
@@ -74,6 +75,7 @@
         .content {
             display: grid;
             grid-template-columns: 1.1fr 0.9fr;
+            gap: 0;
         }
 
         .main {
@@ -94,7 +96,8 @@
         .aside {
             position: relative;
             padding: 40px 34px;
-            background: linear-gradient(180deg, rgba(31, 90, 71, 0.98), rgba(20, 63, 51, 0.96));
+            background:
+                linear-gradient(180deg, rgba(31, 90, 71, 0.98), rgba(20, 63, 51, 0.96));
             color: #f9f3e8;
         }
 
@@ -301,43 +304,6 @@
             background: var(--palm);
         }
 
-        .cta-row {
-            margin-top: 28px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            min-height: 54px;
-            padding: 0 22px;
-            border-radius: 999px;
-            text-decoration: none;
-            font-size: 0.94rem;
-            font-weight: 900;
-            transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-        }
-
-        .button:hover {
-            transform: translateY(-1px);
-        }
-
-        .button-primary {
-            color: #fbf7ef;
-            background: linear-gradient(135deg, var(--palm), var(--palm-deep));
-            box-shadow: 0 18px 36px rgba(31, 90, 71, 0.22);
-        }
-
-        .button-secondary {
-            color: var(--ink);
-            background: rgba(255, 250, 241, 0.86);
-            border: 1px solid rgba(31, 90, 71, 0.14);
-        }
-
         .aside .kicker {
             font-size: 0.8rem;
             text-transform: uppercase;
@@ -405,6 +371,18 @@
             line-height: 1.8;
         }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         @media (max-width: 900px) {
             .content {
                 grid-template-columns: 1fr;
@@ -430,23 +408,18 @@
                 align-items: stretch;
             }
 
-            .lang-toggle,
-            .cta-row {
+            .lang-toggle {
                 justify-content: center;
             }
 
             .brand {
                 justify-content: center;
             }
-
-            .button {
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
-    <main class="shell" aria-labelledby="not-found-title">
+    <main class="shell" aria-labelledby="maintenance-title">
         <div class="iraq-band" aria-hidden="true">
             <span></span>
             <span></span>
@@ -471,72 +444,62 @@
                 </div>
 
                 <article class="pane is-active" data-lang="en">
-                    <div class="eyebrow">Page Not Found</div>
-                    <h1 id="not-found-title">This route is no longer where you expected it.</h1>
+                    <div class="eyebrow">Scheduled Maintenance</div>
+                    <h1 id="maintenance-title">We are polishing the experience.</h1>
                     <p class="lead">
-                        The page may have moved, the link may be outdated, or the address may have been typed incorrectly.
-                        Return to a safe starting point and continue the journey from there.
+                        Aqari Smart is temporarily unavailable while we deploy updates, improve performance, and prepare the next release.
+                        The service will be back shortly.
                     </p>
 
                     <div class="metrics">
                         <div class="metric">
-                            <strong>404</strong>
-                            <span>The requested page could not be found on this address.</span>
+                            <strong>503</strong>
+                            <span>Maintenance mode is active for this release window.</span>
                         </div>
                         <div class="metric">
-                            <strong>Route</strong>
-                            <span>Public, tenant, or dashboard links may have changed after an update.</span>
+                            <strong>Secure</strong>
+                            <span>Your data stays intact while the platform is being updated.</span>
                         </div>
                         <div class="metric">
-                            <strong>Recover</strong>
-                            <span>Use home or go back to return to a valid path quickly.</span>
+                            <strong>Soon</strong>
+                            <span>We expect normal access to return once deployment checks finish.</span>
                         </div>
                     </div>
 
                     <div class="info-row">
-                        <div class="pill">Marketplace and tenant routes supported</div>
-                        <div class="pill">Arabic and English available</div>
-                        <div class="pill">No data has been removed</div>
-                    </div>
-
-                    <div class="cta-row">
-                        <a href="{{ url('/') }}" class="button button-primary">Go to home</a>
-                        <a href="{{ url()->previous() ?: url('/') }}" class="button button-secondary">Go back</a>
+                        <div class="pill">Platform upgrade in progress</div>
+                        <div class="pill">Public and dashboard access paused</div>
+                        <div class="pill">Arabic and English supported</div>
                     </div>
                 </article>
 
                 <article class="pane" data-lang="ar">
-                    <div class="eyebrow">الصفحة غير موجودة</div>
-                    <h1 id="not-found-title-ar">هذا المسار لم يعد في المكان الذي توقعته.</h1>
+                    <div class="eyebrow">صيانة مجدولة</div>
+                    <h1 id="maintenance-title-ar">نعمل الآن على تحسين التجربة.</h1>
                     <p class="lead">
-                        قد تكون الصفحة قد انتقلت إلى عنوان آخر، أو أن الرابط قديم، أو أن العنوان كُتب بشكل غير صحيح.
-                        عد إلى نقطة بداية واضحة وأكمل رحلتك من هناك.
+                        عقاري سمارت غير متاح مؤقتاً أثناء نشر التحديثات وتحسين الأداء وتجهيز الإصدار القادم.
+                        ستعود الخدمة خلال وقت قصير.
                     </p>
 
                     <div class="metrics">
                         <div class="metric">
-                            <strong>404</strong>
-                            <span>الصفحة المطلوبة غير موجودة على هذا العنوان.</span>
+                            <strong>503</strong>
+                            <span>وضع الصيانة مفعل خلال نافذة التحديث الحالية.</span>
                         </div>
                         <div class="metric">
-                            <strong>المسار</strong>
-                            <span>ربما تغيّرت روابط السوق أو صفحات الوكالات أو روابط لوحات التحكم بعد تحديث أخير.</span>
+                            <strong>آمن</strong>
+                            <span>بياناتك تبقى محفوظة أثناء تنفيذ تحديثات المنصة.</span>
                         </div>
                         <div class="metric">
-                            <strong>العودة</strong>
-                            <span>يمكنك الرجوع للصفحة السابقة أو الذهاب للرئيسية للوصول إلى مسار صالح بسرعة.</span>
+                            <strong>قريباً</strong>
+                            <span>سيعود الوصول الطبيعي فور انتهاء التحقق من النشر.</span>
                         </div>
                     </div>
 
                     <div class="info-row">
-                        <div class="pill">يدعم روابط السوق وصفحات الوكالات</div>
-                        <div class="pill">العربية والإنجليزية متاحتان</div>
-                        <div class="pill">لم يتم حذف أي بيانات</div>
-                    </div>
-
-                    <div class="cta-row">
-                        <a href="{{ url('/') }}" class="button button-primary">الذهاب إلى الرئيسية</a>
-                        <a href="{{ url()->previous() ?: url('/') }}" class="button button-secondary">الرجوع</a>
+                        <div class="pill">يجري الآن تحديث المنصة</div>
+                        <div class="pill">تم إيقاف الوصول العام ولوحات التحكم مؤقتاً</div>
+                        <div class="pill">الدعم متوفر بالعربية والإنجليزية</div>
                     </div>
                 </article>
             </section>
@@ -544,55 +507,55 @@
             <aside class="aside">
                 <article class="pane is-active" data-lang="en">
                     <div class="kicker">Aqari Smart</div>
-                    <h2>Find the correct path and keep moving.</h2>
+                    <h2>Property operations, returning sharper.</h2>
                     <p>
-                        This is a navigation issue, not a platform outage. The app is available, but this specific address is not.
+                        This downtime window is being used to keep the platform stable, faster, and ready for the next publishing cycle.
                     </p>
 
                     <div class="stack">
                         <div class="stack-card">
-                            <strong>What likely happened</strong>
-                            <span>A link was copied from an old route, a tenant slug changed, or the address was typed with a mismatch.</span>
+                            <strong>What is happening</strong>
+                            <span>Deploying application updates, refreshing caches, and running release checks.</span>
                         </div>
                         <div class="stack-card">
-                            <strong>Where to continue</strong>
-                            <span>Start from the homepage, marketplace, or tenant website and open the target page again from there.</span>
+                            <strong>What stays protected</strong>
+                            <span>Accounts, tenants, listings, and operational records are not being reset.</span>
                         </div>
                         <div class="stack-card">
-                            <strong>What stays safe</strong>
-                            <span>Your account, listings, tenants, and records are still intact. Only this URL could not be resolved.</span>
+                            <strong>Next step</strong>
+                            <span>Refresh this page in a few minutes and the platform should be available again.</span>
                         </div>
                     </div>
 
                     <div class="footer-note">
-                        If this link should exist, verify the domain, tenant slug, listing code, and language parameter.
+                        If you are a deployment operator, the bypass secret remains available for approved release checks.
                     </div>
                 </article>
 
                 <article class="pane" data-lang="ar">
                     <div class="kicker">عقاري سمارت</div>
-                    <h2>اعثر على المسار الصحيح وواصل الرحلة.</h2>
+                    <h2>تشغيل عقاري يعود بشكل أكثر دقة وثباتاً.</h2>
                     <p>
-                        هذه مشكلة تنقل وليست توقفاً في المنصة. النظام يعمل، لكن هذا العنوان المحدد غير موجود حالياً.
+                        يتم استخدام نافذة التوقف هذه للحفاظ على استقرار المنصة وتسريعها وتجهيزها لدورة النشر التالية.
                     </p>
 
                     <div class="stack">
                         <div class="stack-card">
-                            <strong>ما الذي حدث غالباً</strong>
-                            <span>قد يكون الرابط من مسار قديم، أو أن اسم الوكالة تغيّر، أو أن العنوان كُتب مع اختلاف في جزء من الرابط.</span>
+                            <strong>ما الذي يحدث الآن</strong>
+                            <span>نقوم بنشر تحديثات التطبيق وتجديد الكاش وتشغيل فحوصات الإصدار.</span>
                         </div>
                         <div class="stack-card">
-                            <strong>من أين تتابع</strong>
-                            <span>ابدأ من الصفحة الرئيسية أو السوق أو موقع الوكالة، ثم افتح الصفحة المطلوبة مرة أخرى من هناك.</span>
+                            <strong>ما الذي يبقى محفوظاً</strong>
+                            <span>لن يتم حذف الحسابات أو المستأجرين أو العقارات أو السجلات التشغيلية.</span>
                         </div>
                         <div class="stack-card">
-                            <strong>ما الذي يبقى آمناً</strong>
-                            <span>حسابك والعقارات والوكالات والسجلات ما زالت محفوظة. المشكلة فقط في هذا الرابط.</span>
+                            <strong>الخطوة التالية</strong>
+                            <span>أعد تحميل الصفحة بعد بضع دقائق وسيعود النظام للعمل بشكل طبيعي.</span>
                         </div>
                     </div>
 
                     <div class="footer-note">
-                        إذا كنت تتوقع أن هذا الرابط صحيح، فتحقق من الدومين واسم الوكالة ورمز العقار ومعامل اللغة.
+                        إذا كنت مسؤول نشر معتمد، يبقى رابط التجاوز السري متاحاً لاختبارات الإصدار المعتمدة.
                     </div>
                 </article>
             </aside>
@@ -615,8 +578,8 @@
                 document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
                 document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
                 document.title = lang === 'ar'
-                    ? 'عقاري سمارت | الصفحة غير موجودة'
-                    : 'Aqari Smart | Page Not Found';
+                    ? 'عقاري سمارت | تحت الصيانة'
+                    : 'Aqari Smart | Maintenance';
 
                 panes.forEach((pane) => {
                     pane.classList.toggle('is-active', pane.getAttribute('data-lang') === lang);

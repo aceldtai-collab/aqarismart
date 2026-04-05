@@ -11,8 +11,11 @@ Route::domain(config('tenancy.base_domain'))
         // Marketplace page
         Route::get('/marketplace', [PublicHomeController::class, 'marketplace'])->name('public.marketplace');
 
-        // Public unit search / explore
-        Route::get('/explore', [PublicHomeController::class, 'search'])->name('public.search');
+        // Public unit search
+        Route::get('/search', [PublicHomeController::class, 'search'])->name('public.search');
+        Route::get('/explore', function () {
+            return redirect()->route('public.search', request()->query());
+        })->name('public.search.legacy');
 
         // Legacy localized paths -> query param
         Route::get('/{locale}/book-call', function (string $locale) {
@@ -24,6 +27,11 @@ Route::domain(config('tenancy.base_domain'))
             abort_unless(in_array($locale, ['en', 'ar'], true), 404);
             return redirect()->route('public.marketplace', ['lang' => $locale]);
         })->where('locale', 'en|ar')->name('public.marketplace.localized');
+
+        Route::get('/{locale}/search', function (string $locale) {
+            abort_unless(in_array($locale, ['en', 'ar'], true), 404);
+            return redirect()->route('public.search', ['lang' => $locale]);
+        })->where('locale', 'en|ar')->name('public.search.localized');
 
         Route::get('/{locale}', function (string $locale) {
             abort_unless(in_array($locale, ['en', 'ar'], true), 404);

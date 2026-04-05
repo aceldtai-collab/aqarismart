@@ -90,7 +90,7 @@ class MobileTenantDirectoryController extends Controller
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED]);
 
         $baseQuery = Unit::withoutGlobalScope('tenant')
-            ->with(['property', 'subcategory.category', 'city', 'tenant'])
+            ->with(['property.city', 'property.state', 'subcategory.category', 'city', 'area', 'tenant', 'unitAttributes.attributeField'])
             ->where('tenant_id', $tenant->id)
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED])
             ->when(in_array($listingType, Unit::LISTING_TYPES, true), fn ($q) => $q->where('listing_type', $listingType))
@@ -98,7 +98,11 @@ class MobileTenantDirectoryController extends Controller
                 $q->where(function ($inner) use ($search) {
                     $inner->where('title', 'like', "%{$search}%")
                         ->orWhere('code', 'like', "%{$search}%")
-                        ->orWhereHas('property', fn ($p) => $p->where('name', 'like', "%{$search}%"));
+                        ->orWhere('location', 'like', "%{$search}%")
+                        ->orWhereHas('property', fn ($p) => $p
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('address', 'like', "%{$search}%")
+                            ->orWhere('city', 'like', "%{$search}%"));
                 });
             });
 
@@ -106,7 +110,7 @@ class MobileTenantDirectoryController extends Controller
             ->paginate((int) $request->input('per_page', 12));
 
         $featuredUnits = Unit::withoutGlobalScope('tenant')
-            ->with(['property', 'subcategory.category', 'city', 'tenant'])
+            ->with(['property.city', 'property.state', 'subcategory.category', 'city', 'area', 'tenant', 'unitAttributes.attributeField'])
             ->where('tenant_id', $tenant->id)
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED])
             ->latest()

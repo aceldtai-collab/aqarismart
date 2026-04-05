@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Tenant;
 use App\Models\Unit;
 use App\Services\PublicLandingService;
+use App\Services\Search\SearchExperienceBuilder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -67,11 +68,12 @@ class PublicHomeController extends Controller
         ]);
     }
 
-    public function search(Request $request, PublicLandingService $landing): View
+    public function search(Request $request, PublicLandingService $landing, SearchExperienceBuilder $searchExperienceBuilder): View
     {
         $query = Unit::withoutGlobalScope('tenant')
-            ->with(['tenant', 'property', 'subcategory', 'city'])
-            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription'));
+            ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
+            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription'))
+            ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED]);
 
         // Search keyword
         if ($request->filled('q')) {
@@ -80,6 +82,7 @@ class PublicHomeController extends Controller
                 $builder->where('title', 'like', "%{$q}%")
                     ->orWhere('description', 'like', "%{$q}%")
                     ->orWhere('code', 'like', "%{$q}%")
+                    ->orWhere('location', 'like', "%{$q}%")
                     ->orWhereHas('property', fn($p) => $p->where('name', 'like', "%{$q}%"));
             });
         }
@@ -103,23 +106,43 @@ class PublicHomeController extends Controller
         if ($request->filled('bedrooms')) {
             $query->where('bedrooms', '>=', (int) $request->input('bedrooms'));
         }
-        if ($request->filled('price_min')) {
-            $query->where('price', '>=', (float) $request->input('price_min'));
-        }
-        if ($request->filled('price_max')) {
-            $query->where('price', '<=', (float) $request->input('price_max'));
+        $priceMin = $request->filled('price_min') ? (float) $request->input('price_min') : null;
+        $priceMax = $request->filled('price_max') ? (float) $request->input('price_max') : null;
+        if ($priceMin !== null || $priceMax !== null) {
+            $query->where(function ($priceQuery) use ($priceMin, $priceMax) {
+                $priceQuery
+                    ->where(function ($rentQuery) use ($priceMin, $priceMax) {
+                        $rentQuery->where('listing_type', Unit::LISTING_RENT);
+                        if ($priceMin !== null) {
+                            $rentQuery->whereRaw('COALESCE(NULLIF(market_rent, 0), price) >= ?', [$priceMin]);
+                        }
+                        if ($priceMax !== null) {
+                            $rentQuery->whereRaw('COALESCE(NULLIF(market_rent, 0), price) <= ?', [$priceMax]);
+                        }
+                    })
+                    ->orWhere(function ($saleQuery) use ($priceMin, $priceMax) {
+                        $saleQuery->where('listing_type', Unit::LISTING_SALE);
+                        if ($priceMin !== null) {
+                            $saleQuery->where('price', '>=', $priceMin);
+                        }
+                        if ($priceMax !== null) {
+                            $saleQuery->where('price', '<=', $priceMax);
+                        }
+                    });
+            });
         }
 
         // Sort
         $sort = $request->input('sort', 'latest');
         $query = match ($sort) {
-            'price_asc' => $query->orderBy('price', 'asc'),
-            'price_desc' => $query->orderBy('price', 'desc'),
+            'price_asc' => $query->orderByRaw("CASE WHEN listing_type = 'rent' THEN COALESCE(NULLIF(market_rent, 0), price) ELSE price END asc"),
+            'price_desc' => $query->orderByRaw("CASE WHEN listing_type = 'rent' THEN COALESCE(NULLIF(market_rent, 0), price) ELSE price END desc"),
             'oldest' => $query->oldest(),
             default => $query->latest(),
         };
 
         $units = $query->paginate(12)->withQueryString();
+        $searchUnits = (clone $query)->limit(72)->get();
 
         // Filter options
         $categories = Category::where('is_active', true)->orderBy('sort_order')->with('subcategories')->get();
@@ -133,6 +156,10 @@ class PublicHomeController extends Controller
             'cities' => $cities,
             'tenants' => $tenants,
             'filters' => $request->only(['q', 'listing_type', 'status', 'subcategory_id', 'city_id', 'tenant_id', 'bedrooms', 'price_min', 'price_max', 'sort']),
+            'searchExperience' => $searchExperienceBuilder->build($searchUnits, [
+                'scope' => 'public',
+                'total' => $units->total(),
+            ]),
         ]);
     }
 }
