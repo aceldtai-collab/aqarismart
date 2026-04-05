@@ -1,5 +1,16 @@
 # Aqari Smart - Production Deployment Guide
 
+## Prelaunch Reset
+
+For the destructive prelaunch production reset, do not use the routine deploy script.
+
+Use the dedicated workflow documented in [PRELAUNCH_RESET.md](PRELAUNCH_RESET.md):
+
+```bash
+php artisan app:prelaunch-reset --dry-run
+php artisan app:prelaunch-reset --force
+```
+
 ## Production Environment Variables
 
 Create a `.env` file on your production server with these critical settings:
