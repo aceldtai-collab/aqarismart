@@ -24,6 +24,14 @@ Route::prefix('mobile')->name('api.mobile.')->group(function () {
     Route::get('/resident-listings', [ResidentListingController::class, 'index'])->name('resident-listings.index');
     Route::get('/resident-listings/{residentListing:code}', [ResidentListingController::class, 'show'])->name('resident-listings.show');
     
+    // Listing meta (subcategories + cities) - Public route for NativePHP create form
+    Route::get('/listing-meta', function () {
+        return response()->json([
+            'subcategories' => \App\Models\Subcategory::orderBy('name')->get(['id', 'name', 'category_id']),
+            'cities' => \App\Models\City::where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
+        ]);
+    })->name('listing-meta');
+
     // Ad Durations - Public route
     Route::get('/ad-durations', function () {
         return response()->json([

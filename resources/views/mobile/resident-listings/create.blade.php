@@ -48,9 +48,9 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ app()->getLocale() === 'ar' ? 'نوع العقار *' : 'Property Type *' }}</label>
                     <select x-model="form.subcategory_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">{{ app()->getLocale() === 'ar' ? 'اختر نوع العقار' : 'Select property type' }}</option>
-                        @foreach($subcategories as $sub)
-                            <option value="{{ $sub->id }}">{{ $sub->name }}</option>
-                        @endforeach
+                        <template x-for="sub in subcategories" :key="sub.id">
+                            <option :value="sub.id" x-text="sub.name"></option>
+                        </template>
                     </select>
                 </div>
 
@@ -87,9 +87,9 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ app()->getLocale() === 'ar' ? 'المدينة *' : 'City *' }}</label>
                         <select x-model="form.city_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                             <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المدينة' : 'Select city' }}</option>
-                            @foreach($cities as $city)
-                                <option value="{{ $city->id }}">{{ app()->getLocale() === 'ar' ? ($city->name_ar ?? $city->name_en) : $city->name_en }}</option>
-                            @endforeach
+                            <template x-for="city in cities" :key="city.id">
+                                <option :value="city.id" x-text="{{ app()->getLocale() === 'ar' ? 'city.name_ar || city.name_en' : 'city.name_en' }}"></option>
+                            </template>
                         </select>
                     </div>
                     <div>
@@ -209,6 +209,8 @@
         return {
             step: 1,
             submitting: false,
+            subcategories: [],
+            cities: [],
             form: {
                 title: { en: '', ar: '' },
                 description: { en: '', ar: '' },
@@ -226,8 +228,20 @@
                 photos: []
             },
 
-            init() {
-                // No API loading needed - data passed from controller
+            async init() {
+                const apiBase = window.__AQARI_API_BASE || '';
+                try {
+                    const res = await fetch(apiBase + '/api/mobile/listing-meta', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        this.subcategories = data.subcategories || [];
+                        this.cities = data.cities || [];
+                    }
+                } catch (e) {
+                    console.error('Failed to load listing meta', e);
+                }
             },
 
             handlePhotoUpload(event) {
