@@ -1,3 +1,12 @@
+@php
+    // NativePHP: unit not in local SQLite — render JS-loading shell
+    if (!$unit) {
+        $apiBase = config('nativephp.remote_api_url', '');
+        $code = $unitCode ?? '';
+        echo view('mobile.units.show-shell', ['unitCode' => $code, 'apiBase' => $apiBase])->render();
+        exit;
+    }
+@endphp
 @extends('mobile.layouts.app', [
     'title' => $unit->translated_title ?: $unit->code,
     'show_back_button' => false,

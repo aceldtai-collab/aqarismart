@@ -82,22 +82,21 @@ class MobileAppController extends Controller
         return view('mobile.units.create');
     }
 
-    public function showUnit(Unit $unit): View
+    public function showUnit(string $unit): View
     {
-        $unit->load([
-            'property',
-            'tenant',
-            'subcategory.category',
-            'city',
-            'area',
-            'subcategory',
-            'agent',
-            'officialInfo',
-            'owner',
-            'unitAttributes.attributeField',
-        ]);
-
-        return view('mobile.units.show', compact('unit'));
+        // In NativePHP, the local SQLite has no units — load via JS API call in the view.
+        // Try to resolve from DB (web browser mode), fall back to passing code only.
+        try {
+            $unitModel = \App\Models\Unit::where('code', $unit)->firstOrFail();
+            $unitModel->load([
+                'property', 'tenant', 'subcategory.category',
+                'city', 'area', 'subcategory', 'agent',
+                'officialInfo', 'owner', 'unitAttributes.attributeField',
+            ]);
+            return view('mobile.units.show', ['unit' => $unitModel, 'unitCode' => $unit]);
+        } catch (\Throwable $e) {
+            return view('mobile.units.show', ['unit' => null, 'unitCode' => $unit]);
+        }
     }
 
     public function editUnit(Unit $unit): View
