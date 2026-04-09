@@ -271,11 +271,61 @@
             { href: '/mobile/marketplace', icon: 'M21 21l-4.35-4.35m1.35-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z', kicker: strings.marketplace, title: strings.marketplace, text: strings.marketplaceText },
         ];
         document.getElementById('dash-staff-actions').innerHTML = staffActions.map(actionCard).join('');
+
+        // Load expiring resident listings
+        loadExpiringListings();
     } catch (error) {
         loading.classList.add('hidden');
         errorEl.classList.remove('hidden');
         document.getElementById('dash-error-title').textContent = strings.errorTitle;
         document.getElementById('dash-error-msg').textContent = error.message || strings.errorText;
+    }
+
+    async function loadExpiringListings() {
+        try {
+            const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/my-listings/expiring-soon`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) return;
+            
+            const result = await response.json();
+            const listings = result.data || [];
+            
+            if (listings.length === 0) return;
+            
+            const alertContainer = document.getElementById('expiring-listings-alert');
+            alertContainer.classList.remove('hidden');
+            alertContainer.className = 'mpa-card p-5 bg-orange-50 border-2 border-orange-200';
+            
+            alertContainer.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">${listings.length} ${listings.length === 1 ? 'Listing' : 'Listings'} Expiring Soon</h3>
+                        <p class="text-sm text-gray-700 mb-3">The following listings will expire in 2 days. Renew them to keep them active.</p>
+                        <div class="space-y-2">
+                            ${listings.map(listing => `
+                                <div class="bg-white rounded-lg p-3 flex justify-between items-center">
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">${listing.title?.en || listing.code}</div>
+                                        <div class="text-xs text-gray-600">Expires in ${listing.days_until_expiration} days</div>
+                                    </div>
+                                    <a href="/mobile/my-listings/${listing.code}/edit" class="text-sm text-blue-600 font-medium">Renew</a>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <a href="/mobile/my-listings" class="inline-block mt-3 text-sm text-orange-700 font-semibold">View All My Listings →</a>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Failed to load expiring listings:', error);
+        }
     }
 })();
 </script>

@@ -29,6 +29,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Lease::class => \App\Policies\LeasePolicy::class,
         \App\Models\MaintenanceRequest::class => \App\Policies\MaintenanceRequestPolicy::class,
         \App\Models\Tenant::class => \App\Policies\TenantPolicy::class,
+        \App\Models\ResidentListing::class => \App\Policies\ResidentListingPolicy::class,
+        \App\Models\AdDuration::class => \App\Policies\AdDurationPolicy::class,
     ];
 
     public function boot(): void

@@ -247,26 +247,34 @@ function profileActionCard(action) {
 async function loadProfile() {
     const token = localStorage.getItem('aqari_mobile_token');
 
-    if (!token) {
-        document.getElementById('profile-loading').classList.add('hidden');
-        document.getElementById('profile-guest').classList.remove('hidden');
-        return;
-    }
-
     try {
-        const res = await fetch(profileApiBase + '/api/mobile/auth/me', {
-            headers: {
-                Authorization: 'Bearer ' + token,
-                Accept: 'application/json',
-                'X-Tenant-Slug': localStorage.getItem('aqari_mobile_tenant_slug') || '',
-            },
-        });
+        let res;
+        if (token) {
+            res = await fetch(profileApiBase + '/api/mobile/auth/me', {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    Accept: 'application/json',
+                    'X-Tenant-Slug': localStorage.getItem('aqari_mobile_tenant_slug') || '',
+                },
+            });
+            if (!res.ok) {
+                localStorage.removeItem('aqari_mobile_token');
+                localStorage.removeItem('aqari_mobile_tenant_slug');
+                localStorage.removeItem('aqari_mobile_user_name');
+                localStorage.removeItem('aqari_mobile_user_role');
+                res = null;
+            }
+        }
+
+        // Fall back to session auth (web residents who signed in via browser)
+        if (!res) {
+            res = await fetch('/api/mobile/web/me', {
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin',
+            });
+        }
 
         if (!res.ok) {
-            localStorage.removeItem('aqari_mobile_token');
-            localStorage.removeItem('aqari_mobile_tenant_slug');
-            localStorage.removeItem('aqari_mobile_user_name');
-            localStorage.removeItem('aqari_mobile_user_role');
             document.getElementById('profile-loading').classList.add('hidden');
             document.getElementById('profile-guest').classList.remove('hidden');
             return;

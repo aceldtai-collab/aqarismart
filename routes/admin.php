@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\ContactAdminController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\AddonController;
 use App\Http\Controllers\Admin\TenantSubscriptionController;
+use App\Http\Controllers\Admin\AdDurationController;
+use App\Http\Controllers\Admin\ResidentListingAdminController;
 
 // /admin/* (no locale prefix)
 Route::middleware(['web', 'auth', 'verified', 'superadmin', SubstituteBindings::class])
@@ -114,4 +116,20 @@ Route::middleware(['web', 'auth', 'verified', 'superadmin', SubstituteBindings::
                 Route::delete('/tenants/{tenant}/addons/{tenantAddon}', [TenantSubscriptionController::class, 'removeAddon'])
                     ->whereNumber('tenant')
                     ->name('tenants.addons.remove');
+
+                // Ad Durations
+                Route::resource('ad-durations', AdDurationController::class)
+                    ->parameters(['ad-durations' => 'adDuration'])
+                    ->except(['show'])
+                    ->names('ad-durations');
+
+                // Resident Listings (admin moderation)
+                Route::resource('resident-listings', ResidentListingAdminController::class)
+                    ->parameters(['resident-listings' => 'residentListing'])
+                    ->except(['create', 'store'])
+                    ->names('resident-listings');
+                Route::post('/resident-listings/{residentListing}/approve', [ResidentListingAdminController::class, 'approve'])
+                    ->name('resident-listings.approve');
+                Route::post('/resident-listings/{residentListing}/reject', [ResidentListingAdminController::class, 'reject'])
+                    ->name('resident-listings.reject');
     });

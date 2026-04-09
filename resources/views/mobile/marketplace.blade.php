@@ -654,6 +654,46 @@
             </div>
         </section>
 
+        <!-- Direct from Owner Premium Section -->
+        <section class="mt-7 px-4 mm-shell" id="direct-owner-section">
+            <!-- Section header with gradient badge -->
+            <div class="mm-dfo-header rounded-2xl overflow-hidden mb-4" style="background:linear-gradient(135deg,#065f46 0%,#0f5a46 40%,#1d4ed8 100%);padding:1.25rem 1.25rem 1rem;">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                                {{ $isAr ? 'مالك مباشر' : 'Direct Owner' }}
+                            </span>
+                        </div>
+                        <h2 class="text-[1.5rem] font-black leading-tight text-white mb-1">{{ $isAr ? 'من المالك مباشرةً' : 'Straight from the Owner' }}</h2>
+                        <p class="text-sm text-white/80 leading-relaxed">{{ $isAr ? 'تواصل مباشرة مع المالك — بلا وسيط، بلا عمولة' : 'Talk directly to the owner — no middleman, no fees' }}</p>
+                    </div>
+                    <div class="ml-3 flex-shrink-0">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resident Listings Scroll -->
+            <div id="mp-resident-listings" class="mm-scroll">
+                <div class="mm-loading w-full">
+                    <span class="mm-spinner"></span>
+                    <span class="text-sm font-semibold text-slate-500">{{ $isAr ? 'جاري التحميل...' : 'Loading...' }}</span>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="mp-resident-listings-empty" class="hidden text-center py-8">
+                <p class="text-sm text-slate-500">{{ $isAr ? 'لا توجد إعلانات مباشرة حاليًا' : 'No direct owner listings yet' }}</p>
+                <a href="{{ route('mobile.my-listings.create') }}" class="inline-block mt-3 text-sm font-semibold text-[color:var(--market-palm)]">{{ $isAr ? 'كن الأول — انشر الآن' : 'Be the first — Post yours now' }}</a>
+            </div>
+        </section>
+
         <section class="mm-shell mt-7 px-4">
             <div class="mm-section-head">
                 <div class="mm-section-copy">
@@ -1188,12 +1228,74 @@ async function loadMarketplace() {
         renderCities(json.cities ?? []);
         renderTenants(json.tenants ?? []);
         renderUnitScroll('mp-recommended', json.recommended_units ?? []);
+        loadResidentListings();
         sectionsLoaded = true;
     }
 
     updateStats(json);
     renderFeed(json.data ?? []);
     renderMap(json.data ?? []);
+}
+
+async function loadResidentListings() {
+    const apiBase = window.__AQARI_API_BASE || '';
+    const container = document.getElementById('mp-resident-listings');
+    const emptyState = document.getElementById('mp-resident-listings-empty');
+    const section = document.getElementById('direct-owner-section');
+
+    try {
+        const response = await fetch(`${apiBase}/api/mobile/resident-listings?per_page=8`, { headers: { Accept: 'application/json' } });
+        if (!response.ok) { section?.classList.add('hidden'); return; }
+
+        const json = await response.json();
+        const listings = json.data ?? [];
+
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (listings.length === 0) {
+            container.classList.add('hidden');
+            emptyState?.classList.remove('hidden');
+            return;
+        }
+
+        listings.forEach((listing) => {
+            const photo = listing.first_photo || '';
+            const title = listing.title?.[lang] || listing.title?.en || listing.code;
+            const price = new Intl.NumberFormat().format(Number(listing.price || 0));
+            const currency = listing.currency || 'IQD';
+            const listingTypeLabel = listing.listing_type === 'sale'
+                ? (lang === 'ar' ? 'للبيع' : 'For Sale')
+                : (lang === 'ar' ? 'للإيجار' : 'For Rent');
+            const cityName = listing.city ? (lang === 'ar' ? listing.city.name_ar : listing.city.name_en) : '';
+            const bedrooms = listing.bedrooms > 0 ? `${listing.bedrooms} ${lang === 'ar' ? 'غرف' : 'beds'}` : '';
+            const bathrooms = listing.bathrooms > 0 ? `${listing.bathrooms} ${lang === 'ar' ? 'حمامات' : 'baths'}` : '';
+
+            const card = document.createElement('a');
+            card.href = `/mobile/resident-listings/${listing.code}`;
+            card.className = 'mm-card flex-shrink-0 w-[220px] rounded-2xl overflow-hidden block';
+            card.innerHTML = `
+                <div class="relative w-full h-[140px] bg-slate-200 flex items-center justify-center overflow-hidden">
+                    ${photo
+                        ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(title)}" class="w-full h-full object-cover">`
+                        : `<svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`}
+                    <span class="absolute top-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${lang === 'ar' ? 'مالك مباشر' : 'Direct Owner'}</span>
+                    <span class="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded">${escapeHtml(listingTypeLabel)}</span>
+                </div>
+                <div class="p-3">
+                    <p class="text-sm font-bold leading-tight text-[color:var(--market-ink)] line-clamp-2 mb-1">${escapeHtml(title)}</p>
+                    ${cityName ? `<p class="text-xs text-slate-500 mb-2">${escapeHtml(cityName)}</p>` : ''}
+                    <p class="text-base font-black text-[color:var(--market-palm)]">${price} <span class="text-xs font-semibold text-slate-500">${escapeHtml(currency)}</span></p>
+                    ${(bedrooms || bathrooms) ? `<p class="text-xs text-slate-500 mt-1">${[bedrooms, bathrooms].filter(Boolean).join(' · ')}</p>` : ''}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error('Failed to load resident listings:', error);
+        section?.classList.add('hidden');
+    }
 }
 
 document.querySelectorAll('.listing-toggle').forEach((button) => {

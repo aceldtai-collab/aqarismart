@@ -318,13 +318,8 @@
                             </div>
                         @endauth
                         @guest
-                            @if(app(\App\Services\Tenancy\TenantManager::class)->tenant())
-                                <a href="{{ route('tenant.home') }}?auth=login" @click.prevent="$store.auth.login = true" class="hidden sm:inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium {{ ($useBrandHeader ?? false) ? 'text-white hover:bg-white/10 border border-white/30' : 'text-indigo-600 border border-indigo-200 hover:bg-indigo-50' }}">{{ __('Log in') }}</a>
-                                <a href="{{ route('tenant.home') }}?auth=register" @click.prevent="$store.auth.register = true" class="hidden sm:inline-flex items-center rounded-md px-3 py-1.5 text-sm font-semibold {{ ($useBrandHeader ?? false) ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-indigo-600 text-white hover:bg-indigo-700' }}">{{ __('Create account') }}</a>
-                            @else
-                                <a href="{{ route('login') }}" class="hidden sm:block text-sm {{ ($useBrandHeader ?? false) ? 'text-white' : 'text-indigo-600' }} hover:underline">{{ __('Log in') }}</a>
-                                <a href="{{ route('register') }}" class="hidden sm:inline-flex ml-2 items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">{{ __('Create account') }}</a>
-                            @endif
+                            <a href="#" @click.prevent="$store.auth.login = true" class="hidden sm:block text-sm {{ ($useBrandHeader ?? false) ? 'text-white' : 'text-indigo-600' }} hover:underline">{{ __('Log in') }}</a>
+                            <button @click="$store.auth.register = true" class="hidden sm:inline-flex ml-2 items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">{{ __('Create account') }}</button>
                         @endguest
                     </div>
                 </header>

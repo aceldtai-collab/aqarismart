@@ -7,8 +7,6 @@
         $countryCodes = [$defaultCountry => $defaultCountry];
     }
 @endphp
-
-@if($tenantCtx)
 <div x-data x-show="$store.auth.login" x-cloak
      class="fixed inset-0 z-[60] flex items-center justify-center px-4"
      x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -79,15 +77,39 @@
         <h2 class="text-xl font-bold text-gray-900 mb-1">{{ __('Create Account') }}</h2>
         <p class="text-sm text-gray-500 mb-6">{{ __('Register as a resident') }}</p>
 
-        <form method="POST" action="{{ route('resident.register') }}">
-            @csrf
-            <input type="hidden" name="register_intent" value="resident">
+        <div id="modal-reg-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700"></div>
+
+        <form id="modal-register-form" x-data="{ loading: false }" @submit.prevent="
+            loading = true;
+            const form = $el;
+            const err = document.getElementById('modal-reg-error');
+            err.classList.add('hidden'); err.textContent = '';
+            fetch('/api/mobile/auth/register-resident', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    name: form.querySelector('[name=name]').value,
+                    country_code: form.querySelector('[name=country_code]').value,
+                    phone: form.querySelector('[name=phone]').value,
+                    email: form.querySelector('[name=email]').value || null,
+                    password: form.querySelector('[name=password]').value,
+                    password_confirmation: form.querySelector('[name=password_confirmation]').value,
+                })
+            }).then(r => r.json().then(json => {
+                if (!r.ok) {
+                    const msgs = json.errors ? Object.values(json.errors).flat().join(' | ') : (json.message || 'Registration failed');
+                    err.textContent = msgs; err.classList.remove('hidden'); loading = false; return;
+                }
+                localStorage.setItem('aqari_mobile_token', json.token);
+                if (json.user?.name) localStorage.setItem('aqari_mobile_user_name', json.user.name);
+                window.location.href = '/mobile/my-listings/create';
+            })).catch(() => { err.textContent = 'Connection error. Please try again.'; err.classList.remove('hidden'); loading = false; });
+        ">
             <div class="space-y-4">
                 <div>
                     <label for="modal-reg-name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Full Name') }}</label>
-                    <input id="modal-reg-name" type="text" name="name" value="{{ old('name') }}" required
+                    <input id="modal-reg-name" type="text" name="name" required
                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
-                    @error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div>
@@ -95,37 +117,35 @@
                         <select id="modal-reg-cc" name="country_code" required
                                 class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-2">
                             @foreach($countryCodes as $code => $label)
-                                <option value="{{ $code }}" {{ old('country_code', $defaultCountry) === $code ? 'selected' : '' }}>{{ $label }}</option>
+                                <option value="{{ $code }}" {{ $defaultCountry === $code ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-span-2">
                         <label for="modal-reg-phone" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Phone') }}</label>
-                        <input id="modal-reg-phone" type="tel" name="phone" value="{{ old('phone') }}" required
+                        <input id="modal-reg-phone" type="tel" name="phone" required
                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
-                        @error('phone')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <div>
                     <label for="modal-reg-email" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email') }} <span class="text-gray-400">({{ __('optional') }})</span></label>
-                    <input id="modal-reg-email" type="email" name="email" value="{{ old('email') }}"
+                    <input id="modal-reg-email" type="email" name="email"
                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
-                    @error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="modal-reg-pass" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
                     <input id="modal-reg-pass" type="password" name="password" required
                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
-                    @error('password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="modal-reg-pass-c" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Confirm Password') }}</label>
                     <input id="modal-reg-pass-c" type="password" name="password_confirmation" required
                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
                 </div>
-                <button type="submit"
-                        class="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200">
-                    {{ __('Create Account') }}
+                <button type="submit" :disabled="loading"
+                        class="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-60">
+                    <span x-show="!loading">{{ __('Create Account') }}</span>
+                    <span x-show="loading" x-cloak>{{ __('Creating...') }}</span>
                 </button>
             </div>
         </form>
@@ -136,4 +156,3 @@
         </p>
     </div>
 </div>
-@endif

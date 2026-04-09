@@ -30,10 +30,11 @@ echo ""
 echo "[3/7] Installing Composer dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
-# ── Step 4: Run migrations ──
+# ── Step 4: Run migrations + seed required data ──
 echo ""
 echo "[4/7] Running migrations..."
 php artisan migrate --force
+php artisan db:seed --class=AdDurationSeeder --force
 
 # ── Step 5: Clear and rebuild caches ──
 echo ""

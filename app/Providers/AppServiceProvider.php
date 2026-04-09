@@ -35,6 +35,26 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // NativePHP SQLite: run missing migrations on every boot
+        if (\DB::getDriverName() === 'sqlite') {
+            try {
+                MigrationHelper::runMigrations();
+            } catch (\Throwable $e) {
+                \Log::error('NativePHP migration failed: ' . $e->getMessage());
+            }
+            // Seed ad_durations if the table now exists but is empty
+            try {
+                if (Schema::hasTable('ad_durations') && \DB::table('ad_durations')->count() === 0) {
+                    \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                        '--class' => 'AdDurationSeeder',
+                        '--force' => true,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('NativePHP ad_durations seed failed: ' . $e->getMessage());
+            }
+        }
+
         // Query logging for performance monitoring
         if (config('app.debug')) {
             \DB::listen(function ($query) {

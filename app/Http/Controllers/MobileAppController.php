@@ -159,6 +159,35 @@ class MobileAppController extends Controller
         return view('mobile.about');
     }
 
+    public function myListings(): View
+    {
+        return view('mobile.resident-listings.index');
+    }
+
+    public function createListing(): View
+    {
+        $subcategories = \App\Models\Subcategory::orderBy('name')->get(['id', 'name', 'category_id']);
+        $cities = \App\Models\City::where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']);
+        try {
+            $adDurations = \App\Models\AdDuration::active()->ordered()->get(['id', 'name_en', 'name_ar', 'days', 'price', 'currency']);
+        } catch (\Throwable $e) {
+            $adDurations = collect();
+        }
+
+        return view('mobile.resident-listings.create', compact('subcategories', 'cities', 'adDurations'));
+    }
+
+    public function editListing(\App\Models\ResidentListing $residentListing): View
+    {
+        return view('mobile.resident-listings.edit', compact('residentListing'));
+    }
+
+    public function showListing(\App\Models\ResidentListing $residentListing): View
+    {
+        $residentListing->load(['user', 'city', 'area', 'subcategory.category', 'adDuration']);
+        return view('mobile.resident-listings.show', compact('residentListing'));
+    }
+
     private function abortIfNotCentralDomain(Request $request): void
     {
         abort_unless($this->isAllowedCentralHost($request), 404);

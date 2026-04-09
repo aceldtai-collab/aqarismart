@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('reports:tenant-daily')->dailyAt('02:00');
 Schedule::command('reports:tenant-alerts')->dailyAt('02:30');
+Schedule::command('resident-listings:expire')->dailyAt('00:05');

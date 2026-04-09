@@ -154,6 +154,27 @@
                     </div>
                 </section>
 
+                <!-- Resident Listing CTA -->
+                <section class="mpa-card p-5 bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">{{ $isAr ? 'انشر عقارك مباشرة' : 'Post Your Property Directly' }}</h3>
+                            <p class="text-sm text-gray-700 mb-3">{{ $isAr ? 'تواصل مع آلاف المشترين بدون عمولة وكلاء' : 'Reach thousands of buyers with no agent fees' }}</p>
+                            <a href="{{ route('mobile.my-listings.create') }}" class="inline-block bg-green-600 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-sm hover:bg-green-700">
+                                {{ $isAr ? 'انشر الآن' : 'Post Now' }}
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Expiring Listings Alert -->
+                <div id="expiring-listings-alert" class="hidden"></div>
+
                 <div id="dash-staff" class="hidden space-y-5">
                     <section class="mpa-card p-5">
                         <div class="mpa-section-head">

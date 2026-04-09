@@ -435,9 +435,7 @@
                     @if($loginUrl)
                         <a href="{{ $loginUrl }}" class="market-nav-action market-nav-ghost hidden md:inline-flex">{{ $tx['login_cta'] }}</a>
                     @endif
-                    @if($registerUrl)
-                        <a href="{{ $registerUrl }}" class="market-nav-action market-nav-solid hidden md:inline-flex">{{ $tx['register_cta'] }}</a>
-                    @endif
+                    <button type="button" @click="$store.auth.register = true" class="market-nav-action market-nav-solid hidden md:inline-flex">{{ $tx['register_cta'] }}</button>
                     <a href="{{ $sellWithUsUrl }}" class="market-nav-action market-nav-ghost hidden lg:inline-flex">{{ $tx['sell_cta'] }}</a>
                 @endauth
             </div>
@@ -497,9 +495,7 @@
                     @if($loginUrl)
                         <a href="{{ $loginUrl }}" @click="mobileNavOpen = false" class="market-mobile-link market-mobile-link-dark">{{ $tx['login_cta'] }}</a>
                     @endif
-                    @if($registerUrl)
-                        <a href="{{ $registerUrl }}" @click="mobileNavOpen = false" class="market-mobile-link">{{ $tx['register_cta'] }}</a>
-                    @endif
+                    <button type="button" @click="mobileNavOpen = false; $store.auth.register = true" class="market-mobile-link text-start">{{ $tx['register_cta'] }}</button>
                     <a href="{{ $sellWithUsUrl }}" @click="mobileNavOpen = false" class="market-mobile-link">{{ $tx['sell_cta'] }}</a>
                 @endauth
             </div>
@@ -541,9 +537,7 @@
                     <p class="market-hero-subtitle mx-auto mb-8 max-w-2xl text-base leading-8 text-white/78 sm:text-lg lg:mx-0">{{ $tx['hero_subtitle'] }}</p>
                     @if($showGuestHeroActions)
                         <div class="market-hero-actions mb-8">
-                            @if($registerUrl)
-                                <a href="{{ $registerUrl }}" class="market-hero-action market-hero-action-primary">{{ $tx['register_cta'] }}</a>
-                            @endif
+                            <button type="button" @click="$store.auth.register = true" class="market-hero-action market-hero-action-primary">{{ $tx['register_cta'] }}</button>
                             <a href="{{ $sellWithUsUrl }}" class="market-hero-action market-hero-action-warm">{{ $tx['sell_cta'] }}</a>
                             @if($loginUrl)
                                 <a href="{{ $loginUrl }}" class="market-hero-action market-hero-action-ghost">{{ $tx['login_cta'] }}</a>
@@ -706,9 +700,7 @@
         <div class="market-mobile-guest-bar md:hidden">
             <div class="market-shell mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="market-mobile-guest-bar-shell grid grid-cols-3 gap-2 rounded-[24px] p-3">
-                    @if($registerUrl)
-                        <a href="{{ $registerUrl }}" class="market-mobile-guest-link market-mobile-guest-link-primary">{{ $tx['register_cta'] }}</a>
-                    @endif
+                    <button type="button" @click="$store.auth.register = true" class="market-mobile-guest-link market-mobile-guest-link-primary">{{ $tx['register_cta'] }}</button>
                     <a href="{{ $sellWithUsUrl }}" class="market-mobile-guest-link market-mobile-guest-link-secondary">{{ $tx['sell_cta'] }}</a>
                     @if($loginUrl)
                         <a href="{{ $loginUrl }}" class="market-mobile-guest-link market-mobile-guest-link-outline">{{ $tx['login_cta'] }}</a>
@@ -985,5 +977,106 @@
     loadShowcase();
     loadCatalog();
     </script>
+
+    @php
+        $mktCountryCodes = config('phone.codes', ['+964' => '+964', '+962' => '+962', '+966' => '+966', '+971' => '+971']);
+        $mktDefaultCountry = config('phone.default', '+964');
+        $mktIsAr = app()->getLocale() === 'ar';
+    @endphp
+
+    {{-- Alpine auth store init --}}
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('auth', { login: false, register: false });
+        });
+    </script>
+
+    {{-- Resident Register Modal --}}
+    <div x-data x-show="$store.auth.register" x-cloak
+         class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="$store.auth.register = false"></div>
+        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto"
+             x-transition:enter="transition ease-out duration-200 delay-75" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            <button type="button" @click="$store.auth.register = false" class="absolute top-4 {{ $mktIsAr ? 'left-4' : 'right-4' }} text-gray-400 hover:text-gray-600 transition">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <h2 class="text-xl font-bold text-gray-900 mb-1">{{ $mktIsAr ? 'إنشاء حساب' : 'Create Account' }}</h2>
+            <p class="text-sm text-gray-500 mb-6">{{ $mktIsAr ? 'سجّل كمقيم أو باحث عن عقار' : 'Register as a resident or property seeker' }}</p>
+
+            <div id="mkt-reg-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700"></div>
+
+            <form x-data="{ loading: false }" @submit.prevent="
+                loading = true;
+                const form = $el;
+                const err = document.getElementById('mkt-reg-error');
+                err.classList.add('hidden'); err.textContent = '';
+                fetch('/api/mobile/auth/register-resident', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        name: form.querySelector('[name=name]').value,
+                        country_code: form.querySelector('[name=country_code]').value,
+                        phone: form.querySelector('[name=phone]').value,
+                        email: form.querySelector('[name=email]').value || null,
+                        password: form.querySelector('[name=password]').value,
+                        password_confirmation: form.querySelector('[name=password_confirmation]').value,
+                    })
+                }).then(r => r.json().then(json => {
+                    if (!r.ok) {
+                        const msgs = json.errors ? Object.values(json.errors).flat().join(' | ') : (json.message || 'Registration failed');
+                        err.textContent = msgs; err.classList.remove('hidden'); loading = false; return;
+                    }
+                    localStorage.setItem('aqari_mobile_token', json.token);
+                    if (json.user?.name) localStorage.setItem('aqari_mobile_user_name', json.user.name);
+                    window.location.href = '/mobile/my-listings/create';
+                })).catch(() => { err.textContent = '{{ $mktIsAr ? 'حدث خطأ في الاتصال' : 'Connection error. Please try again.' }}'; err.classList.remove('hidden'); loading = false; });
+            ">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ $mktIsAr ? 'الاسم الكامل' : 'Full Name' }}</label>
+                        <input type="text" name="name" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $mktIsAr ? 'الكود' : 'Code' }}</label>
+                            <select name="country_code" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-2">
+                                @foreach($mktCountryCodes as $code => $label)
+                                    <option value="{{ $code }}" {{ $mktDefaultCountry === $code ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $mktIsAr ? 'الهاتف' : 'Phone' }}</label>
+                            <input type="tel" name="phone" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ $mktIsAr ? 'البريد الإلكتروني' : 'Email' }} <span class="text-gray-400">({{ $mktIsAr ? 'اختياري' : 'optional' }})</span></label>
+                        <input type="email" name="email" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ $mktIsAr ? 'كلمة المرور' : 'Password' }}</label>
+                        <input type="password" name="password" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ $mktIsAr ? 'تأكيد كلمة المرور' : 'Confirm Password' }}</label>
+                        <input type="password" name="password_confirmation" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-3 px-4">
+                    </div>
+                    <button type="submit" :disabled="loading"
+                            class="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-60">
+                        <span x-show="!loading">{{ $mktIsAr ? 'إنشاء الحساب' : 'Create Account' }}</span>
+                        <span x-show="loading" x-cloak>{{ $mktIsAr ? 'جارٍ الإنشاء...' : 'Creating...' }}</span>
+                    </button>
+                </div>
+            </form>
+
+            <p class="mt-5 text-center text-sm text-gray-500">
+                {{ $mktIsAr ? 'لديك حساب بالفعل؟' : 'Already have an account?' }}
+                <a href="{{ route('login') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">{{ $mktIsAr ? 'تسجيل الدخول' : 'Sign In' }}</a>
+            </p>
+        </div>
+    </div>
 </body>
 </html>

@@ -8,7 +8,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>window.__AQARI_API_BASE = '{{ config("nativephp.remote_api_url", "") }}';</script>
     @stack('head')
-    <style>[x-cloak]{display:none!important}</style>
+    <style>
+        [x-cloak]{display:none!important}
+        .aqr-register-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center}
+        @media(min-width:640px){.aqr-register-overlay{align-items:center;padding:1rem}}
+    </style>
 </head>
 @php
     $currentLocale = in_array(app()->getLocale(), ['en', 'ar']) ? app()->getLocale() : 'en';
@@ -19,7 +23,6 @@
     if (empty($countryCodes)) {
         $countryCodes = [$defaultCountry => $defaultCountry];
     }
-    $showResidentRegister = request()->routeIs('mobile.marketplace') || request()->routeIs('mobile.search');
 @endphp
 <body class="bg-gray-50 min-h-screen text-slate-800 {{ $body_class ?? '' }}">
     <div
@@ -102,17 +105,15 @@
                             <div class="text-[11px] font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'دخول إلى حسابك' : 'Access your account' }}</div>
                         </div>
                     </a>
-                    @if($showResidentRegister)
-                        <button type="button" @click="openResidentRegister()" class="group flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left text-slate-700 transition-all duration-150 hover:bg-slate-50">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 transition-colors group-hover:bg-amber-100">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v16m8-8H4m4-6.5h8a3.5 3.5 0 013.5 3.5v6A3.5 3.5 0 0116 18.5H8A3.5 3.5 0 014.5 15v-6A3.5 3.5 0 018 5.5z"/></svg>
-                            </div>
-                            <div>
-                                <div class="text-sm font-semibold text-amber-800">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب' : 'Register' }}</div>
-                                <div class="text-[11px] font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'للباحثين عن العقارات' : 'For buyers & renters' }}</div>
-                            </div>
-                        </button>
-                    @endif
+                    <button type="button" @click="openResidentRegister()" class="group flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left text-slate-700 transition-all duration-150 hover:bg-slate-50">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 transition-colors group-hover:bg-amber-100">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-sm font-semibold text-amber-800">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب' : 'Register' }}</div>
+                            <div class="text-[11px] font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'للباحثين عن العقارات' : 'For buyers & renters' }}</div>
+                        </div>
+                    </button>
                     <a href="{{ route('mobile.register') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-slate-700 transition-all duration-150 hover:bg-slate-50">
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-100">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -131,6 +132,16 @@
                     <div>
                         <div class="text-sm font-semibold">{{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'My Profile' }}</div>
                         <div class="text-[11px] font-medium {{ request()->routeIs('mobile.profile') ? 'text-emerald-500' : 'text-slate-400' }}">{{ app()->getLocale() === 'ar' ? 'معلوماتك ونشاطك' : 'Your info & activity' }}</div>
+                    </div>
+                </a>
+
+                <a x-show="authed" x-cloak href="{{ route('mobile.my-listings.index') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-slate-700 transition-all duration-150 {{ request()->routeIs('mobile.my-listings.*') ? 'bg-green-50 text-green-700' : 'hover:bg-slate-50' }}">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('mobile.my-listings.*') ? 'bg-green-600 text-white' : 'bg-green-50 text-green-600 group-hover:bg-green-100' }} transition-colors">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    </div>
+                    <div>
+                        <div class="text-sm font-semibold {{ request()->routeIs('mobile.my-listings.*') ? 'text-green-700' : '' }}">{{ app()->getLocale() === 'ar' ? 'إعلاناتي' : 'My Listings' }}</div>
+                        <div class="text-[11px] font-medium text-slate-400">{{ app()->getLocale() === 'ar' ? 'إدارة عقاراتك المنشورة' : 'Manage your posted properties' }}</div>
                     </div>
                 </a>
 
@@ -193,86 +204,85 @@
             </main>
         </div>
 
-        @if($showResidentRegister)
-            <div x-show="residentRegisterOpen" x-cloak class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
-                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeResidentRegister()"></div>
-                <div
-                    class="relative z-10 w-full max-w-md overflow-hidden rounded-t-[2rem] border border-[#dcccae] bg-[#fbf7ef] shadow-[0_30px_70px_-35px_rgba(36,27,10,.55)] sm:rounded-[2rem]"
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 translate-y-8 sm:scale-95 sm:translate-y-0"
-                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-8 sm:scale-95 sm:translate-y-0"
-                >
-                    <div class="rounded-t-[2rem] bg-gradient-to-br from-[#10231b] via-[#0f5a46] to-[#b6842f] px-6 pb-5 pt-6 text-white sm:rounded-t-[2rem]">
-                        <button type="button" @click="closeResidentRegister()" class="absolute top-4 {{ app()->getLocale() === 'ar' ? 'left-4' : 'right-4' }} text-white/70 transition hover:text-white">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                        <div class="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/85">
-                            Aqari Smart
+        <template x-teleport="body">
+            <div x-show="residentRegisterOpen" x-cloak class="aqr-register-overlay"
+                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                <div style="position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px)" @click="closeResidentRegister()"></div>
+                <div style="position:relative;z-index:1;width:100%;max-width:28rem;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;border-radius:1rem 1rem 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3)"
+                     class="sm:!rounded-2xl sm:!mb-0">
+                    {{-- Header --}}
+                    <div style="flex-shrink:0;padding:1.25rem 1.5rem 1rem;background:linear-gradient(135deg,#065f46,#047857,#d97706);color:#fff;border-radius:1rem 1rem 0 0" class="sm:!rounded-t-2xl">
+                        <div style="display:flex;align-items:start;justify-content:space-between">
+                            <div>
+                                <h2 style="font-size:1.25rem;font-weight:700;margin:0">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب مستخدم' : 'Create your account' }}</h2>
+                                <p style="font-size:.8rem;margin-top:.35rem;color:rgba(255,255,255,.8)">{{ app()->getLocale() === 'ar' ? 'حساب واحد للبحث والشراء أو الإيجار' : 'One account for browsing, buying, or renting' }}</p>
+                            </div>
+                            <button type="button" @click="closeResidentRegister()" style="color:rgba(255,255,255,.7);cursor:pointer;background:none;border:none;padding:0.25rem">
+                                <svg style="width:1.25rem;height:1.25rem" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
                         </div>
-                        <div class="mt-4 h-[10px] w-[104px] rounded-full bg-[linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,222,164,.72),rgba(255,255,255,.18))]"></div>
-                        <h2 class="mt-4 text-2xl font-bold">{{ app()->getLocale() === 'ar' ? 'إنشاء حساب مستخدم' : 'Create your account' }}</h2>
-                        <p class="mt-2 text-sm leading-7 text-white/80">{{ app()->getLocale() === 'ar' ? 'أنشئ حساباً واحداً للبحث والشراء أو الإيجار عبر جميع الوكالات داخل السوق، ثم أكمل رحلتك من ملفك الشخصي على الموبايل.' : 'Create one buyer account for browsing, buying, or renting across every agency in the marketplace, then continue from your mobile profile.' }}</p>
                     </div>
-
-                    <form class="max-h-[80vh] space-y-4 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,250,242,.98),rgba(246,236,214,.88))] px-6 py-5" @submit.prevent="submitResidentRegister">
-                        <div x-show="residentRegisterError" x-cloak class="rounded-[1.25rem] border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-100" x-html="residentRegisterError"></div>
-
-                        <div class="rounded-[1.4rem] border border-[#d8cab1] bg-white/80 p-4 shadow-[0_20px_44px_-34px_rgba(55,38,12,.34)]">
-                            <div class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#b6842f]">{{ app()->getLocale() === 'ar' ? 'حساب الباحثين' : 'Buyer profile' }}</div>
-                            <p class="mt-2 text-sm leading-7 text-slate-600">{{ app()->getLocale() === 'ar' ? 'هذا الحساب مخصص للبحث وحفظ النشاط وإدارة التفضيلات، وليس لإدارة وكالة أو لوحة موظفين.' : 'This account is for browsing, saving activity, and managing personal preferences, not for agency staff or dashboard access.' }}</p>
-                        </div>
+                    {{-- Form --}}
+                    <form style="flex:1;overflow-y:auto;overscroll-behavior:contain;padding:1rem 1.25rem;background:#fff;display:flex;flex-direction:column;gap:.85rem" @submit.prevent="submitResidentRegister">
+                        <div x-show="residentRegisterError" x-cloak style="padding:.65rem 1rem;border-radius:.5rem;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-size:.85rem" x-html="residentRegisterError"></div>
 
                         <div>
-                            <label class="mb-2 block text-sm font-extrabold text-[#31423b]">{{ app()->getLocale() === 'ar' ? 'الاسم الكامل' : 'Full name' }}</label>
-                            <input x-model="residentForm.name" type="text" class="block w-full rounded-[1.1rem] border border-[#d9ccb2] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#b6842f] focus:ring-[#b6842f]" required>
+                            <label style="display:block;font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem">{{ app()->getLocale() === 'ar' ? 'الاسم الكامل' : 'Full name' }}</label>
+                            <input x-model="residentForm.name" type="text" placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل اسمك' : 'Enter your name' }}" required
+                                   style="width:100%;padding:.6rem .85rem;border:1px solid #d1d5db;border-radius:.75rem;font-size:.875rem;outline:none;background:#fff">
                         </div>
 
-                        <div class="grid grid-cols-3 gap-3">
+                        <div style="display:grid;grid-template-columns:1fr 2fr;gap:.6rem">
                             <div>
-                                <label class="mb-2 block text-sm font-extrabold text-[#31423b]">{{ app()->getLocale() === 'ar' ? 'الرمز' : 'Code' }}</label>
-                                <select x-model="residentForm.country_code" class="block w-full rounded-[1.1rem] border border-[#d9ccb2] bg-white px-3 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#b6842f] focus:ring-[#b6842f]" required>
+                                <label style="display:block;font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem">{{ app()->getLocale() === 'ar' ? 'الرمز' : 'Code' }}</label>
+                                <select x-model="residentForm.country_code" required
+                                        style="width:100%;padding:.6rem .4rem;border:1px solid #d1d5db;border-radius:.75rem;font-size:.875rem;outline:none;background:#fff">
                                     @foreach($countryCodes as $code => $label)
                                         <option value="{{ $code }}">{{ $label }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-span-2">
-                                <label class="mb-2 block text-sm font-extrabold text-[#31423b]">{{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone number' }}</label>
-                                <input x-model="residentForm.phone" type="tel" class="block w-full rounded-[1.1rem] border border-[#d9ccb2] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#b6842f] focus:ring-[#b6842f]" required>
+                            <div>
+                                <label style="display:block;font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem">{{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone' }}</label>
+                                <input x-model="residentForm.phone" type="tel" placeholder="7XX XXX XXXX" required
+                                       style="width:100%;padding:.6rem .85rem;border:1px solid #d1d5db;border-radius:.75rem;font-size:.875rem;outline:none;background:#fff">
                             </div>
                         </div>
 
                         <div>
-                            <label class="mb-2 block text-sm font-extrabold text-[#31423b]">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }} <span class="font-medium text-slate-400">({{ app()->getLocale() === 'ar' ? 'اختياري' : 'optional' }})</span></label>
-                            <input x-model="residentForm.email" type="email" class="block w-full rounded-[1.1rem] border border-[#d9ccb2] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#b6842f] focus:ring-[#b6842f]">
+                            <label style="display:block;font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }} <span style="font-weight:400;color:#94a3b8">({{ app()->getLocale() === 'ar' ? 'اختياري' : 'optional' }})</span></label>
+                            <input x-model="residentForm.email" type="email" placeholder="email@example.com"
+                                   style="width:100%;padding:.6rem .85rem;border:1px solid #d1d5db;border-radius:.75rem;font-size:.875rem;outline:none;background:#fff">
                         </div>
 
                         <div>
-                            <label class="mb-2 block text-sm font-extrabold text-[#31423b]">{{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}</label>
-                            <input x-model="residentForm.password" type="password" class="block w-full rounded-[1.1rem] border border-[#d9ccb2] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#b6842f] focus:ring-[#b6842f]" required>
+                            <label style="display:block;font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem">{{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}</label>
+                            <input x-model="residentForm.password" type="password" required
+                                   style="width:100%;padding:.6rem .85rem;border:1px solid #d1d5db;border-radius:.75rem;font-size:.875rem;outline:none;background:#fff">
                         </div>
 
                         <div>
-                            <label class="mb-2 block text-sm font-extrabold text-[#31423b]">{{ app()->getLocale() === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm password' }}</label>
-                            <input x-model="residentForm.password_confirmation" type="password" class="block w-full rounded-[1.1rem] border border-[#d9ccb2] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#b6842f] focus:ring-[#b6842f]" required>
+                            <label style="display:block;font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem">{{ app()->getLocale() === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm' }}</label>
+                            <input x-model="residentForm.password_confirmation" type="password" required
+                                   style="width:100%;padding:.6rem .85rem;border:1px solid #d1d5db;border-radius:.75rem;font-size:.875rem;outline:none;background:#fff">
                         </div>
 
-                        <div class="flex gap-3 pt-2">
-                            <button type="button" class="w-full rounded-[1.1rem] border border-[#d6c7ad] bg-white/80 px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-slate-700 transition hover:-translate-y-0.5 hover:border-[#b6842f] hover:bg-white" @click="closeResidentRegister()">
+                        <div style="display:flex;gap:.75rem;padding-top:.25rem">
+                            <button type="button" @click="closeResidentRegister()"
+                                    style="flex:1;padding:.6rem 1rem;border:1px solid #d1d5db;border-radius:.75rem;background:#fff;font-size:.875rem;font-weight:600;color:#475569;cursor:pointer">
                                 {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                             </button>
-                            <button type="submit" :disabled="residentRegisterLoading" class="w-full rounded-[1.1rem] bg-gradient-to-r from-[#0f5a46] to-[#b6842f] px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[#fff8ea] shadow-[0_18px_34px_-18px_rgba(15,90,70,.8)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_36px_-20px_rgba(15,90,70,.82)] disabled:opacity-60">
+                            <button type="submit" :disabled="residentRegisterLoading"
+                                    style="flex:1;padding:.6rem 1rem;border:none;border-radius:.75rem;background:linear-gradient(90deg,#065f46,#d97706);font-size:.875rem;font-weight:600;color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(6,95,70,.4)">
                                 <span x-show="!residentRegisterLoading">{{ app()->getLocale() === 'ar' ? 'إنشاء الحساب' : 'Create account' }}</span>
-                                <span x-show="residentRegisterLoading" x-cloak>{{ app()->getLocale() === 'ar' ? 'جاري الإنشاء...' : 'Creating...' }}</span>
+                                <span x-show="residentRegisterLoading" x-cloak>{{ app()->getLocale() === 'ar' ? 'جاري...' : 'Creating...' }}</span>
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        @endif
+        </template>
     </div>
     <script>
     function mobileShell(config) {

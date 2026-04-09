@@ -68,6 +68,10 @@ echo ""
 # Step 6: Post-deploy commands
 echo "→ Running post-deploy tasks..."
 
+# Run migrations + seed required data
+ssh "$REMOTE_HOST" "php $REMOTE_PATH/artisan migrate --force"
+ssh "$REMOTE_HOST" "php $REMOTE_PATH/artisan db:seed --class=AdDurationSeeder --force"
+
 # Clear caches
 ssh "$REMOTE_HOST" "php $REMOTE_PATH/artisan optimize:clear"
 

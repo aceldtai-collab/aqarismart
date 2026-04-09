@@ -8,6 +8,7 @@ if (!function_exists('gethostname')) {
     }
 }
 
+use App\Console\Commands\ExpireResidentListings;
 use App\Console\Commands\GenerateTenantDailyReports;
 use App\Console\Commands\GenerateTenantAlerts;
 use App\Console\Commands\PrelaunchReset;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         GenerateTenantDailyReports::class,
         GenerateTenantAlerts::class,
         PrelaunchReset::class,
+        ExpireResidentListings::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         // Trust Cloudways reverse proxy (Nginx/Varnish) so scheme, host, and port are detected correctly
