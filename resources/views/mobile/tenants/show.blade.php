@@ -1464,7 +1464,7 @@ loginForm?.addEventListener('submit', async (event) => {
             localStorage.removeItem('aqari_mobile_user_role');
         }
 
-        window.location.href = '/mobile/dashboard';
+        window.location.href = '{{ route("mobile.dashboard") }}';
     } catch (error) {
         if (loginError) {
             loginError.textContent = strings.somethingWrong;

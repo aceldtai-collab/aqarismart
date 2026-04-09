@@ -102,8 +102,8 @@
                 }
             }
 
-            // Fall back to session auth (web residents)
-            if (!response) {
+            // Session auth fallback: only in web browser mode (no remote API base)
+            if (!response && !apiBase) {
                 response = await fetch(`/api/mobile/web/my-listings${statusParam}`, {
                     headers: { 'Accept': 'application/json' },
                     credentials: 'same-origin',
@@ -229,7 +229,7 @@
         if (!confirm(lang === 'ar' ? 'هل تريد تجديد هذا الإعلان؟' : 'Would you like to renew this listing?')) return;
         
         // Redirect to create page with renewal flow
-        window.location.href = `/mobile/my-listings/create?renew=${code}`;
+        window.location.href = '{{ route("mobile.my-listings.create") }}?renew=' + code;
     }
 
     // Filter functionality

@@ -145,7 +145,7 @@
                 } catch (error) {
                     console.error('Error loading listing:', error);
                     alert(document.documentElement.lang.startsWith('ar') ? 'فشل تحميل الإعلان' : 'Failed to load listing');
-                    window.location.href = '/mobile/my-listings';
+                    window.location.href = '{{ route("mobile.my-listings.index") }}';
                 }
             },
 
@@ -166,7 +166,7 @@
                     if (!response.ok) throw new Error('Failed to update listing');
 
                     alert(document.documentElement.lang.startsWith('ar') ? 'تم تحديث الإعلان بنجاح!' : 'Listing updated successfully!');
-                    window.location.href = '/mobile/my-listings';
+                    window.location.href = '{{ route("mobile.my-listings.index") }}';
                 } catch (error) {
                     console.error('Error:', error);
                     alert(document.documentElement.lang.startsWith('ar') ? 'فشل تحديث الإعلان. حاول مرة أخرى.' : 'Failed to update listing. Please try again.');
@@ -192,7 +192,7 @@
                     if (!response.ok) throw new Error('Failed to delete listing');
 
                     alert(document.documentElement.lang.startsWith('ar') ? 'تم حذف الإعلان بنجاح' : 'Listing deleted successfully');
-                    window.location.href = '/mobile/my-listings';
+                    window.location.href = '{{ route("mobile.my-listings.index") }}';
                 } catch (error) {
                     console.error('Error:', error);
                     alert(document.documentElement.lang.startsWith('ar') ? 'فشل حذف الإعلان. حاول مرة أخرى.' : 'Failed to delete listing. Please try again.');

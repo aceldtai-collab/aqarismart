@@ -282,13 +282,15 @@
 
                 this.submitting = true;
                 const isAr = document.documentElement.lang.startsWith('ar');
+                const apiBase = window.__AQARI_API_BASE || '';
 
                 try {
                     const token = localStorage.getItem('aqari_mobile_token');
                     let response;
 
                     if (token) {
-                        response = await fetch('/api/mobile/resident-listings', {
+                        // Sanctum token: always call remote API base (production server in NativePHP)
+                        response = await fetch(apiBase + '/api/mobile/resident-listings', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -303,8 +305,8 @@
                         }
                     }
 
-                    // Fall back to session auth (web session login)
-                    if (!response) {
+                    // Session auth fallback: only works in web browser mode (no remote API base)
+                    if (!response && !apiBase) {
                         response = await fetch('/api/mobile/resident-listings/web', {
                             method: 'POST',
                             headers: {
@@ -316,8 +318,7 @@
                         });
                     }
 
-                    if (response.status === 401) {
-                        // Completely unauthenticated — redirect to login
+                    if (!response || response.status === 401) {
                         window.location.href = '{{ route('mobile.login') }}';
                         return;
                     }

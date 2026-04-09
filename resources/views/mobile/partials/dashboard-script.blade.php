@@ -156,7 +156,7 @@
         } else if (tenant.url) {
             heroActions.push(`<a href="${escapeHtml(tenant.url)}" target="_blank" rel="noreferrer" class="mpa-button mpa-button-primary">${escapeHtml(strings.openSite)}</a>`);
         }
-        heroActions.push(`<a href="/mobile/profile" class="mpa-button mpa-button-secondary">${escapeHtml(strings.profile)}</a>`);
+        heroActions.push(`<a href="{{ route('mobile.profile') }}" class="mpa-button mpa-button-secondary">${escapeHtml(strings.profile)}</a>`);
         document.getElementById('dash-hero-actions').innerHTML = heroActions.join('');
 
         const webLink = document.getElementById('dash-web-link');
@@ -315,11 +315,11 @@
                                         <div class="font-medium text-gray-900">${listing.title?.en || listing.code}</div>
                                         <div class="text-xs text-gray-600">Expires in ${listing.days_until_expiration} days</div>
                                     </div>
-                                    <a href="/mobile/my-listings/${listing.code}/edit" class="text-sm text-blue-600 font-medium">Renew</a>
+                                    <a href="{{ route('mobile.my-listings.index') }}" class="text-sm text-blue-600 font-medium">Renew</a>
                                 </div>
                             `).join('')}
                         </div>
-                        <a href="/mobile/my-listings" class="inline-block mt-3 text-sm text-orange-700 font-semibold">View All My Listings →</a>
+                        <a href="{{ route('mobile.my-listings.index') }}" class="inline-block mt-3 text-sm text-orange-700 font-semibold">View All My Listings →</a>
                     </div>
                 </div>
             `;

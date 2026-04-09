@@ -266,8 +266,8 @@ async function loadProfile() {
             }
         }
 
-        // Fall back to session auth (web residents who signed in via browser)
-        if (!res) {
+        // Session auth fallback: only in web browser mode (no remote API base)
+        if (!res && !profileApiBase) {
             res = await fetch('/api/mobile/web/me', {
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin',
@@ -461,7 +461,7 @@ document.getElementById('profile-signout')?.addEventListener('click', function (
     localStorage.removeItem('aqari_mobile_tenant_slug');
     localStorage.removeItem('aqari_mobile_user_name');
     localStorage.removeItem('aqari_mobile_user_role');
-    window.location.href = '/mobile/marketplace';
+    window.location.href = '{{ route("mobile.marketplace") }}';
 });
 
 loadProfile();
