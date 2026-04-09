@@ -99,9 +99,17 @@ class MobileAppController extends Controller
         }
     }
 
-    public function editUnit(Unit $unit): View
+    public function editUnit(string $unit): View
     {
-        return view('mobile.units.edit', compact('unit'));
+        try {
+            $unitModel = Unit::where('code', $unit)->firstOrFail();
+            return view('mobile.units.edit', ['unit' => $unitModel]);
+        } catch (\Throwable $e) {
+            // NativePHP: no local unit — pass stub with just the code
+            $stub = new \stdClass();
+            $stub->code = $unit;
+            return view('mobile.units.edit', ['unit' => $stub]);
+        }
     }
 
     public function tenants(): View
@@ -109,13 +117,24 @@ class MobileAppController extends Controller
         return view('mobile.tenants.index');
     }
 
-    public function showTenant(Tenant $tenant): View
+    public function showTenant(string $tenant): View
     {
-        return view('mobile.tenants.show', compact('tenant'));
+        try {
+            $tenantModel = Tenant::where('slug', $tenant)->firstOrFail();
+            return view('mobile.tenants.show', ['tenant' => $tenantModel]);
+        } catch (\Throwable $e) {
+            // NativePHP: tenant not in local SQLite — redirect to tenants list
+            return view('mobile.tenants.index');
+        }
     }
 
-    public function tenantSearch(Tenant $tenant, Request $request, SearchExperienceBuilder $searchExperienceBuilder): View
+    public function tenantSearch(string $tenant, Request $request, SearchExperienceBuilder $searchExperienceBuilder): View
     {
+        try {
+            $tenant = Tenant::where('slug', $tenant)->firstOrFail();
+        } catch (\Throwable $e) {
+            return view('mobile.tenants.index');
+        }
         abort_unless($tenant->activeSubscription()->exists(), 404);
 
         $query = Unit::withoutGlobalScope('tenant')
@@ -176,15 +195,30 @@ class MobileAppController extends Controller
         return view('mobile.resident-listings.create', compact('subcategories', 'cities', 'adDurations'));
     }
 
-    public function editListing(\App\Models\ResidentListing $residentListing): View
+    public function editListing(string $residentListing): View
     {
-        return view('mobile.resident-listings.edit', compact('residentListing'));
+        try {
+            $model = \App\Models\ResidentListing::where('code', $residentListing)->firstOrFail();
+            return view('mobile.resident-listings.edit', ['residentListing' => $model]);
+        } catch (\Throwable $e) {
+            // NativePHP: listing not in local SQLite — stub with code only
+            $stub = new \stdClass();
+            $stub->code = $residentListing;
+            $stub->id = null;
+            return view('mobile.resident-listings.edit', ['residentListing' => $stub]);
+        }
     }
 
-    public function showListing(\App\Models\ResidentListing $residentListing): View
+    public function showListing(string $residentListing): View
     {
-        $residentListing->load(['user', 'city', 'area', 'subcategory.category', 'adDuration']);
-        return view('mobile.resident-listings.show', compact('residentListing'));
+        try {
+            $model = \App\Models\ResidentListing::where('code', $residentListing)->firstOrFail();
+            $model->load(['user', 'city', 'area', 'subcategory.category', 'adDuration']);
+            return view('mobile.resident-listings.show', ['residentListing' => $model]);
+        } catch (\Throwable $e) {
+            // NativePHP: not in local SQLite — render JS shell
+            return view('mobile.resident-listings.show-shell', ['listingCode' => $residentListing]);
+        }
     }
 
     private function abortIfNotCentralDomain(Request $request): void

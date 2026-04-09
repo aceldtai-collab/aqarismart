@@ -28,18 +28,18 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/units', [MobileAppController::class, 'units'])->name('units.index');
     Route::get('/units/create', [MobileAppController::class, 'createUnit'])->name('units.create');
     Route::get('/units/{unit}', [MobileAppController::class, 'showUnit'])->name('units.show');
-    Route::get('/units/{unit:code}/edit', [MobileAppController::class, 'editUnit'])->name('units.edit');
+    Route::get('/units/{unit}/edit', [MobileAppController::class, 'editUnit'])->name('units.edit');
     Route::get('/tenants', [MobileAppController::class, 'tenants'])->name('tenants.index');
-    Route::get('/tenants/{tenant:slug}/search', [MobileAppController::class, 'tenantSearch'])->name('tenants.search');
-    Route::get('/tenants/{tenant:slug}', [MobileAppController::class, 'showTenant'])->name('tenants.show');
+    Route::get('/tenants/{tenant}/search', [MobileAppController::class, 'tenantSearch'])->name('tenants.search');
+    Route::get('/tenants/{tenant}', [MobileAppController::class, 'showTenant'])->name('tenants.show');
     Route::get('/profile', [MobileAppController::class, 'profile'])->name('profile');
     Route::get('/about', [MobileAppController::class, 'about'])->name('about');
     
     // Resident Listings
     Route::get('/my-listings', [MobileAppController::class, 'myListings'])->name('my-listings.index');
     Route::get('/my-listings/create', [MobileAppController::class, 'createListing'])->name('my-listings.create');
-    Route::get('/my-listings/{residentListing:code}/edit', [MobileAppController::class, 'editListing'])->name('my-listings.edit');
-    Route::get('/resident-listings/{residentListing:code}', [MobileAppController::class, 'showListing'])->name('resident-listings.show');
+    Route::get('/my-listings/{residentListing}/edit', [MobileAppController::class, 'editListing'])->name('my-listings.edit');
+    Route::get('/resident-listings/{residentListing}', [MobileAppController::class, 'showListing'])->name('resident-listings.show');
 });
 
 Route::get('/mobile/auth/web-dashboard/{nonce}', [MobileAuthController::class, 'openWebDashboard'])

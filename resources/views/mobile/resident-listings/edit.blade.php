@@ -98,6 +98,7 @@
             loading: true,
             saving: false,
             listingCode: '{{ $residentListing->code }}',
+            listingId: null,
             form: {
                 title: { en: '', ar: '' },
                 description: { en: '', ar: '' },
@@ -126,6 +127,7 @@
 
                     const result = await response.json();
                     const listing = result.data;
+                    this.listingId = listing.id || null;
 
                     this.form = {
                         title: listing.title || { en: '', ar: '' },
@@ -153,7 +155,7 @@
                 this.saving = true;
 
                 try {
-                    const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/resident-listings/{{ $residentListing->id }}`, {
+                    const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/resident-listings/${this.listingId || this.listingCode}`, {
                         method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('aqari_mobile_token')}`,
@@ -181,7 +183,7 @@
                 }
 
                 try {
-                    const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/resident-listings/{{ $residentListing->id }}`, {
+                    const response = await fetch(`${window.__AQARI_API_BASE || ''}/api/mobile/resident-listings/${this.listingId || this.listingCode}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('aqari_mobile_token')}`,
