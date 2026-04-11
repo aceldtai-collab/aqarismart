@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\Api\MobileAuthController;
+use App\Http\Controllers\ResidentListingWebController;
 
 // Central routes (no locale prefix)
 require __DIR__.'/auth.php';
@@ -45,6 +46,10 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
 Route::get('/mobile/auth/web-dashboard/{nonce}', [MobileAuthController::class, 'openWebDashboard'])
     ->middleware(['web', 'signed'])
     ->name('mobile.auth.web-dashboard');
+
+Route::post('/marketplace/register-resident', [MobileAuthController::class, 'registerResidentWeb'])
+    ->middleware(['web', 'guest'])
+    ->name('marketplace.register-resident');
 
 // Session-auth JSON endpoints (for web-browser residents who have no Sanctum token)
 Route::prefix('api/mobile/web')->name('api.mobile.web.')->middleware(['web', 'auth'])->group(function () {
@@ -144,10 +149,18 @@ Route::view('/sales-flow/print', 'tenant.sales-flow-print')->name('sales-flow.pr
 
 // Central Authenticated
 Route::middleware('auth')->group(function () {
-    // Staff profile (admin/app layout)
-    Route::middleware(['tenant'])->get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Unified profile entry for staff, residents, and marketplace users
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Resident profile (public layout)
     Route::middleware(['tenant','resident'])->get('/resident/profile', [ProfileController::class, 'resident'])->name('resident.profile');
+    Route::get('/my-listings', [ResidentListingWebController::class, 'index'])->name('my-listings.index');
+    Route::get('/my-listings/create', [ResidentListingWebController::class, 'create'])->name('my-listings.create');
+    Route::post('/my-listings', [ResidentListingWebController::class, 'store'])->name('my-listings.store');
+    Route::get('/my-listings/{residentListing}/edit', [ResidentListingWebController::class, 'edit'])->name('my-listings.edit');
+    Route::match(['put', 'patch'], '/my-listings/{residentListing}', [ResidentListingWebController::class, 'update'])->name('my-listings.update');
+    Route::delete('/my-listings/{residentListing}', [ResidentListingWebController::class, 'destroy'])->name('my-listings.destroy');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/resident-listings/{residentListing}', [ResidentListingWebController::class, 'show'])->name('resident-listings.web.show');

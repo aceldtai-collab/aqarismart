@@ -13,6 +13,8 @@ class StoreResidentListingRequest extends FormRequest
 
     public function rules(): array
     {
+        $paymentMethodRules = ['nullable', 'string', 'max:64'];
+
         return [
             'title.en' => ['required', 'string', 'max:255'],
             'title.ar' => ['nullable', 'string', 'max:255'],
@@ -32,6 +34,8 @@ class StoreResidentListingRequest extends FormRequest
             'photos.*' => ['nullable'],
             'listing_type' => ['required', 'in:rent,sale'],
             'ad_duration_id' => ['required', 'exists:ad_durations,id'],
+            'payment_method' => $paymentMethodRules,
+            'payment_reference' => ['nullable', 'string', 'max:255'],
         ];
     }
 

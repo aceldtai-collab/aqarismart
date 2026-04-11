@@ -1,4 +1,4 @@
-@extends('mobile.layouts.app')
+﻿@extends('mobile.layouts.app')
 
 @section('title', app()->getLocale() === 'ar' ? 'أنشر عقارك' : 'Post Your Property')
 
@@ -160,7 +160,7 @@
         <!-- Step 3: Ad Duration -->
         <div x-show="step === 3" class="space-y-4">
             <div class="bg-white rounded-lg p-4 shadow-sm">
-                <h3 class="font-semibold text-gray-900 mb-4">{{ app()->getLocale() === 'ar' ? 'اختر مدة الإعلان' : 'Select Ad Duration' }}</h3>
+                <h3 class="font-semibold text-gray-900 mb-4">{{ app()->getLocale() === 'ar' ? 'اختر مدة الإعلان وانشره' : 'Choose duration and publish' }}</h3>
 
                 <div class="space-y-3">
                     @forelse($adDurations as $duration)
@@ -188,7 +188,7 @@
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                     </svg>
                     <div class="flex-1">
-                        <p class="text-sm text-blue-900 font-medium">{{ app()->getLocale() === 'ar' ? 'سيتم مراجعة إعلانك وتفعيله بعد تأكيد الدفع.' : 'Your listing will be reviewed and activated after payment confirmation.' }}</p>
+                        <p class="text-sm text-blue-900 font-medium">{{ app()->getLocale() === 'ar' ? 'يتم تفعيل إعلانك تلقائياً بعد الإرسال ليظهر في السوق مباشرة.' : 'Your listing is activated automatically after submit so it appears in the marketplace right away.' }}</p>
                     </div>
                 </div>
             </div>
@@ -196,7 +196,7 @@
             <div class="flex gap-3">
                 <button @click="step = 2" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold">{{ app()->getLocale() === 'ar' ? 'رجوع' : 'Back' }}</button>
                 <button @click="submitListing()" :disabled="submitting" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50">
-                    <span x-show="!submitting">{{ app()->getLocale() === 'ar' ? 'إرسال الإعلان' : 'Submit Listing' }}</span>
+                    <span x-show="!submitting">{{ app()->getLocale() === 'ar' ? 'نشر الإعلان' : 'Publish Listing' }}</span>
                     <span x-show="submitting">{{ app()->getLocale() === 'ar' ? 'جاري الإرسال...' : 'Submitting...' }}</span>
                 </button>
             </div>
@@ -367,3 +367,4 @@
     }
 </script>
 @endsection
+

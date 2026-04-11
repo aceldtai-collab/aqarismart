@@ -101,46 +101,53 @@ class MobileAuthController extends Controller
             ]);
         }
 
-        return DB::transaction(function () use ($countryCode, $data, $email, $fullPhone, $tenant) {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $email,
-                'phone' => $fullPhone,
-                'phone_country_code' => $countryCode,
-                'password' => Hash::make($data['password']),
+        $user = $this->createResidentAccount($data, $tenant, $countryCode, $fullPhone, $email);
+
+        return $this->authenticatedResponse(
+            $user->fresh('tenants.activeSubscription.package'),
+            $tenant,
+            $tenant ? 'resident' : null
+        );
+    }
+
+    public function registerResidentWeb(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'country_code' => ['required', 'string', 'max:8'],
+            'phone' => ['required', 'string', 'max:32'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $countryCode = $this->normalizeCountryCode($data['country_code']);
+        $sanitizedPhone = $this->normalizePhone($data['phone']);
+
+        if ($sanitizedPhone === '') {
+            throw ValidationException::withMessages([
+                'phone' => __('Please enter a valid phone number.'),
             ]);
+        }
 
-            if ($tenant && method_exists($user, 'assignRole')) {
-                try {
-                    $user->assignRole('resident');
-                } catch (\Throwable $e) {
-                }
-            }
+        $fullPhone = $countryCode . $sanitizedPhone;
+        $email = isset($data['email']) && $data['email'] !== '' ? Str::lower($data['email']) : null;
 
-            if ($tenant) {
-                $user->tenants()->syncWithoutDetaching([$tenant->id => ['role' => 'resident']]);
-                $user->tenants()->updateExistingPivot($tenant->id, ['role' => 'resident']);
+        if (User::where('phone', $fullPhone)->exists()) {
+            throw ValidationException::withMessages([
+                'phone' => __('This phone number is already registered.'),
+            ]);
+        }
 
-                $parts = preg_split('/\s+/u', trim($data['name']), 2, PREG_SPLIT_NO_EMPTY);
-                Resident::updateOrCreate(
-                    ['tenant_id' => $tenant->id, 'phone' => $fullPhone],
-                    [
-                        'first_name' => $parts[0] ?? $data['name'],
-                        'last_name' => $parts[1] ?? '',
-                        'phone' => $fullPhone,
-                        'phone_country_code' => $countryCode,
-                        'email' => $email,
-                        'tenant_id' => $tenant->id,
-                    ]
-                );
-            }
+        $user = $this->createResidentAccount($data, null, $countryCode, $fullPhone, $email);
 
-            return $this->authenticatedResponse(
-                $user->fresh('tenants.activeSubscription.package'),
-                $tenant,
-                $tenant ? 'resident' : null
-            );
-        });
+        Auth::login($user);
+        $request->session()->regenerate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'redirect' => route('profile.edit'),
+            'user' => new MobileUserResource($user->fresh('tenants.activeSubscription.package')),
+        ], 201);
     }
 
     public function login(Request $request): JsonResponse
@@ -278,6 +285,46 @@ class MobileAuthController extends Controller
             'current_tenant' => $tenant ? new MobileTenantResource($tenant->loadMissing('activeSubscription.package')) : null,
             'tenant_role' => $role,
         ], 201);
+    }
+
+    protected function createResidentAccount(array $data, ?Tenant $tenant, string $countryCode, string $fullPhone, ?string $email): User
+    {
+        return DB::transaction(function () use ($countryCode, $data, $email, $fullPhone, $tenant) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $email,
+                'phone' => $fullPhone,
+                'phone_country_code' => $countryCode,
+                'password' => Hash::make($data['password']),
+            ]);
+
+            if (method_exists($user, 'assignRole')) {
+                try {
+                    $user->assignRole('resident');
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($tenant) {
+                $user->tenants()->syncWithoutDetaching([$tenant->id => ['role' => 'resident']]);
+                $user->tenants()->updateExistingPivot($tenant->id, ['role' => 'resident']);
+
+                $parts = preg_split('/\s+/u', trim($data['name']), 2, PREG_SPLIT_NO_EMPTY);
+                Resident::updateOrCreate(
+                    ['tenant_id' => $tenant->id, 'phone' => $fullPhone],
+                    [
+                        'first_name' => $parts[0] ?? $data['name'],
+                        'last_name' => $parts[1] ?? '',
+                        'phone' => $fullPhone,
+                        'phone_country_code' => $countryCode,
+                        'email' => $email,
+                        'tenant_id' => $tenant->id,
+                    ]
+                );
+            }
+
+            return $user;
+        });
     }
 
     protected function webDashboardBridgeCacheKey(string $nonce): string

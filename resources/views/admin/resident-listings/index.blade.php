@@ -1,6 +1,7 @@
+@php($isAr = app()->getLocale() === 'ar')
 <x-admin-layout>
-    <x-slot name="header">{{ __('Resident Listings') }}</x-slot>
-    <x-slot name="subtitle">{{ __('Review and moderate resident-posted property listings.') }}</x-slot>
+    <x-slot name="header">{{ $isAr ? 'إعلانات المالكين' : 'Resident Listings' }}</x-slot>
+    <x-slot name="subtitle">{{ $isAr ? 'مراجعة وإدارة إعلانات العقارات المنشورة من المالكين.' : 'Review and moderate resident-posted property listings.' }}</x-slot>
 
     <div class="mb-4 flex flex-wrap items-center gap-3">
         <form method="get" class="flex items-center gap-2 flex-1 min-w-[200px] max-w-md">

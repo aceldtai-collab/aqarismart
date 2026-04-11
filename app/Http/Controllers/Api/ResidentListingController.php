@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreResidentListingRequest;
 use App\Http\Resources\MobileResidentListingResource;
+use App\Models\AdDuration;
 use App\Models\ResidentListing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,6 +130,9 @@ class ResidentListingController extends Controller
         $data['code'] = ResidentListing::generateCode();
         $data['currency'] = $data['currency'] ?? 'IQD';
         $data['source'] = 'direct_owner';
+        $data['payment_status'] = 'paid';
+        $data['payment_method'] = $data['payment_method'] ?? 'manual';
+        $data['status'] = 'active';
 
         // Handle photos — base64 data URLs (from mobile JSON form) or multipart uploads
         if ($request->hasFile('photos')) {
@@ -144,6 +148,16 @@ class ResidentListingController extends Controller
                 $data['lat'] = $coords['lat'];
                 $data['lng'] = $coords['lng'];
             }
+        }
+
+        if ($duration = AdDuration::find($data['ad_duration_id'])) {
+            $data['ad_started_at'] = now();
+            $data['ad_expires_at'] = now()->addDays($duration->days);
+            $data['ad_status'] = 'active';
+            $data['amount_paid'] = $duration->price;
+            $data['paid_at'] = now();
+        } else {
+            $data['ad_status'] = 'pending';
         }
 
         $listing = ResidentListing::create($data);
@@ -191,6 +205,9 @@ class ResidentListingController extends Controller
         $data['code'] = ResidentListing::generateCode();
         $data['currency'] = $data['currency'] ?? 'IQD';
         $data['source'] = 'direct_owner';
+        $data['payment_status'] = 'paid';
+        $data['payment_method'] = $data['payment_method'] ?? 'manual';
+        $data['status'] = 'active';
 
         // Handle base64 photos from web form
         if (!empty($data['photos']) && is_array($data['photos'])) {
@@ -204,6 +221,16 @@ class ResidentListingController extends Controller
                 $data['lat'] = $coords['lat'];
                 $data['lng'] = $coords['lng'];
             }
+        }
+
+        if ($duration = AdDuration::find($data['ad_duration_id'])) {
+            $data['ad_started_at'] = now();
+            $data['ad_expires_at'] = now()->addDays($duration->days);
+            $data['ad_status'] = 'active';
+            $data['amount_paid'] = $duration->price;
+            $data['paid_at'] = now();
+        } else {
+            $data['ad_status'] = 'pending';
         }
 
         $listing = ResidentListing::create($data);

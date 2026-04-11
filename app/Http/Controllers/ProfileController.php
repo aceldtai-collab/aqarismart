@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use App\Services\Tenancy\TenantManager;
+use App\Models\Tenant;
 
 class ProfileController extends Controller
 {
@@ -25,8 +26,8 @@ class ProfileController extends Controller
         }
 
         $isResident = ($pivotRole === 'resident') || (method_exists($user, 'hasRole') && $user->hasRole('resident'));
-        if ($isResident) {
-            abort(403);
+        if ($isResident || ! $tenant) {
+            return $this->publicProfile($request, $tenant);
         }
 
         return view('profile.edit', [
@@ -36,9 +37,7 @@ class ProfileController extends Controller
 
     public function resident(Request $request): View
     {
-        return view('resident.profile', [
-            'user' => $request->user(),
-        ]);
+        return $this->publicProfile($request, app(TenantManager::class)->tenant());
     }
 
     /**
@@ -55,6 +54,25 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    protected function publicProfile(Request $request, ?Tenant $tenant = null): View
+    {
+        $user = $request->user()->loadMissing('tenants.activeSubscription.package');
+        $tenant ??= $user->tenants()->with('activeSubscription.package')->first();
+
+        $role = 'marketplace';
+        if ($tenant) {
+            $role = strtolower((string) ($user->tenants()->whereKey($tenant->getKey())->first()?->pivot?->role ?: 'resident'));
+        } elseif (method_exists($user, 'hasRole') && $user->hasRole('resident')) {
+            $role = 'resident';
+        }
+
+        return view('profile.public', [
+            'user' => $user,
+            'profileTenant' => $tenant,
+            'profileRole' => $role,
+        ]);
     }
 
     /**

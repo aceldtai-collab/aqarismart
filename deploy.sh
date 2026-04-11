@@ -10,7 +10,12 @@ echo "════════════════════════�
 echo ""
 
 # Configuration
-REMOTE_HOST="cloudways-aqarismart"
+## SECURITY NOTE: Do NOT store plaintext passwords in the repository.
+## The deploy script uses SSH. Configure an SSH key or an SSH config
+## entry for non-interactive deploys. If you must use a password for
+## automated deploys, set `DEPLOY_SSH_PASSWORD` and install `sshpass`
+## locally (not recommended).
+REMOTE_HOST="master_bggefyhrbt@159.203.2.235"
 REMOTE_PATH="/home/1599704.cloudwaysapps.com/tsyaqtsxmr/public_html"
 TEMP_ZIP="/tmp/aqarismart-deploy-$(date +%s).zip"
 
@@ -36,7 +41,7 @@ echo ""
 
 # Step 3: Upload code archive
 echo "→ Uploading code to server..."
-scp "$TEMP_ZIP" "$REMOTE_HOST:tmp/deploy.zip"
+scp "$TEMP_ZIP" "$REMOTE_HOST:~/deploy.zip"
 if [ $? -ne 0 ]; then
     echo "✗ Upload failed!"
     exit 1
@@ -46,7 +51,7 @@ echo ""
 
 # Step 4: Extract code on server
 echo "→ Extracting code on server..."
-ssh "$REMOTE_HOST" "unzip -oq tmp/deploy.zip -d $REMOTE_PATH"
+ssh "$REMOTE_HOST" "unzip -oq ~/deploy.zip -d $REMOTE_PATH"
 if [ $? -ne 0 ]; then
     echo "✗ Extraction failed!"
     exit 1
@@ -89,7 +94,7 @@ echo ""
 # Step 7: Cleanup
 echo "→ Cleaning up..."
 rm -f "$TEMP_ZIP"
-ssh "$REMOTE_HOST" "rm -f tmp/deploy.zip"
+ssh "$REMOTE_HOST" "rm -f ~/deploy.zip"
 echo "✓ Cleanup done"
 echo ""
 

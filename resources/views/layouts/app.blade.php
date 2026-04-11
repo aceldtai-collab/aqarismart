@@ -202,6 +202,9 @@
                                                 <a href="{{ route('admin.index') }}" class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">{{ __('Dashboard') }}</a>
                                             @endif
                                             <a href="{{ route('profile.edit') }}" class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">{{ __('Profile') }}</a>
+                                            @if(Route::has('my-listings.index'))
+                                                <a href="{{ route('my-listings.index') }}" class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">{{ app()->getLocale() === 'ar' ? 'إعلاناتي' : 'My Listings' }}</a>
+                                            @endif
                                             @if($settingsRoute)
                                                 <a href="{{ $settingsRoute }}" class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">{{ __('Settings') }}</a>
                                             @endif
@@ -295,6 +298,9 @@
                                     <a href="{{ route('resident.profile') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">{{ __('Profile') }}</a>
                                 @else
                                     <a href="{{ route('profile.edit') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">{{ __('Profile') }}</a>
+                                @endif
+                                @if(Route::has('my-listings.index'))
+                                    <a href="{{ route('my-listings.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">{{ app()->getLocale() === 'ar' ? 'إعلاناتي' : 'My Listings' }}</a>
                                 @endif
                                 @if($userTenants->count() > 1)
                                     <div class="my-1 border-t"></div>

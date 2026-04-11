@@ -84,9 +84,9 @@
             const form = $el;
             const err = document.getElementById('modal-reg-error');
             err.classList.add('hidden'); err.textContent = '';
-            fetch('/api/mobile/auth/register-resident', {
+            fetch('{{ route('marketplace.register-resident') }}', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({
                     name: form.querySelector('[name=name]').value,
                     country_code: form.querySelector('[name=country_code]').value,
@@ -100,9 +100,7 @@
                     const msgs = json.errors ? Object.values(json.errors).flat().join(' | ') : (json.message || 'Registration failed');
                     err.textContent = msgs; err.classList.remove('hidden'); loading = false; return;
                 }
-                localStorage.setItem('aqari_mobile_token', json.token);
-                if (json.user?.name) localStorage.setItem('aqari_mobile_user_name', json.user.name);
-                window.location.href = '/mobile/my-listings/create';
+                window.location.href = json.redirect || '{{ route('profile.edit') }}';
             })).catch(() => { err.textContent = 'Connection error. Please try again.'; err.classList.remove('hidden'); loading = false; });
         ">
             <div class="space-y-4">

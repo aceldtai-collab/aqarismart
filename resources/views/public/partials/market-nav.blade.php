@@ -41,7 +41,7 @@
         ? ((method_exists($authUser, 'hasRole') && $authUser->hasRole('admin*')) || $isSuperAdminUser)
         : false;
     $profileUrl = $authUser
-        ? ($isResidentUser && Route::has('resident.profile')
+        ? (($isResidentUser && $tenantCtx && Route::has('resident.profile'))
             ? route('resident.profile')
             : (Route::has('profile.edit') ? route('profile.edit') : '#'))
         : null;
@@ -59,12 +59,17 @@
                 ? route('sales-flow')
                 : (Route::has('book-call') ? route('book-call') : '#'))
     );
-    $loginUrl = $tenantCtx && Route::has('tenant.home')
-        ? route('tenant.home') . '?auth=login'
-        : (Route::has('login') ? route('login') : null);
-    $registerUrl = $tenantCtx && Route::has('tenant.home')
-        ? route('tenant.home') . '?auth=register'
-        : (Route::has('register') ? route('register') : null);
+    $scheme = request()->getScheme() ?: 'http';
+    $port = request()->getPort();
+    $defaultPort = $scheme === 'https' ? 443 : 80;
+    $portPart = $port && $port !== $defaultPort ? ':' . $port : '';
+    $centralMarketplaceUrl = Route::has('public.marketplace')
+        ? route('public.marketplace')
+        : sprintf('%s://%s%s/marketplace', $scheme, config('tenancy.base_domain'), $portPart);
+    $loginUrl = $centralMarketplaceUrl . '?auth=login';
+    $registerUrl = $centralMarketplaceUrl . '?auth=register';
+    $loginOpensModal = ! $tenantCtx && request()->routeIs('public.marketplace');
+    $registerOpensModal = ! $tenantCtx && request()->routeIs('public.marketplace');
     $userFirstName = $authUser ? (explode(' ', trim((string) $authUser->name))[0] ?: $authUser->name) : null;
     $userAvatar = $authUser
         ? 'https://ui-avatars.com/api/?name=' . urlencode((string) $authUser->name) . '&background=b6842f&color=fff'
@@ -117,6 +122,9 @@
                                     @if($profileUrl)
                                         <a href="{{ $profileUrl }}" class="block rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-[rgba(15,90,70,.06)]">{{ $navTx['profile_cta'] }}</a>
                                     @endif
+                                    @if(Route::has('my-listings.index'))
+                                        <a href="{{ route('my-listings.index') }}" class="block rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-[rgba(15,90,70,.06)]">{{ $isAr ? 'إعلاناتي' : 'My Listings' }}</a>
+                                    @endif
                                     <a href="{{ $sellWithUsUrl }}" class="block rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-[rgba(15,90,70,.06)]">{{ $navTx['sell_cta'] }}</a>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -127,10 +135,10 @@
                         </div>
                     @else
                         @if($loginUrl)
-                            <a href="{{ $loginUrl }}" class="market-nav-action market-nav-ghost hidden md:inline-flex">{{ $navTx['login_cta'] }}</a>
+                            <a href="{{ $loginUrl }}" @if($loginOpensModal) @click.prevent="$store.auth.login = true" @endif class="market-nav-action market-nav-ghost hidden md:inline-flex">{{ $navTx['login_cta'] }}</a>
                         @endif
                         @if($registerUrl)
-                            <a href="{{ $registerUrl }}" class="market-nav-action market-nav-solid hidden md:inline-flex">{{ $navTx['register_cta'] }}</a>
+                            <a href="{{ $registerUrl }}" @if($registerOpensModal) @click.prevent="$store.auth.register = true" @endif class="market-nav-action market-nav-solid hidden md:inline-flex">{{ $navTx['register_cta'] }}</a>
                         @endif
                         <a href="{{ $sellWithUsUrl }}" class="market-nav-action market-nav-ghost hidden lg:inline-flex">{{ $navTx['sell_cta'] }}</a>
                     @endauth
@@ -182,6 +190,9 @@
                     @if($profileUrl)
                         <a href="{{ $profileUrl }}" @click="mobileNavOpen = false" class="market-mobile-link market-mobile-link-dark">{{ $navTx['profile_cta'] }}</a>
                     @endif
+                    @if(Route::has('my-listings.index'))
+                        <a href="{{ route('my-listings.index') }}" @click="mobileNavOpen = false" class="market-mobile-link market-mobile-link-dark">{{ $isAr ? 'إعلاناتي' : 'My Listings' }}</a>
+                    @endif
                     <a href="{{ $sellWithUsUrl }}" @click="mobileNavOpen = false" class="market-mobile-link market-mobile-link-dark">{{ $navTx['sell_cta'] }}</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -189,10 +200,10 @@
                     </form>
                 @else
                     @if($loginUrl)
-                        <a href="{{ $loginUrl }}" @click="mobileNavOpen = false" class="market-mobile-link market-mobile-link-dark">{{ $navTx['login_cta'] }}</a>
+                        <a href="{{ $loginUrl }}" @if($loginOpensModal) @click.prevent="mobileNavOpen = false; $store.auth.login = true" @else @click="mobileNavOpen = false" @endif class="market-mobile-link market-mobile-link-dark">{{ $navTx['login_cta'] }}</a>
                     @endif
                     @if($registerUrl)
-                        <a href="{{ $registerUrl }}" @click="mobileNavOpen = false" class="market-mobile-link">{{ $navTx['register_cta'] }}</a>
+                        <a href="{{ $registerUrl }}" @if($registerOpensModal) @click.prevent="mobileNavOpen = false; $store.auth.register = true" @else @click="mobileNavOpen = false" @endif class="market-mobile-link">{{ $navTx['register_cta'] }}</a>
                     @endif
                     <a href="{{ $sellWithUsUrl }}" @click="mobileNavOpen = false" class="market-mobile-link">{{ $navTx['sell_cta'] }}</a>
                 @endauth

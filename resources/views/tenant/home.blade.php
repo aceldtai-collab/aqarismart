@@ -36,8 +36,8 @@
     $tenantWebsite = route('tenant.home', ['tenant_slug' => $tenant->slug]);
     $tenantSearchUrl = route('tenant.search', ['tenant_slug' => $tenant->slug]);
     $sellWithUsUrl = Route::has('tenant.sales-flow') ? route('tenant.sales-flow', ['tenant_slug' => $tenant->slug]) : '#';
-    $tenantLoginUrl = $tenantWebsite . '?auth=login';
-    $tenantRegisterUrl = $tenantWebsite . '?auth=register';
+    $tenantLoginUrl = $centralMarketplaceUrl . '?auth=login';
+    $tenantRegisterUrl = $centralMarketplaceUrl . '?auth=register';
 
     $navTx = [
         'brand' => $isAr ? 'عقاري سمارت' : 'Aqari Smart',
@@ -225,9 +225,9 @@
 
                     <div class="tenant-hero-cta-row">
                         @guest
-                            <a href="{{ $tenantRegisterUrl }}" @click.prevent="$store.auth.register = true" class="tenant-hero-cta tenant-hero-cta--primary">{{ $isAr ? 'أنشئ حسابك الآن' : 'Create account' }}</a>
+                            <a href="{{ $tenantRegisterUrl }}" class="tenant-hero-cta tenant-hero-cta--primary">{{ $isAr ? 'أنشئ حسابك الآن' : 'Create account' }}</a>
                             <a href="{{ $sellWithUsUrl }}" class="tenant-hero-cta tenant-hero-cta--ghost">{{ $isAr ? 'بع معنا كوكالة' : 'Sell with us' }}</a>
-                            <a href="{{ $tenantLoginUrl }}" @click.prevent="$store.auth.login = true" class="tenant-hero-cta tenant-hero-cta--soft">{{ $isAr ? 'تسجيل الدخول' : 'Sign in' }}</a>
+                            <a href="{{ $tenantLoginUrl }}" class="tenant-hero-cta tenant-hero-cta--soft">{{ $isAr ? 'تسجيل الدخول' : 'Sign in' }}</a>
                         @else
                             <a href="{{ $tenantSearchUrl }}" class="tenant-hero-cta tenant-hero-cta--primary">{{ $isAr ? 'استكشف كل العقارات' : 'Explore all listings' }}</a>
                             <a href="{{ $centralMarketplaceUrl }}" class="tenant-hero-cta tenant-hero-cta--soft">{{ $isAr ? 'العودة إلى السوق' : 'Back to marketplace' }}</a>
@@ -454,10 +454,10 @@
         <div class="tenant-mobile-guest-bar md:hidden">
             <div class="tenant-mobile-guest-card">
                 <div class="tenant-mobile-guest-grid">
-                    <a href="{{ $tenantRegisterUrl }}" @click.prevent="$store.auth.register = true" class="tenant-mobile-guest-btn tenant-mobile-guest-btn--primary">{{ $isAr ? 'أنشئ حسابك وابدأ' : 'Create account' }}</a>
+                    <a href="{{ $tenantRegisterUrl }}" class="tenant-mobile-guest-btn tenant-mobile-guest-btn--primary">{{ $isAr ? 'أنشئ حسابك وابدأ' : 'Create account' }}</a>
                     <div class="tenant-mobile-guest-row">
                         <a href="{{ $sellWithUsUrl }}" class="tenant-mobile-guest-btn tenant-mobile-guest-btn--dark">{{ $isAr ? 'بيع معنا' : 'Sell with us' }}</a>
-                        <a href="{{ $tenantLoginUrl }}" @click.prevent="$store.auth.login = true" class="tenant-mobile-guest-btn tenant-mobile-guest-btn--ghost">{{ $isAr ? 'تسجيل الدخول' : 'Sign in' }}</a>
+                        <a href="{{ $tenantLoginUrl }}" class="tenant-mobile-guest-btn tenant-mobile-guest-btn--ghost">{{ $isAr ? 'تسجيل الدخول' : 'Sign in' }}</a>
                     </div>
                 </div>
             </div>

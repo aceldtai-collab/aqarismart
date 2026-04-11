@@ -75,6 +75,12 @@
         'cities_title' => $isAr ? 'المدن الأكثر طلباً' : 'Most Popular Places',
         'catalog_eyebrow' => $isAr ? 'كل العروض' : 'Full Catalog',
         'catalog_title' => $isAr ? 'استكشف العقارات' : 'Browse Properties',
+        'owner_eyebrow' => $isAr ? 'مالك مباشر' : 'Direct Owner',
+        'owner_title' => $isAr ? 'من المالك مباشرةً' : 'Straight from the Owner',
+        'owner_subtitle' => $isAr ? 'تواصل مباشرةً مع المالك دون وسيط، وبأسلوب واضح وموثوق.' : 'Talk directly to owners with no middleman and clear listing details.',
+        'owner_empty' => $isAr ? 'لا توجد إعلانات مباشرة حاليًا' : 'No direct owner listings yet',
+        'owner_post' => $isAr ? 'كن الأول — انشر الآن' : 'Be the first — Post yours now',
+        'owner_badge' => $isAr ? 'مالك مباشر' : 'Direct Owner',
         'all_categories' => $isAr ? 'كل الفئات' : 'All Categories',
         'bedrooms' => $isAr ? 'غرف النوم' : 'Bedrooms',
         'footer_text' => $isAr ? 'سوق عقاري حديث يربط الباحثين عن العقارات بمديري العقارات المحترفين.' : 'A modern property marketplace connecting seekers with professional property managers.',
@@ -103,9 +109,15 @@
     $sellWithUsUrl = Route::has('sales-flow')
         ? route('sales-flow')
         : (Route::has('book-call') ? route('book-call') : '#contact-us');
-    $loginUrl = Route::has('login') ? route('login') : null;
-    $registerUrl = Route::has('register') ? route('register') : null;
+    $loginUrl = route('public.marketplace', ['auth' => 'login']);
+    $registerUrl = route('public.marketplace', ['auth' => 'register']);
+    $directOwnerCreateUrl = auth()->check() && Route::has('my-listings.create')
+        ? route('my-listings.create')
+        : route('public.marketplace', ['auth' => 'register']);
+    $residentListingBaseUrl = url('/resident-listings');
     $showGuestHeroActions = auth()->guest();
+    $openRegisterFromQuery = request()->query('auth') === 'register';
+    $openLoginFromQuery = request()->query('auth') === 'login';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $loc }}" dir="{{ $isAr ? 'rtl' : 'ltr' }}">
@@ -433,7 +445,7 @@
                     </div>
                 @else
                     @if($loginUrl)
-                        <a href="{{ $loginUrl }}" class="market-nav-action market-nav-ghost hidden md:inline-flex">{{ $tx['login_cta'] }}</a>
+                        <a href="{{ $loginUrl }}" @click.prevent="$store.auth.login = true" class="market-nav-action market-nav-ghost hidden md:inline-flex">{{ $tx['login_cta'] }}</a>
                     @endif
                     <button type="button" @click="$store.auth.register = true" class="market-nav-action market-nav-solid hidden md:inline-flex">{{ $tx['register_cta'] }}</button>
                     <a href="{{ $sellWithUsUrl }}" class="market-nav-action market-nav-ghost hidden lg:inline-flex">{{ $tx['sell_cta'] }}</a>
@@ -493,7 +505,7 @@
                     </form>
                 @else
                     @if($loginUrl)
-                        <a href="{{ $loginUrl }}" @click="mobileNavOpen = false" class="market-mobile-link market-mobile-link-dark">{{ $tx['login_cta'] }}</a>
+                        <a href="{{ $loginUrl }}" @click.prevent="mobileNavOpen = false; $store.auth.login = true" class="market-mobile-link market-mobile-link-dark">{{ $tx['login_cta'] }}</a>
                     @endif
                     <button type="button" @click="mobileNavOpen = false; $store.auth.register = true" class="market-mobile-link text-start">{{ $tx['register_cta'] }}</button>
                     <a href="{{ $sellWithUsUrl }}" @click="mobileNavOpen = false" class="market-mobile-link">{{ $tx['sell_cta'] }}</a>
@@ -540,7 +552,7 @@
                             <button type="button" @click="$store.auth.register = true" class="market-hero-action market-hero-action-primary">{{ $tx['register_cta'] }}</button>
                             <a href="{{ $sellWithUsUrl }}" class="market-hero-action market-hero-action-warm">{{ $tx['sell_cta'] }}</a>
                             @if($loginUrl)
-                                <a href="{{ $loginUrl }}" class="market-hero-action market-hero-action-ghost">{{ $tx['login_cta'] }}</a>
+                                <a href="{{ $loginUrl }}" @click.prevent="$store.auth.login = true" class="market-hero-action market-hero-action-ghost">{{ $tx['login_cta'] }}</a>
                             @endif
                         </div>
                     @endif
@@ -609,6 +621,34 @@
                 </div>
                 <div id="web-featured" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     <div class="col-span-full text-center text-sm text-slate-400 py-8">{{ $tx['loading'] }}</div>
+                </div>
+            </section>
+
+            <!-- Direct from Owner (mirrors mobile section) -->
+            <section id="direct-owner-properties" class="market-card rounded-[32px] overflow-hidden">
+                <div class="p-7 sm:p-8 text-white" style="background:linear-gradient(145deg, rgba(15,32,26,.97), rgba(15,90,70,.92) 56%, rgba(48,33,15,.88));">
+                    <div class="flex flex-wrap items-start justify-between gap-5">
+                        <div class="max-w-3xl">
+                            <div class="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/12 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/90">
+                                <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                                {{ $tx['owner_eyebrow'] }}
+                            </div>
+                            <h2 class="mt-4 text-3xl font-extrabold tracking-[-0.04em]">{{ $tx['owner_title'] }}</h2>
+                            <p class="mt-3 max-w-2xl text-sm leading-7 text-white/78">{{ $tx['owner_subtitle'] }}</p>
+                        </div>
+                        <a href="{{ $directOwnerCreateUrl }}" class="inline-flex h-12 items-center justify-center rounded-2xl px-5 text-xs font-extrabold uppercase tracking-[0.14em] text-slate-900 transition hover:opacity-95" style="background:linear-gradient(135deg, rgba(255,247,231,.98), rgba(245,230,194,.96));">
+                            {{ $tx['owner_post'] }}
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6 sm:p-8">
+                    <div id="web-direct-owner" class="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-hidden pb-4">
+                        <div class="text-sm text-slate-400 py-8">{{ $tx['loading'] }}</div>
+                    </div>
+                    <div id="web-direct-owner-empty" class="hidden rounded-[24px] border border-dashed border-[rgba(130,94,38,.28)] bg-[rgba(255,252,246,.75)] px-6 py-10 text-center text-slate-500">
+                        <p class="text-sm">{{ $tx['owner_empty'] }}</p>
+                        <a href="{{ $directOwnerCreateUrl }}" class="mt-4 inline-flex items-center rounded-full bg-[rgba(15,90,70,.1)] px-4 py-2 text-xs font-extrabold uppercase tracking-[0.12em] text-[color:var(--market-palm)]">{{ $tx['owner_post'] }}</a>
+                    </div>
                 </div>
             </section>
 
@@ -714,6 +754,7 @@
     const lang = '{{ $loc }}';
     const isRtl = lang === 'ar';
     const baseDomain = '{{ config("tenancy.base_domain") }}';
+    const residentListingBaseUrl = @json($residentListingBaseUrl);
     const scheme = '{{ request()->getScheme() }}';
     const fmt = new Intl.NumberFormat();
     let catalogPage = 1;
@@ -727,6 +768,7 @@
         listings: {!! json_encode($tx['listings']) !!},
         no_results: {!! json_encode($tx['no_results']) !!},
         no_results_hint: {!! json_encode($tx['no_results_hint']) !!},
+        owner_badge: {!! json_encode($tx['owner_badge']) !!},
     };
 
     function t(obj, fallback) {
@@ -829,6 +871,30 @@
             <div class="mt-4 flex items-center gap-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-slate-600 ${isRtl ? 'flex-row-reverse justify-end' : ''}"><span class="rounded-full bg-[rgba(15,90,70,.08)] px-3 py-1.5 text-[color:var(--market-palm)]">${u.bedrooms ?? u.beds ?? 0} ${TX.beds}</span><span class="rounded-full bg-[rgba(182,132,47,.11)] px-3 py-1.5 text-[color:var(--market-brass)]">${u.bathrooms ?? u.baths ?? 0} ${TX.baths}</span></div></div></a>`;
     }
 
+    function directOwnerCardHtml(listing) {
+        const title = listing.title?.[lang] ?? listing.title?.en ?? listing.code;
+        const photo = listing.first_photo || (listing.photos && listing.photos[0]) || fallbackImage(`owner-${listing.code ?? title}`);
+        const cityName = listing.city ? (lang === 'ar' ? (listing.city.name_ar ?? listing.city.name_en ?? '') : (listing.city.name_en ?? listing.city.name_ar ?? '')) : '';
+        const listingType = listing.listing_type === 'sale' ? TX.sale : TX.rent;
+        const bedrooms = listing.bedrooms > 0 ? `${listing.bedrooms} ${TX.beds}` : '';
+        const bathrooms = Number(listing.bathrooms) > 0 ? `${listing.bathrooms} ${TX.baths}` : '';
+        const href = `${residentListingBaseUrl}/${listing.code}`;
+        return `<a href="${href}" class="group block min-w-[296px] max-w-[336px] flex-1 snap-start overflow-hidden rounded-[28px] border border-[rgba(130,94,38,.16)] bg-[rgba(255,252,246,.96)] shadow-[0_22px_46px_-34px_rgba(55,38,12,.46)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_30px_62px_-32px_rgba(55,38,12,.52)]">
+            <div class="relative h-52 overflow-hidden bg-[rgba(34,38,30,.08)]">
+                <img src="${photo}" alt="${title}" class="h-full w-full object-cover transition duration-700 group-hover:scale-110" loading="lazy" onerror="this.src='${fallbackImage('owner-fallback')}'">
+                <div class="absolute inset-0 bg-gradient-to-t from-[rgba(12,18,14,.88)] via-transparent to-transparent"></div>
+                <div class="absolute ${edgeClass('left-3', 'right-3')} top-3"><span class="inline-flex items-center rounded-full bg-[rgba(15,90,70,.92)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white shadow-[0_16px_28px_-18px_rgba(15,90,70,.88)]">${TX.owner_badge}</span></div>
+                <div class="absolute ${edgeClass('left-3', 'right-3')} bottom-3"><span class="inline-flex items-center rounded-2xl bg-[rgba(255,248,235,.94)] px-3 py-1.5 text-sm font-extrabold text-slate-900 shadow-[0_14px_26px_-18px_rgba(11,17,13,.62)]">${listing.currency ?? 'IQD'} ${fmt.format(Number(listing.price ?? 0))}</span></div>
+            </div>
+            <div class="p-4 ${textAlignClass()}">
+                <h3 class="text-lg font-extrabold tracking-[-0.02em] text-slate-900 line-clamp-1 transition group-hover:text-[color:var(--market-palm)]">${title}</h3>
+                ${cityName ? `<p class="mt-1 line-clamp-1 text-sm font-medium text-slate-500">${cityName}</p>` : ''}
+                <div class="mt-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-slate-500">${listingType}</div>
+                ${(bedrooms || bathrooms) ? `<div class="mt-4 flex items-center gap-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-slate-600 ${isRtl ? 'flex-row-reverse justify-end' : ''}">${bedrooms ? `<span class="rounded-full bg-[rgba(15,90,70,.08)] px-3 py-1.5 text-[color:var(--market-palm)]">${bedrooms}</span>` : ''}${bathrooms ? `<span class="rounded-full bg-[rgba(182,132,47,.11)] px-3 py-1.5 text-[color:var(--market-brass)]">${bathrooms}</span>` : ''}</div>` : ''}
+            </div>
+        </a>`;
+    }
+
     function renderStats(stats) {
         document.querySelectorAll('[data-stat]').forEach(el => {
             const key = el.dataset.stat;
@@ -901,6 +967,42 @@
         c.innerHTML = units.map(unitCardHtml).join('');
     }
 
+    function renderDirectOwnerListings(listings) {
+        const container = document.getElementById('web-direct-owner');
+        const emptyState = document.getElementById('web-direct-owner-empty');
+        const section = document.getElementById('direct-owner-properties');
+        if (!container || !emptyState || !section) return;
+
+        const data = Array.isArray(listings) ? listings : [];
+        if (!data.length) {
+            container.innerHTML = '';
+            container.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        container.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        container.innerHTML = data.map(directOwnerCardHtml).join('');
+    }
+
+    async function loadDirectOwnerListings() {
+        const section = document.getElementById('direct-owner-properties');
+        if (!section) return;
+        try {
+            const res = await fetch('/api/mobile/resident-listings?per_page=8', { headers: { Accept: 'application/json' } });
+            if (!res.ok) {
+                section.classList.add('hidden');
+                return;
+            }
+            const json = await res.json();
+            renderDirectOwnerListings(json.data ?? []);
+        } catch (e) {
+            console.error('Direct owner listings API error:', e);
+            section.classList.add('hidden');
+        }
+    }
+
     function renderCatalog(units, meta) {
         const c = document.getElementById('catalog-results');
         const countEl = document.getElementById('catalog-count');
@@ -936,6 +1038,7 @@
             renderScrollUnits('web-rent', (json.recommended_units ?? []).filter(u => u.listing_type === 'rent'));
             renderCities(json.cities ?? []);
             renderAgencies(json.tenants ?? []);
+            await loadDirectOwnerListings();
         } catch (e) { console.error('Marketplace API error:', e); }
     }
 
@@ -987,9 +1090,62 @@
     {{-- Alpine auth store init --}}
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.store('auth', { login: false, register: false });
+            Alpine.store('auth', { login: {{ $openLoginFromQuery ? 'true' : 'false' }}, register: {{ $openRegisterFromQuery ? 'true' : 'false' }} });
         });
     </script>
+
+    {{-- Resident Login Modal --}}
+    <div x-data x-show="$store.auth.login" x-cloak
+         class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="$store.auth.login = false"></div>
+        <div class="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+             x-transition:enter="transition ease-out duration-200 delay-75" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            <button type="button" @click="$store.auth.login = false" class="absolute top-4 {{ $mktIsAr ? 'left-4' : 'right-4' }} text-gray-400 transition hover:text-gray-600">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <h2 class="mb-1 text-xl font-bold text-gray-900">{{ $mktIsAr ? 'تسجيل الدخول' : 'Sign In' }}</h2>
+            <p class="mb-6 text-sm text-gray-500">{{ $mktIsAr ? 'سجّل الدخول إلى حسابك' : 'Sign in to your account' }}</p>
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label for="market-login-email" class="mb-1 block text-sm font-medium text-gray-700">{{ $mktIsAr ? 'البريد الإلكتروني' : 'Email' }}</label>
+                        <input id="market-login-email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                               class="block w-full rounded-xl border-gray-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        @error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                        @error('login')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label for="market-login-password" class="mb-1 block text-sm font-medium text-gray-700">{{ $mktIsAr ? 'كلمة المرور' : 'Password' }}</label>
+                        <input id="market-login-password" type="password" name="password" required
+                               class="block w-full rounded-xl border-gray-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        @error('password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" name="remember" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm text-gray-600">{{ $mktIsAr ? 'تذكرني' : 'Remember me' }}</span>
+                        </label>
+                        @if(Route::has('password.request'))
+                            <a href="{{ route('password.request') }}" class="text-sm text-indigo-600 hover:text-indigo-500">{{ $mktIsAr ? 'نسيت كلمة المرور؟' : 'Forgot password?' }}</a>
+                        @endif
+                    </div>
+                    <button type="submit"
+                            class="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:from-indigo-700 hover:to-purple-700">
+                        {{ $mktIsAr ? 'تسجيل الدخول' : 'Sign In' }}
+                    </button>
+                </div>
+            </form>
+
+            <p class="mt-5 text-center text-sm text-gray-500">
+                {{ $mktIsAr ? 'ليس لديك حساب بعد؟' : "Don't have an account?" }}
+                <a href="{{ route('public.marketplace', ['auth' => 'register']) }}" @click.prevent="$store.auth.login = false; $store.auth.register = true" class="font-semibold text-indigo-600 hover:text-indigo-500">{{ $mktIsAr ? 'إنشاء حساب' : 'Create account' }}</a>
+            </p>
+        </div>
+    </div>
 
     {{-- Resident Register Modal --}}
     <div x-data x-show="$store.auth.register" x-cloak
@@ -1012,9 +1168,9 @@
                 const form = $el;
                 const err = document.getElementById('mkt-reg-error');
                 err.classList.add('hidden'); err.textContent = '';
-                fetch('/api/mobile/auth/register-resident', {
+                fetch('{{ route('marketplace.register-resident') }}', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     body: JSON.stringify({
                         name: form.querySelector('[name=name]').value,
                         country_code: form.querySelector('[name=country_code]').value,
@@ -1028,9 +1184,7 @@
                         const msgs = json.errors ? Object.values(json.errors).flat().join(' | ') : (json.message || 'Registration failed');
                         err.textContent = msgs; err.classList.remove('hidden'); loading = false; return;
                     }
-                    localStorage.setItem('aqari_mobile_token', json.token);
-                    if (json.user?.name) localStorage.setItem('aqari_mobile_user_name', json.user.name);
-                    window.location.href = '/mobile/my-listings/create';
+                    window.location.href = json.redirect || '{{ route('profile.edit') }}';
                 })).catch(() => { err.textContent = '{{ $mktIsAr ? 'حدث خطأ في الاتصال' : 'Connection error. Please try again.' }}'; err.classList.remove('hidden'); loading = false; });
             ">
                 <div class="space-y-4">
@@ -1074,7 +1228,7 @@
 
             <p class="mt-5 text-center text-sm text-gray-500">
                 {{ $mktIsAr ? 'لديك حساب بالفعل؟' : 'Already have an account?' }}
-                <a href="{{ route('login') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">{{ $mktIsAr ? 'تسجيل الدخول' : 'Sign In' }}</a>
+                <a href="{{ route('public.marketplace', ['auth' => 'login']) }}" @click.prevent="$store.auth.register = false; $store.auth.login = true" class="font-semibold text-indigo-600 hover:text-indigo-500">{{ $mktIsAr ? 'تسجيل الدخول' : 'Sign In' }}</a>
             </p>
         </div>
     </div>

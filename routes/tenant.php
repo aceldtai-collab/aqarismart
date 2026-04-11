@@ -41,7 +41,6 @@ Route::domain('{tenant_slug}.' . config('tenancy.base_domain'))
             abort_if(! $tenant, 404);
             return view('tenant.sales-story', ['tenant' => $tenant]);
         })->name('tenant.sales-story');
-        Route::middleware(['guest'])->post('/resident/register', [\App\Http\Controllers\ResidentAuthController::class, 'register'])->name('resident.register');
         Route::middleware(['throttle:10,1'])->post('/inquire', [TenantPublicInquiryController::class, 'store'])->name('tenant.inquire');
         Route::get('/listings/{unit}', [\App\Http\Controllers\UnitController::class, 'tenantShow'])->name('tenant.unit');
 
