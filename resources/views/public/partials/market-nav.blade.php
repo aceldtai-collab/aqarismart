@@ -75,6 +75,13 @@
         ? 'https://ui-avatars.com/api/?name=' . urlencode((string) $authUser->name) . '&background=b6842f&color=fff'
         : null;
 @endphp
+<script>
+    document.addEventListener('alpine:init', () => {
+        if (typeof Alpine !== 'undefined' && Alpine.store('auth') === undefined) {
+            Alpine.store('auth', { login: false, register: false });
+        }
+    });
+</script>
 
 <div x-data="{ mobileNavOpen: false }">
     <header class="absolute inset-x-0 top-0 z-40">
