@@ -23,9 +23,8 @@ echo "  ✓ Maintenance mode ON (bypass: /aqari-deploy-bypass)"
 # ── Step 2: Pull latest code ──
 echo ""
 echo "[2/7] Pulling latest code..."
-git stash --include-untracked
-git pull origin main
-git stash drop || true
+git fetch origin main
+git reset --hard origin/main
 
 # ── Step 3: Update dependencies (if composer.lock changed) ──
 echo ""
