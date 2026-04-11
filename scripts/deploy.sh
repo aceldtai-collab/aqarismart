@@ -25,7 +25,7 @@ echo ""
 echo "[2/7] Pulling latest code..."
 git stash --include-untracked
 git pull origin main
-git stash pop || true
+git stash drop || true
 
 # ── Step 3: Update dependencies (if composer.lock changed) ──
 echo ""
