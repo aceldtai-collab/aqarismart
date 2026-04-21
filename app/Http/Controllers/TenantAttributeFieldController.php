@@ -81,10 +81,11 @@ class TenantAttributeFieldController extends Controller
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute created successfully'));
     }
 
-    public function edit(AttributeField $customAttribute): View
+    public function edit(string $customAttribute): View
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
+        $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         $subcategories = Subcategory::orderBy('name')->get();
@@ -94,10 +95,11 @@ class TenantAttributeFieldController extends Controller
         return view('custom-attributes.edit', compact('customAttribute', 'subcategories', 'types', 'groups'));
     }
 
-    public function update(Request $request, AttributeField $customAttribute): RedirectResponse
+    public function update(Request $request, string $customAttribute): RedirectResponse
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
+        $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         $data = $request->validate([
@@ -123,10 +125,11 @@ class TenantAttributeFieldController extends Controller
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute updated successfully'));
     }
 
-    public function destroy(AttributeField $customAttribute): RedirectResponse
+    public function destroy(string $customAttribute): RedirectResponse
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
+        $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         try {
@@ -138,6 +141,13 @@ class TenantAttributeFieldController extends Controller
         }
 
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute deleted successfully'));
+    }
+
+    protected function resolveCustomAttribute(string $customAttribute, int $tenantId): AttributeField
+    {
+        return AttributeField::query()
+            ->forTenant($tenantId)
+            ->findOrFail($customAttribute);
     }
 
     protected function normalizedTranslations(string $labelEn, ?string $labelAr): array
