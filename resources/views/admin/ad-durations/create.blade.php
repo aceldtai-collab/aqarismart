@@ -1,4 +1,6 @@
-@php($isAr = app()->getLocale() === 'ar')
+@php
+    $isAr = app()->getLocale() === 'ar';
+@endphp
 <x-admin-layout>
     <x-slot name="header">{{ $isAr ? 'مدة إعلان جديدة' : 'New Ad Duration' }}</x-slot>
 
