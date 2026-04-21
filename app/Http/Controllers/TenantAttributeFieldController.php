@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class TenantAttributeFieldController extends Controller
@@ -84,6 +85,11 @@ class TenantAttributeFieldController extends Controller
     public function edit(string $customAttribute): View
     {
         $tenant = $this->tenants->tenant();
+        Log::info('tenant custom attribute edit request', [
+            'requested' => $customAttribute,
+            'tenant_id' => $tenant?->id,
+            'tenant_slug' => $tenant?->slug,
+        ]);
         abort_if(! $tenant, 404);
         $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
@@ -145,7 +151,18 @@ class TenantAttributeFieldController extends Controller
 
     protected function resolveCustomAttribute(string $customAttribute, int $tenantId): AttributeField
     {
-        return AttributeField::query()->findOrFail($customAttribute);
+        $resolved = AttributeField::query()->find($customAttribute);
+
+        Log::info('tenant custom attribute resolve result', [
+            'requested' => $customAttribute,
+            'tenant_id' => $tenantId,
+            'resolved_id' => $resolved?->id,
+            'resolved_tenant_id' => $resolved?->tenant_id,
+        ]);
+
+        abort_if(! $resolved, 404);
+
+        return $resolved;
     }
 
     protected function normalizedTranslations(string $labelEn, ?string $labelAr): array
