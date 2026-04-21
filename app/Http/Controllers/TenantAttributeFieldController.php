@@ -85,7 +85,7 @@ class TenantAttributeFieldController extends Controller
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
-        $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
+        $customAttribute = $this->resolveCustomAttribute($customAttribute);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         $subcategories = Subcategory::orderBy('name')->get();
@@ -99,7 +99,7 @@ class TenantAttributeFieldController extends Controller
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
-        $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
+        $customAttribute = $this->resolveCustomAttribute($customAttribute);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         $data = $request->validate([
@@ -129,7 +129,7 @@ class TenantAttributeFieldController extends Controller
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
-        $customAttribute = $this->resolveCustomAttribute($customAttribute, $tenant->id);
+        $customAttribute = $this->resolveCustomAttribute($customAttribute);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         try {
@@ -143,7 +143,7 @@ class TenantAttributeFieldController extends Controller
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute deleted successfully'));
     }
 
-    protected function resolveCustomAttribute(string $customAttribute, int $tenantId): AttributeField
+    protected function resolveCustomAttribute(string $customAttribute): AttributeField
     {
         return AttributeField::query()->findOrFail($customAttribute);
     }
