@@ -6,7 +6,32 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Aqari Smart' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>window.__AQARI_API_BASE = '{{ config("nativephp.remote_api_url", "") }}';</script>
+    <script>window.__AQARI_API_BASE = @json(config('nativephp.remote_api_url') ?: 'https://aqarismart.com');</script>
+    <script>
+        // Override fetch to include cookies for credentialed requests to the API
+        // when the API base is remote and no Authorization header is present.
+        (function() {
+            const _fetch = window.fetch && window.fetch.bind(window);
+            if (! _fetch) return;
+            window.fetch = function(input, init = {}) {
+                try {
+                    const apiBase = window.__AQARI_API_BASE || '';
+                    let url = (typeof input === 'string') ? input : (input && input.url) || '';
+                    if (apiBase && typeof url === 'string' && url.indexOf(apiBase) === 0) {
+                        init = Object.assign({}, init || {});
+                        const headers = (init.headers && typeof init.headers === 'object') ? init.headers : {};
+                        const hasAuth = headers.Authorization || headers.authorization || headers['Authorization'] || headers['authorization'];
+                        if (! hasAuth && !('credentials' in init)) {
+                            init.credentials = 'include';
+                        }
+                    }
+                } catch (e) {
+                    // ignore errors and fall back to native fetch
+                }
+                return _fetch(input, init);
+            };
+        })();
+    </script>
     @stack('head')
     <style>
         [x-cloak]{display:none!important}

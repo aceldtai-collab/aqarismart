@@ -35,10 +35,17 @@ class IdentifyTenant
             $belongs = $user->tenants()->whereKey($tenant->getKey())->exists();
             if (! $belongs) {
                 if ($request->isMethod('get')) {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
-                    $user = null;
+                    // By default the app logged-out users when they navigated to a tenant
+                    // they did not belong to. To allow preserving logged-in state
+                    // across tenant subdomains (read-only browsing), set
+                    // TENANCY_PRESERVE_AUTH_ON_SWITCH=true in the environment.
+                    $preserve = (bool) env('TENANCY_PRESERVE_AUTH_ON_SWITCH', false);
+                    if (! $preserve) {
+                        Auth::logout();
+                        $request->session()->invalidate();
+                        $request->session()->regenerateToken();
+                        $user = null;
+                    }
                 } else {
                     abort(403, 'You do not have access to this tenant.');
                 }

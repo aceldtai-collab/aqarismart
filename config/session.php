@@ -2,6 +2,21 @@
 
 use Illuminate\Support\Str;
 
+// Compute a sensible default session cookie domain when not explicitly set.
+// If TENANCY_BASE_DOMAIN or APP_URL points to a non-local host, default to
+// the top-level domain prefixed with a dot so the cookie is available to all
+// tenant subdomains (e.g. .aqarismart.com). For local hosts (localhost, 127.0.0.1)
+// we leave it null so browser behavior remains predictable during development.
+$computedSessionDomain = env('SESSION_DOMAIN', null);
+if (is_null($computedSessionDomain)) {
+    $baseDomain = env('TENANCY_BASE_DOMAIN', parse_url(env('APP_URL', ''), PHP_URL_HOST) ?: null);
+    if ($baseDomain && ! in_array($baseDomain, ['127.0.0.1', 'localhost'], true)) {
+        $computedSessionDomain = '.'.preg_replace('/^www\\./', '', $baseDomain);
+    } else {
+        $computedSessionDomain = null;
+    }
+}
+
 return [
 
     /*
@@ -156,7 +171,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => $computedSessionDomain,
 
     /*
     |--------------------------------------------------------------------------

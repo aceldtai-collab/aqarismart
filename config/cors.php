@@ -18,7 +18,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // Allow origins can be configured via CORS_ALLOWED_ORIGINS (comma-separated).
+    // Default to the APP_URL host to be safe in production.
+    'allowed_origins' => array_filter(array_map('trim', explode(',', env('CORS_ALLOWED_ORIGINS', env('APP_URL', 'https://aqarismart.com'))))),
 
     'allowed_origins_patterns' => [],
 
@@ -28,6 +30,8 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    // Enable credentials so browsers and WebViews can send cookies. When true,
+    // ensure CORS_ALLOWED_ORIGINS is not '*' and lists explicit origins.
+    'supports_credentials' => (bool) env('CORS_SUPPORTS_CREDENTIALS', true),
 
 ];
