@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AttributeField;
 use App\Models\Subcategory;
 use App\Services\Tenancy\TenantManager;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
 class TenantAttributeFieldController extends Controller
@@ -36,7 +38,7 @@ class TenantAttributeFieldController extends Controller
         abort_if(! $tenant, 404);
 
         $subcategories = Subcategory::orderBy('name')->get();
-        $types = ['bool', 'int', 'decimal', 'string', 'enum'];
+        $types = ['bool', 'int', 'decimal', 'string', 'enum', 'multi_enum', 'date', 'json'];
         $groups = ['Basics', 'Comfort', 'Building', 'Utilities', 'Extras', 'Luxury', 'Outdoor', 'Features'];
 
         return view('custom-attributes.create', compact('subcategories', 'types', 'groups'));
@@ -51,7 +53,7 @@ class TenantAttributeFieldController extends Controller
             'subcategory_id' => ['required', 'exists:subcategories,id'],
             'label_en' => ['required', 'string', 'max:255'],
             'label_ar' => ['nullable', 'string', 'max:255'],
-            'type' => ['required', 'in:bool,int,decimal,string,enum'],
+            'type' => ['required', 'in:bool,int,decimal,string,enum,multi_enum,date,json'],
             'group' => ['required', 'string', 'max:255'],
             'options' => ['nullable', 'array'],
             'unit' => ['nullable', 'string', 'max:50'],
@@ -64,10 +66,7 @@ class TenantAttributeFieldController extends Controller
             'subcategory_id' => $data['subcategory_id'],
             'key' => $key,
             'label' => $data['label_en'],
-            'label_translations' => [
-                'en' => $data['label_en'],
-                'ar' => $data['label_ar'] ?? null,
-            ],
+            'label_translations' => $this->normalizedTranslations($data['label_en'], $data['label_ar'] ?? null),
             'type' => $data['type'],
             'required' => false,
             'searchable' => false,
@@ -75,7 +74,7 @@ class TenantAttributeFieldController extends Controller
             'promoted' => false,
             'group' => $data['group'],
             'sort' => 500,
-            'options' => $data['options'] ?? null,
+            'options' => $this->normalizedOptions($data['options'] ?? null, $data['type']),
             'unit' => $data['unit'] ?? null,
         ]);
 
@@ -89,7 +88,7 @@ class TenantAttributeFieldController extends Controller
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         $subcategories = Subcategory::orderBy('name')->get();
-        $types = ['bool', 'int', 'decimal', 'string', 'enum'];
+        $types = ['bool', 'int', 'decimal', 'string', 'enum', 'multi_enum', 'date', 'json'];
         $groups = ['Basics', 'Comfort', 'Building', 'Utilities', 'Extras', 'Luxury', 'Outdoor', 'Features'];
 
         return view('custom-attributes.edit', compact('customAttribute', 'subcategories', 'types', 'groups'));
@@ -105,7 +104,7 @@ class TenantAttributeFieldController extends Controller
             'subcategory_id' => ['required', 'exists:subcategories,id'],
             'label_en' => ['required', 'string', 'max:255'],
             'label_ar' => ['nullable', 'string', 'max:255'],
-            'type' => ['required', 'in:bool,int,decimal,string,enum'],
+            'type' => ['required', 'in:bool,int,decimal,string,enum,multi_enum,date,json'],
             'group' => ['required', 'string', 'max:255'],
             'options' => ['nullable', 'array'],
             'unit' => ['nullable', 'string', 'max:50'],
@@ -114,13 +113,10 @@ class TenantAttributeFieldController extends Controller
         $customAttribute->update([
             'subcategory_id' => $data['subcategory_id'],
             'label' => $data['label_en'],
-            'label_translations' => [
-                'en' => $data['label_en'],
-                'ar' => $data['label_ar'] ?? null,
-            ],
+            'label_translations' => $this->normalizedTranslations($data['label_en'], $data['label_ar'] ?? null),
             'type' => $data['type'],
             'group' => $data['group'],
-            'options' => $data['options'] ?? null,
+            'options' => $this->normalizedOptions($data['options'] ?? null, $data['type']),
             'unit' => $data['unit'] ?? null,
         ]);
 
@@ -133,8 +129,46 @@ class TenantAttributeFieldController extends Controller
         abort_if(! $tenant, 404);
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
-        $customAttribute->delete();
+        try {
+            $customAttribute->delete();
+        } catch (QueryException $exception) {
+            return redirect()
+                ->route('custom-attributes.index')
+                ->with('error', __('This attribute is still in use by unit records and cannot be deleted yet.'));
+        }
 
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute deleted successfully'));
+    }
+
+    protected function normalizedTranslations(string $labelEn, ?string $labelAr): array
+    {
+        return array_filter([
+            'en' => $labelEn,
+            'ar' => $labelAr,
+        ], fn ($value) => filled($value));
+    }
+
+    protected function normalizedOptions(?array $options, string $type): ?array
+    {
+        if (! in_array($type, ['enum', 'multi_enum'], true)) {
+            return null;
+        }
+
+        $normalized = collect($options ?? [])
+            ->mapWithKeys(function ($value, $key) {
+                $optionKey = trim((string) $key);
+                $optionValue = is_array($value)
+                    ? trim((string) Arr::first($value))
+                    : trim((string) $value);
+
+                if ($optionKey === '' || $optionValue === '') {
+                    return [];
+                }
+
+                return [$optionKey => $optionValue];
+            })
+            ->all();
+
+        return $normalized !== [] ? $normalized : null;
     }
 }

@@ -8,7 +8,7 @@
             ? $customAttribute->options
             : [];
     }
-    $isEnum = old('type', $customAttribute->type) === 'enum';
+    $isEnum = in_array(old('type', $customAttribute->type), ['enum', 'multi_enum'], true);
 @endphp
 
 <x-app-layout>
@@ -59,6 +59,9 @@
                             <option value="decimal" @selected(old('type', $customAttribute->type) == 'decimal')>{{ __('Decimal Number') }}</option>
                             <option value="string" @selected(old('type', $customAttribute->type) == 'string')>{{ __('Text') }}</option>
                             <option value="enum" @selected(old('type', $customAttribute->type) == 'enum')>{{ __('Dropdown List') }}</option>
+                            <option value="multi_enum" @selected(old('type', $customAttribute->type) == 'multi_enum')>{{ __('Multiple Choice') }}</option>
+                            <option value="date" @selected(old('type', $customAttribute->type) == 'date')>{{ __('Date') }}</option>
+                            <option value="json" @selected(old('type', $customAttribute->type) == 'json')>{{ __('Flexible Data') }}</option>
                         </select>
                         <x-input-error :messages="$errors->get('type')" class="mt-2" />
                     </div>
@@ -121,7 +124,7 @@
 
 <script>
 function toggleOptions(type) {
-    document.getElementById('options-section').classList.toggle('hidden', type !== 'enum');
+    document.getElementById('options-section').classList.toggle('hidden', !['enum', 'multi_enum'].includes(type));
 }
 
 function addOption() {

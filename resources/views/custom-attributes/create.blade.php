@@ -48,6 +48,9 @@
                             <option value="decimal" @selected(old('type') == 'decimal')>{{ __('Decimal Number') }}</option>
                             <option value="string" @selected(old('type') == 'string')>{{ __('Text') }}</option>
                             <option value="enum" @selected(old('type') == 'enum')>{{ __('Dropdown List') }}</option>
+                            <option value="multi_enum" @selected(old('type') == 'multi_enum')>{{ __('Multiple Choice') }}</option>
+                            <option value="date" @selected(old('type') == 'date')>{{ __('Date') }}</option>
+                            <option value="json" @selected(old('type') == 'json')>{{ __('Flexible Data') }}</option>
                         </select>
                         <x-input-error :messages="$errors->get('type')" class="mt-2" />
                     </div>
@@ -72,7 +75,7 @@
                 </div>
 
                 {{-- Dropdown options (shown only for enum type) --}}
-                <div id="options-section" class="{{ old('type') === 'enum' ? '' : 'hidden' }}">
+                <div id="options-section" class="{{ in_array(old('type'), ['enum', 'multi_enum'], true) ? '' : 'hidden' }}">
                     <label class="block text-sm font-medium text-slate-700 mb-2">{{ __('Dropdown Options') }} <span class="text-red-500">*</span></label>
                     <div id="options-container" class="space-y-2">
                         <div class="flex gap-2">
@@ -101,7 +104,7 @@
 
 <script>
 function toggleOptions(type) {
-    document.getElementById('options-section').classList.toggle('hidden', type !== 'enum');
+    document.getElementById('options-section').classList.toggle('hidden', !['enum', 'multi_enum'].includes(type));
 }
 
 function addOption() {
