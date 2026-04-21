@@ -31,7 +31,7 @@
                     <p class="mt-2 text-slate-600">{{ __('Manage your rental units, track availability and pricing') }}</p>
                 </div>
                 @can('create', App\Models\Unit::class)
-                    <a href="{{ route('units.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all shadow-sm">
+                    <a href="{{ route('units.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-sm font-semibold rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>

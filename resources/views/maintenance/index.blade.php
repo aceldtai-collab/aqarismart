@@ -17,7 +17,7 @@
                     <p class="mt-2 text-slate-600">{{ __('Track requests, assignments, and resolution status') }}</p>
                 </div>
                 @can('create', App\Models\MaintenanceRequest::class)
-                    <a href="{{ route('maintenance.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all shadow-sm">
+                    <a href="{{ route('maintenance.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-sm font-semibold rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -69,7 +69,7 @@
                             </select>
                         </div>
                         <div class="md:col-span-2 flex items-end gap-2">
-                            <button class="inline-flex flex-1 items-center justify-center rounded-lg bg-gray-50 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all">{{ __('Apply Filters') }}</button>
+                            <button class="inline-flex flex-1 items-center justify-center rounded-lg bg-gray-50 px-4 py-2.5 text-sm font-semibold hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all">{{ __('Apply Filters') }}</button>
                             <a href="{{ route('maintenance.index') }}" class="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all">{{ __('Clear') }}</a>
                         </div>
                     </form>
@@ -170,7 +170,7 @@
                                         <h3 class="mt-4 text-lg font-semibold text-slate-900">{{ __('No maintenance requests yet') }}</h3>
                                         <p class="mt-2 text-sm text-slate-600 max-w-sm mx-auto">{{ __('Track and manage maintenance requests for your properties.') }}</p>
                                         @can('create', App\Models\MaintenanceRequest::class)
-                                            <a href="{{ route('maintenance.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
+                                            <a href="{{ route('maintenance.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m-6 0H6"></path>
                                                 </svg>

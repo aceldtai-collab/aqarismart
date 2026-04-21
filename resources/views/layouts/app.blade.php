@@ -185,8 +185,8 @@
                                         : (Route::has('admin.settings.landing.edit') ? route('admin.settings.landing.edit') : null);
                                 @endphp
                                 <div class="flex items-center rounded-full border border-slate-200 bg-white p-0.5 text-xs font-semibold text-slate-500">
-                                    <a href="{{ $urlEn }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='en' ? 'bg-gray-50 text-white' : 'hover:bg-slate-100' }}">EN</a>
-                                    <a href="{{ $urlAr }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='ar' ? 'bg-gray-50 text-white' : 'hover:bg-slate-100' }}">ع</a>
+                                    <a href="{{ $urlEn }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='en' ? 'bg-gray-50 ' : 'hover:bg-slate-100' }}">EN</a>
+                                    <a href="{{ $urlAr }}" class="px-2 py-1 rounded-full transition {{ $currentLang==='ar' ? 'bg-gray-50 ' : 'hover:bg-slate-100' }}">ع</a>
                                 </div>
                                 @auth
                                     <div x-data="{ open: false }" @click.outside="open = false" class="relative">
@@ -273,8 +273,8 @@
                             $urlAr = request()->fullUrlWithQuery([$langParam => 'ar']);
                         @endphp
                         <div class="flex items-center rounded-full border {{ ($useBrandHeader ?? false) ? 'border-white/30' : 'border-gray-300' }} p-0.5" title="{{ __('Switch language') }}" aria-label="{{ __('Switch language') }}">
-                            <a href="{{ $urlEn }}" class="px-2 py-1 text-xs rounded-full transition {{ $currentLang==='en' ? (($useBrandHeader ?? false) ? 'bg-white/20 text-white' : 'bg-indigo-600 text-white') : (($useBrandHeader ?? false) ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-50') }}">EN</a>
-                            <a href="{{ $urlAr }}" class="px-2 py-1 text-xs rounded-full transition {{ $currentLang==='ar' ? (($useBrandHeader ?? false) ? 'bg-white/20 text-white' : 'bg-indigo-600 text-white') : (($useBrandHeader ?? false) ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-50') }}">ع</a>
+                            <a href="{{ $urlEn }}" class="px-2 py-1 text-xs rounded-full transition {{ $currentLang==='en' ? (($useBrandHeader ?? false) ? 'bg-white/20 ' : 'bg-indigo-600 ') : (($useBrandHeader ?? false) ? ' hover:bg-white/10' : 'text-gray-700 hover:bg-gray-50') }}">EN</a>
+                            <a href="{{ $urlAr }}" class="px-2 py-1 text-xs rounded-full transition {{ $currentLang==='ar' ? (($useBrandHeader ?? false) ? 'bg-white/20 ' : 'bg-indigo-600 ') : (($useBrandHeader ?? false) ? ' hover:bg-white/10' : 'text-gray-700 hover:bg-gray-50') }}">ع</a>
                         </div>
                         @auth
                             @php

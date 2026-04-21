@@ -254,7 +254,7 @@
                             </div>
                             <h4 class="text-lg font-semibold text-slate-900 mb-2">{{ __('No recent alerts yet.') }}</h4>
                             <p class="text-slate-500 mb-4">{{ __('Run daily snapshots to surface portfolio signals.') }}</p>
-                            <a href="{{ route('reports.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-all">
+                            <a href="{{ route('reports.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-sm font-medium rounded-lg hover:bg-slate-800 transition-all">
                                 {{ __('Open Reports') }}
                             </a>
                         </div>

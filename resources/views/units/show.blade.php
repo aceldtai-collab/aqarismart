@@ -26,7 +26,7 @@
     <x-slot name="headerActions">
         <div class="flex items-center gap-2">
             @can('update', $unit)
-                <a href="{{ route('units.edit', $unit) }}" class="inline-flex items-center rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">
+                <a href="{{ route('units.edit', $unit) }}" class="inline-flex items-center rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold hover:bg-slate-800">
                     {{ __('Edit Unit') }}
                 </a>
             @endcan

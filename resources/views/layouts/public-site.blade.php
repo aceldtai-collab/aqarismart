@@ -110,14 +110,14 @@
             <div class="hidden md:flex items-center gap-1">
                 @foreach($nav as $item)
                     @if(($item['variant'] ?? '') === 'button-primary')
-                        <a href="{{ $item['href'] === '/marketplace' ? route('public.marketplace') : ($item['href'] ?? '#') }}" class="ltr:ml-3 rtl:mr-3 px-5 py-2 bg-gray-50 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition">{{ $item['label'] ?? '' }}</a>
+                        <a href="{{ $item['href'] === '/marketplace' ? route('public.marketplace') : ($item['href'] ?? '#') }}" class="ltr:ml-3 rtl:mr-3 px-5 py-2 bg-gray-50 text-sm font-semibold rounded-lg hover:bg-slate-800 transition">{{ $item['label'] ?? '' }}</a>
                     @else
                         <a href="{{ $item['href'] === '/marketplace' ? route('public.marketplace') : ($item['href'] ?? '#') }}" class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 font-medium transition">{{ $item['label'] ?? '' }}</a>
                     @endif
                 @endforeach
                 <div class="ltr:ml-2 rtl:mr-2 flex items-center gap-0.5 rounded-md border border-slate-200 p-0.5 text-xs font-medium">
-                    <a href="{{ $urlEn }}" class="px-2 py-1 rounded transition {{ !$isAr ? 'bg-gray-50 text-white' : 'text-slate-500 hover:bg-slate-50' }}">EN</a>
-                    <a href="{{ $urlAr }}" class="px-2 py-1 rounded transition {{ $isAr ? 'bg-gray-50 text-white' : 'text-slate-500 hover:bg-slate-50' }}">ع</a>
+                    <a href="{{ $urlEn }}" class="px-2 py-1 rounded transition {{ !$isAr ? 'bg-gray-50 ' : 'text-slate-500 hover:bg-slate-50' }}">EN</a>
+                    <a href="{{ $urlAr }}" class="px-2 py-1 rounded transition {{ $isAr ? 'bg-gray-50 ' : 'text-slate-500 hover:bg-slate-50' }}">ع</a>
                 </div>
             </div>
 
@@ -134,8 +134,8 @@
                 <a href="{{ $item['href'] === '/marketplace' ? route('public.marketplace') : ($item['href'] ?? '#') }}" @click="open=false" class="block px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg font-medium">{{ $item['label'] ?? '' }}</a>
             @endforeach
             <div class="flex items-center gap-1 pt-2">
-                <a href="{{ $urlEn }}" class="px-3 py-1.5 rounded-md text-xs font-medium transition {{ !$isAr ? 'bg-gray-50 text-white' : 'text-slate-500 border border-slate-200' }}">EN</a>
-                <a href="{{ $urlAr }}" class="px-3 py-1.5 rounded-md text-xs font-medium transition {{ $isAr ? 'bg-gray-50 text-white' : 'text-slate-500 border border-slate-200' }}">ع</a>
+                <a href="{{ $urlEn }}" class="px-3 py-1.5 rounded-md text-xs font-medium transition {{ !$isAr ? 'bg-gray-50 ' : 'text-slate-500 border border-slate-200' }}">EN</a>
+                <a href="{{ $urlAr }}" class="px-3 py-1.5 rounded-md text-xs font-medium transition {{ $isAr ? 'bg-gray-50 ' : 'text-slate-500 border border-slate-200' }}">ع</a>
             </div>
         </div>
     </div>
