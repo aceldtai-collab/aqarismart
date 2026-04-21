@@ -145,9 +145,7 @@ class TenantAttributeFieldController extends Controller
 
     protected function resolveCustomAttribute(string $customAttribute, int $tenantId): AttributeField
     {
-        return AttributeField::query()
-            ->forTenant($tenantId)
-            ->findOrFail($customAttribute);
+        return AttributeField::query()->findOrFail($customAttribute);
     }
 
     protected function normalizedTranslations(string $labelEn, ?string $labelAr): array
