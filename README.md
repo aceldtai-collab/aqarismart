@@ -52,3 +52,8 @@ VS Code can discover the server from `.vscode/mcp.json`:
 ## Resources
 
 - `browser://pages/{pageId}`
+
+## Deployment Docs
+
+- Local workflow: [LOCAL_SETUP.md](LOCAL_SETUP.md)
+- Production workflow: [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md)

@@ -1,5 +1,9 @@
 # Aqari Smart - Production Readiness Report
 
+This is a historical readiness report, not the operator deployment guide.
+
+Use [LOCAL_SETUP.md](LOCAL_SETUP.md) for local workflow and [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md) for production deploy and reset steps.
+
 Generated: March 12, 2026
 
 ## ✓ Fixed Issues
