@@ -85,7 +85,7 @@ class TenantAttributeFieldController extends Controller
     public function edit(string $customAttribute): View
     {
         $tenant = $this->tenants->tenant();
-        Log::info('tenant custom attribute edit request', [
+        Log::warning('tenant custom attribute edit request', [
             'requested' => $customAttribute,
             'tenant_id' => $tenant?->id,
             'tenant_slug' => $tenant?->slug,
@@ -153,7 +153,7 @@ class TenantAttributeFieldController extends Controller
     {
         $resolved = AttributeField::query()->find($customAttribute);
 
-        Log::info('tenant custom attribute resolve result', [
+        Log::warning('tenant custom attribute resolve result', [
             'requested' => $customAttribute,
             'tenant_id' => $tenantId,
             'resolved_id' => $resolved?->id,
