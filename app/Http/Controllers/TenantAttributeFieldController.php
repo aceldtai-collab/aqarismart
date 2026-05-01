@@ -13,23 +13,98 @@ use Illuminate\View\View;
 
 class TenantAttributeFieldController extends Controller
 {
+    protected array $attributeTypes = ['bool', 'int', 'decimal', 'string', 'enum', 'multi_enum', 'date', 'json'];
+
+    protected array $attributeGroups = [
+        'Basics',
+        'Building',
+        'Comfort',
+        'Condition',
+        'Costs',
+        'Extras',
+        'Features',
+        'Infrastructure',
+        'Interiors',
+        'Land',
+        'Layout',
+        'Location',
+        'Luxury',
+        'Operations',
+        'Outdoor',
+        'Paperwork',
+        'Parking',
+        'Safety',
+        'Security',
+        'Services',
+        'Structure',
+        'Use Case',
+        'Utilities',
+        'Visibility',
+    ];
+
     public function __construct(protected TenantManager $tenants) {}
 
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
 
-        $fields = AttributeField::with('subcategory')
+        $filterKeys = ['q', 'subcategory_id', 'type', 'group'];
+        $sessionKey = 'custom_attributes.filters';
+
+        if ($request->boolean('clear')) {
+            $request->session()->forget($sessionKey);
+
+            return redirect()->route('custom-attributes.index', $request->only('lang'));
+        }
+
+        $rememberedFilters = $request->session()->get($sessionKey, []);
+        if (! $request->hasAny($filterKeys) && ! empty($rememberedFilters)) {
+            return redirect()->route('custom-attributes.index', $request->only('lang') + $rememberedFilters);
+        }
+
+        $filters = [
+            'q' => trim((string) $request->query('q', '')),
+            'subcategory_id' => (int) $request->query('subcategory_id', 0),
+            'type' => trim((string) $request->query('type', '')),
+            'group' => trim((string) $request->query('group', '')),
+        ];
+
+        $activeFilters = array_filter($filters, fn ($value) => filled($value) && $value !== 0);
+        if ($request->hasAny($filterKeys)) {
+            if (empty($activeFilters)) {
+                $request->session()->forget($sessionKey);
+            } else {
+                $request->session()->put($sessionKey, $activeFilters);
+            }
+        }
+
+        $query = AttributeField::with('subcategory')
             ->forTenant($tenant->id)
+            ->when($filters['q'] !== '', function ($query) use ($filters) {
+                $term = $filters['q'];
+
+                $query->where(function ($inner) use ($term) {
+                    $inner->where('label', 'like', "%{$term}%")
+                        ->orWhere('key', 'like', "%{$term}%")
+                        ->orWhere('unit', 'like', "%{$term}%");
+                });
+            })
+            ->when($filters['subcategory_id'] > 0, fn ($query) => $query->where('subcategory_id', $filters['subcategory_id']))
+            ->when($filters['type'] !== '', fn ($query) => $query->where('type', $filters['type']))
+            ->when($filters['group'] !== '', fn ($query) => $query->where('group', $filters['group']))
             ->orderBy('subcategory_id')
             ->orderBy('group')
-            ->orderBy('sort')
-            ->get();
+            ->orderBy('sort');
+
+        $fields = $query->get();
 
         $globalCount = AttributeField::global()->count();
+        $subcategories = Subcategory::orderBy('name')->get();
+        $types = $this->attributeTypes;
+        $groups = $this->attributeGroups;
 
-        return view('custom-attributes.index', compact('fields', 'tenant', 'globalCount'));
+        return view('custom-attributes.index', compact('fields', 'tenant', 'globalCount', 'subcategories', 'types', 'groups', 'filters', 'activeFilters'));
     }
 
     public function create(): View
@@ -38,8 +113,8 @@ class TenantAttributeFieldController extends Controller
         abort_if(! $tenant, 404);
 
         $subcategories = Subcategory::orderBy('name')->get();
-        $types = ['bool', 'int', 'decimal', 'string', 'enum', 'multi_enum', 'date', 'json'];
-        $groups = ['Basics', 'Comfort', 'Building', 'Utilities', 'Extras', 'Luxury', 'Outdoor', 'Features'];
+        $types = $this->attributeTypes;
+        $groups = $this->attributeGroups;
 
         return view('custom-attributes.create', compact('subcategories', 'types', 'groups'));
     }
@@ -89,8 +164,8 @@ class TenantAttributeFieldController extends Controller
         abort_if($customAttribute->tenant_id !== $tenant->id, 403);
 
         $subcategories = Subcategory::orderBy('name')->get();
-        $types = ['bool', 'int', 'decimal', 'string', 'enum', 'multi_enum', 'date', 'json'];
-        $groups = ['Basics', 'Comfort', 'Building', 'Utilities', 'Extras', 'Luxury', 'Outdoor', 'Features'];
+        $types = $this->attributeTypes;
+        $groups = $this->attributeGroups;
 
         return view('custom-attributes.edit', compact('customAttribute', 'subcategories', 'types', 'groups'));
     }

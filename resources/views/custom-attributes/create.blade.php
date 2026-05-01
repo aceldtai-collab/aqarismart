@@ -43,14 +43,9 @@
                         <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Field Type') }} <span class="text-red-500">*</span></label>
                         <select name="type" id="type-select" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" required onchange="toggleOptions(this.value)">
                             <option value="">{{ __('Select Type') }}</option>
-                            <option value="bool" @selected(old('type') == 'bool')>{{ __('Yes / No') }}</option>
-                            <option value="int" @selected(old('type') == 'int')>{{ __('Number') }}</option>
-                            <option value="decimal" @selected(old('type') == 'decimal')>{{ __('Decimal Number') }}</option>
-                            <option value="string" @selected(old('type') == 'string')>{{ __('Text') }}</option>
-                            <option value="enum" @selected(old('type') == 'enum')>{{ __('Dropdown List') }}</option>
-                            <option value="multi_enum" @selected(old('type') == 'multi_enum')>{{ __('Multiple Choice') }}</option>
-                            <option value="date" @selected(old('type') == 'date')>{{ __('Date') }}</option>
-                            <option value="json" @selected(old('type') == 'json')>{{ __('Flexible Data') }}</option>
+                            @foreach($types as $type)
+                                <option value="{{ $type }}" @selected(old('type') == $type)>{{ __("attribute_type_{$type}") }}</option>
+                            @endforeach
                         </select>
                         <x-input-error :messages="$errors->get('type')" class="mt-2" />
                     </div>
@@ -58,7 +53,7 @@
                         <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Group') }} <span class="text-red-500">*</span></label>
                         <select name="group" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" required>
                             @foreach($groups as $group)
-                                <option value="{{ $group }}" @selected(old('group') == $group)>{{ __($group) }}</option>
+                                <option value="{{ $group }}" @selected(old('group') == $group)>{{ __('attribute_group_' . str($group)->snake()) }}</option>
                             @endforeach
                         </select>
                         <p class="mt-1 text-xs text-slate-400">{{ __('How to group this attribute in the unit form.') }}</p>

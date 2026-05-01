@@ -1,6 +1,4 @@
-@php
-    $isAr = app()->getLocale() === 'ar';
-@endphp
+@php($isAr = app()->getLocale() === 'ar')
 <x-admin-layout>
     <x-slot name="header">{{ $isAr ? 'إعلانات المالكين' : 'Resident Listings' }}</x-slot>
     <x-slot name="subtitle">{{ $isAr ? 'مراجعة وإدارة إعلانات العقارات المنشورة من المالكين.' : 'Review and moderate resident-posted property listings.' }}</x-slot>

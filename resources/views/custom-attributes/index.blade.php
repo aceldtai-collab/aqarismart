@@ -1,20 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
+        <div class="text-right">
             <h2 class="text-lg font-semibold text-slate-900">{{ __('Custom Attributes') }}</h2>
             <p class="mt-1 text-xs text-slate-500">{{ __('Add your own custom fields to unit listings.') }}</p>
         </div>
     </x-slot>
-    <x-slot name="headerActions">
-        <a href="{{ route('custom-attributes.create', request()->only('lang')) }}" class="inline-flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold hover:bg-slate-800">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd"/></svg>
-            <span>{{ __('Add Attribute') }}</span>
-        </a>
-    </x-slot>
-
     <div class="py-8">
         <div class="max-w-5xl mx-auto space-y-6 sm:px-6 lg:px-8">
             <x-flash-status />
+
+            <div class="flex justify-end">
+                <a href="{{ route('custom-attributes.create', request()->only('lang')) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-sm font-semibold rounded-lg hover:bg-slate-800 transition-all shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd"/></svg>
+                    <span>{{ __('Add Attribute') }}</span>
+                </a>
+            </div>
 
             {{-- Info banner --}}
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
@@ -25,7 +25,53 @@
                 </div>
             </div>
 
-            @if($fields->isEmpty())
+            <form method="GET" action="{{ route('custom-attributes.index') }}" class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-4">
+                @if(request('lang'))
+                    <input type="hidden" name="lang" value="{{ request('lang') }}">
+                @endif
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{{ __('Search') }}</label>
+                        <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="{{ __('Name, key, or unit') }}" class="w-full rounded-lg border-slate-300 text-sm focus:border-slate-900 focus:ring-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{{ __('Category') }}</label>
+                        <select name="subcategory_id" class="w-full rounded-lg border-slate-300 text-sm focus:border-slate-900 focus:ring-slate-900">
+                            <option value="">{{ __('All Categories') }}</option>
+                            @foreach($subcategories as $subcategory)
+                                <option value="{{ $subcategory->id }}" @selected((int) ($filters['subcategory_id'] ?? 0) === (int) $subcategory->id)>{{ $subcategory->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{{ __('Type') }}</label>
+                        <select name="type" class="w-full rounded-lg border-slate-300 text-sm focus:border-slate-900 focus:ring-slate-900">
+                            <option value="">{{ __('All Types') }}</option>
+                            @foreach($types as $type)
+                                <option value="{{ $type }}" @selected(($filters['type'] ?? '') === $type)>{{ __("attribute_type_{$type}") }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{{ __('Group') }}</label>
+                        <select name="group" class="w-full rounded-lg border-slate-300 text-sm focus:border-slate-900 focus:ring-slate-900">
+                            <option value="">{{ __('All Groups') }}</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group }}" @selected(($filters['group'] ?? '') === $group)>{{ __('attribute_group_' . str($group)->snake()) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">{{ __('Apply Filters') }}</button>
+                    <a href="{{ route('custom-attributes.index', request()->only('lang') + ['clear' => 1]) }}" class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">{{ __('Clear') }}</a>
+                    @if(!empty($activeFilters))
+                        <span class="text-xs text-slate-500">{{ __('Filters remembered') }}</span>
+                    @endif
+                </div>
+            </form>
+
+            @if($fields->isEmpty() && empty($activeFilters))
                 <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-12 text-center">
                     <div class="mx-auto w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                         <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,6 +84,11 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                         {{ __('Create First Attribute') }}
                     </a>
+                </div>
+            @elseif($fields->isEmpty())
+                <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-10 text-center">
+                    <h3 class="text-lg font-semibold text-slate-900">{{ __('No matching attributes') }}</h3>
+                    <p class="mt-2 text-sm text-slate-500">{{ __('Adjust or clear the filters to see more custom attributes.') }}</p>
                 </div>
             @else
                 <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
@@ -96,16 +147,19 @@
                                                     @default bg-slate-100 text-slate-700
                                                 @endswitch">
                                                 @switch($field->type)
-                                                    @case('bool') {{ __('Yes/No') }} @break
-                                                    @case('int') {{ __('Number') }} @break
-                                                    @case('decimal') {{ __('Decimal') }} @break
-                                                    @case('string') {{ __('Text') }} @break
-                                                    @case('enum') {{ __('Dropdown') }} @break
+                                                    @case('bool') {{ __('attribute_type_bool') }} @break
+                                                    @case('int') {{ __('attribute_type_int') }} @break
+                                                    @case('decimal') {{ __('attribute_type_decimal') }} @break
+                                                    @case('string') {{ __('attribute_type_string') }} @break
+                                                    @case('enum') {{ __('attribute_type_enum') }} @break
+                                                    @case('multi_enum') {{ __('attribute_type_multi_enum') }} @break
+                                                    @case('date') {{ __('attribute_type_date') }} @break
+                                                    @case('json') {{ __('attribute_type_json') }} @break
                                                     @default {{ $field->type }}
                                                 @endswitch
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-slate-600">{{ __($field->group) }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">{{ __('attribute_group_' . str($field->group)->snake()) }}</td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center justify-end gap-2">
                                                 <a href="{{ route('custom-attributes.edit', ['customAttribute' => $field] + request()->only('lang')) }}" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">

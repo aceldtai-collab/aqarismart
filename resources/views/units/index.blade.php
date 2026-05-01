@@ -5,7 +5,6 @@
             <p class="mt-1 text-xs text-slate-500">{{ __('Manage availability, pricing, and unit-level assignments.') }}</p>
         </div>
     </x-slot>
-
     @php
         $statusPalette = config('status.palette', [
             'success' => ['text' => 'text-emerald-700', 'bg' => 'bg-emerald-50'],
@@ -18,6 +17,7 @@
             'occupied' => 'success',
             'sold' => 'info',
         ];
+        $activeFilterKeys = ['q', 'status', 'listing_type', 'agent_id', 'furnished', 'location', 'area', 'owner_name', 'owner_phone', 'min_price', 'max_price'];
     @endphp
 
     <div class="py-8">
@@ -53,7 +53,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                                 </svg>
                             </div>
-                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center" style="display: {{ request()->hasAny(['q', 'status', 'listing_type', 'furnished', 'location', 'area', 'owner_name', 'owner_phone', 'min_price', 'max_price']) ? 'flex' : 'none' }}">
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center" style="display: {{ request()->hasAny($activeFilterKeys) ? 'flex' : 'none' }}">
                                 <div class="w-2 h-2 bg-white rounded-full"></div>
                             </div>
                         </div>
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200" style="display: {{ request()->hasAny(['q', 'status', 'listing_type', 'furnished', 'location', 'area', 'owner_name', 'owner_phone', 'min_price', 'max_price']) ? 'flex' : 'none' }}">
+                        <div class="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200" style="display: {{ request()->hasAny($activeFilterKeys) ? 'flex' : 'none' }}">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -132,6 +132,24 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            @if(! auth()->user()?->agent_id && $agents->isNotEmpty())
+                                <!-- Agent -->
+                                <div>
+                                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+                                        <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-6a4 4 0 11-8 0 4 4 0 018 0zm8 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                        </svg>
+                                        {{ __('Agent') }}
+                                    </label>
+                                    <select name="agent_id" class="w-full px-4 py-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:brand-border focus:brand-border bg-white shadow-sm transition-all hover:border-slate-400">
+                                        <option value="">{{ __('All Agents') }}</option>
+                                        @foreach($agents as $id => $name)
+                                            <option value="{{ $id }}" {{ (int) ($agent_id ?? request('agent_id')) === (int) $id ? 'selected' : '' }}>{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
                             
                             <!-- Furnished Status -->
                             <div>
@@ -243,7 +261,7 @@
                             </div>
                             
                             <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 text-sm font-medium rounded-lg border border-green-200" style="display: {{ request()->hasAny(['q', 'status', 'listing_type', 'furnished', 'location', 'area', 'owner_name', 'owner_phone', 'min_price', 'max_price']) ? 'flex' : 'none' }}">
+                                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 text-sm font-medium rounded-lg border border-green-200" style="display: {{ request()->hasAny($activeFilterKeys) ? 'flex' : 'none' }}">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
