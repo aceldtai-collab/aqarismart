@@ -62,6 +62,7 @@ class MobileAuthController extends Controller
         $tenant->users()->syncWithoutDetaching([$user->id => ['role' => 'owner']]);
 
         Artisan::call('permissions:sync', ['--tenant' => $tenant->id]);
+        Artisan::call('attributes:sync-tenants', ['--tenant' => $tenant->id]);
 
         if (class_exists(PermissionRegistrar::class)) {
             app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);

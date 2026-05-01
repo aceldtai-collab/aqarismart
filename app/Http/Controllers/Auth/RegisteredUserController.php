@@ -68,6 +68,9 @@ class RegisteredUserController extends Controller
         // Sync default permissions to system roles for this new tenant
         \Illuminate\Support\Facades\Artisan::call('permissions:sync', ['--tenant' => $tenant->id]);
 
+        // Provision global attribute fields for the new tenant
+        \Illuminate\Support\Facades\Artisan::call('attributes:sync-tenants', ['--tenant' => $tenant->id]);
+
         // Assign Spatie owner role
         if (class_exists(\Spatie\Permission\PermissionRegistrar::class)) {
             app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
