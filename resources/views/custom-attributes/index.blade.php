@@ -91,97 +91,111 @@
                     <p class="mt-2 text-sm text-slate-500">{{ __('Adjust or clear the filters to see more custom attributes.') }}</p>
                 </div>
             @else
-                <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-slate-200/70">
-                            <thead class="bg-gradient-to-r from-slate-50 to-slate-100/50">
-                                <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Name') }}</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Category') }}</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Type') }}</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Group') }}</th>
-                                    <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Actions') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @foreach($fields as $field)
-                                    <tr class="hover:bg-slate-50/50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0
+                <form method="POST" action="{{ route('custom-attributes.update-sort', request()->only('lang')) }}" id="sort-form">
+                    @csrf
+                    @method('PATCH')
+                    <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-slate-200/70">
+                                <thead class="bg-gradient-to-r from-slate-50 to-slate-100/50">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Name') }}</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Category') }}</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Type') }}</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Group') }}</th>
+                                        <th class="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-600 w-20">{{ __('Order') }}</th>
+                                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">{{ __('Actions') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @foreach($fields as $field)
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0
+                                                        @switch($field->type)
+                                                            @case('bool') bg-green-100 @break
+                                                            @case('enum') bg-purple-100 @break
+                                                            @case('int') @case('decimal') bg-blue-100 @break
+                                                            @default bg-slate-100
+                                                        @endswitch">
+                                                        @switch($field->type)
+                                                            @case('bool')
+                                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                                @break
+                                                            @case('enum')
+                                                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                                                                @break
+                                                            @case('int') @case('decimal')
+                                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+                                                                @break
+                                                            @default
+                                                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                                                        @endswitch
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-medium text-slate-900">{{ $field->translated_label }}</p>
+                                                        @if($field->unit)
+                                                            <p class="text-xs text-slate-400">{{ $field->unit }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-slate-600">{{ $field->subcategory?->name ?? '—' }}</td>
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                                     @switch($field->type)
-                                                        @case('bool') bg-green-100 @break
-                                                        @case('enum') bg-purple-100 @break
-                                                        @case('int') @case('decimal') bg-blue-100 @break
-                                                        @default bg-slate-100
+                                                        @case('bool') bg-green-100 text-green-700 @break
+                                                        @case('enum') bg-purple-100 text-purple-700 @break
+                                                        @case('int') @case('decimal') bg-blue-100 text-blue-700 @break
+                                                        @default bg-slate-100 text-slate-700
                                                     @endswitch">
                                                     @switch($field->type)
-                                                        @case('bool')
-                                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                            @break
-                                                        @case('enum')
-                                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                                                            @break
-                                                        @case('int') @case('decimal')
-                                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
-                                                            @break
-                                                        @default
-                                                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                                                        @case('bool') {{ __('attribute_type_bool') }} @break
+                                                        @case('int') {{ __('attribute_type_int') }} @break
+                                                        @case('decimal') {{ __('attribute_type_decimal') }} @break
+                                                        @case('string') {{ __('attribute_type_string') }} @break
+                                                        @case('enum') {{ __('attribute_type_enum') }} @break
+                                                        @case('multi_enum') {{ __('attribute_type_multi_enum') }} @break
+                                                        @case('date') {{ __('attribute_type_date') }} @break
+                                                        @case('json') {{ __('attribute_type_json') }} @break
+                                                        @default {{ $field->type }}
                                                     @endswitch
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-slate-600">{{ __('attribute_group_' . str($field->group)->snake()) }}</td>
+                                            <td class="px-4 py-4 text-center">
+                                                <input type="number" name="sorts[{{ $field->id }}]" value="{{ $field->sort }}" min="0" max="9999" class="w-16 text-center border border-slate-300 rounded-lg py-1.5 px-1 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" onchange="document.getElementById('save-sort-btn').classList.remove('hidden')">
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <a href="{{ route('custom-attributes.edit', ['customAttribute' => $field] + request()->only('lang')) }}" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                        {{ __('Edit') }}
+                                                    </a>
+                                                    <form method="POST" action="{{ route('custom-attributes.destroy', ['customAttribute' => $field] + request()->only('lang')) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this attribute?') }}')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                            {{ __('Delete') }}
+                                                        </button>
+                                                    </form>
                                                 </div>
-                                                <div>
-                                                    <p class="font-medium text-slate-900">{{ $field->translated_label }}</p>
-                                                    @if($field->unit)
-                                                        <p class="text-xs text-slate-400">{{ $field->unit }}</p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-slate-600">{{ $field->subcategory?->name ?? '—' }}</td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                @switch($field->type)
-                                                    @case('bool') bg-green-100 text-green-700 @break
-                                                    @case('enum') bg-purple-100 text-purple-700 @break
-                                                    @case('int') @case('decimal') bg-blue-100 text-blue-700 @break
-                                                    @default bg-slate-100 text-slate-700
-                                                @endswitch">
-                                                @switch($field->type)
-                                                    @case('bool') {{ __('attribute_type_bool') }} @break
-                                                    @case('int') {{ __('attribute_type_int') }} @break
-                                                    @case('decimal') {{ __('attribute_type_decimal') }} @break
-                                                    @case('string') {{ __('attribute_type_string') }} @break
-                                                    @case('enum') {{ __('attribute_type_enum') }} @break
-                                                    @case('multi_enum') {{ __('attribute_type_multi_enum') }} @break
-                                                    @case('date') {{ __('attribute_type_date') }} @break
-                                                    @case('json') {{ __('attribute_type_json') }} @break
-                                                    @default {{ $field->type }}
-                                                @endswitch
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-slate-600">{{ __('attribute_group_' . str($field->group)->snake()) }}</td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <a href="{{ route('custom-attributes.edit', ['customAttribute' => $field] + request()->only('lang')) }}" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                                    {{ __('Edit') }}
-                                                </a>
-                                                <form method="POST" action="{{ route('custom-attributes.destroy', ['customAttribute' => $field] + request()->only('lang')) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this attribute?') }}')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                        {{ __('Delete') }}
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="save-sort-btn" class="hidden border-t border-slate-200 p-4 bg-slate-50 flex justify-end">
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                {{ __('Save Order') }}
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
             @endif
         </div>
     </div>

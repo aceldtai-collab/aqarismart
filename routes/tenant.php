@@ -161,6 +161,8 @@ Route::domain('{tenant_slug}.' . config('tenancy.base_domain'))
                     ->parameters(['custom-attributes' => 'customAttribute'])
                     ->except(['show'])
                     ->names('custom-attributes');
+                Route::patch('custom-attributes-sort', [\App\Http\Controllers\TenantAttributeFieldController::class, 'updateSort'])
+                    ->name('custom-attributes.update-sort');
             });
 
             // Tenant settings

@@ -6,6 +6,7 @@ use App\Models\AttributeField;
 use App\Models\Subcategory;
 use App\Services\Tenancy\TenantManager;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -112,7 +113,7 @@ class TenantAttributeFieldController extends Controller
         $tenant = $this->tenants->tenant();
         abort_if(! $tenant, 404);
 
-        $subcategories = Subcategory::orderBy('name')->get();
+        $subcategories = Subcategory::with('category')->orderBy('category_id')->orderBy('name')->get();
         $types = $this->attributeTypes;
         $groups = $this->attributeGroups;
 
@@ -136,22 +137,40 @@ class TenantAttributeFieldController extends Controller
 
         $key = \Illuminate\Support\Str::slug($data['label_en'], '_') . '_' . $tenant->id;
 
-        AttributeField::create([
-            'tenant_id' => $tenant->id,
-            'subcategory_id' => $data['subcategory_id'],
-            'key' => $key,
-            'label' => $data['label_en'],
-            'label_translations' => $this->normalizedTranslations($data['label_en'], $data['label_ar'] ?? null),
-            'type' => $data['type'],
-            'required' => false,
-            'searchable' => false,
-            'facetable' => false,
-            'promoted' => false,
-            'group' => $data['group'],
-            'sort' => 500,
-            'options' => $this->normalizedOptions($data['options'] ?? null, $data['type']),
-            'unit' => $data['unit'] ?? null,
-        ]);
+        $existing = AttributeField::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('subcategory_id', $data['subcategory_id'])
+            ->where('key', $key)
+            ->exists();
+
+        if ($existing) {
+            return redirect()->back()->withInput()->withErrors([
+                'label_en' => __('An attribute with this name already exists for the selected category.'),
+            ]);
+        }
+
+        try {
+            AttributeField::create([
+                'tenant_id' => $tenant->id,
+                'subcategory_id' => $data['subcategory_id'],
+                'key' => $key,
+                'label' => $data['label_en'],
+                'label_translations' => $this->normalizedTranslations($data['label_en'], $data['label_ar'] ?? null),
+                'type' => $data['type'],
+                'required' => false,
+                'searchable' => false,
+                'facetable' => false,
+                'promoted' => false,
+                'group' => $data['group'],
+                'sort' => 500,
+                'options' => $this->normalizedOptions($data['options'] ?? null, $data['type']),
+                'unit' => $data['unit'] ?? null,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            return redirect()->back()->withInput()->withErrors([
+                'label_en' => __('An attribute with this name already exists for the selected category.'),
+            ]);
+        }
 
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute created successfully'));
     }
@@ -216,6 +235,26 @@ class TenantAttributeFieldController extends Controller
         }
 
         return redirect()->route('custom-attributes.index')->with('status', __('Attribute deleted successfully'));
+    }
+
+    public function updateSort(Request $request): RedirectResponse
+    {
+        $tenant = $this->tenants->tenant();
+        abort_if(! $tenant, 404);
+
+        $data = $request->validate([
+            'sorts' => ['required', 'array'],
+            'sorts.*' => ['required', 'integer', 'min:0', 'max:9999'],
+        ]);
+
+        foreach ($data['sorts'] as $fieldId => $sortValue) {
+            AttributeField::query()
+                ->where('id', $fieldId)
+                ->where('tenant_id', $tenant->id)
+                ->update(['sort' => $sortValue]);
+        }
+
+        return redirect()->route('custom-attributes.index')->with('status', __('Sort order updated successfully'));
     }
 
     protected function resolveCustomAttribute(string $customAttribute): AttributeField

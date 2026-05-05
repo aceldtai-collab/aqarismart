@@ -13,10 +13,14 @@
                     <label class="block text-sm font-medium text-slate-700 mb-1">{{ __('Unit Category') }} <span class="text-red-500">*</span></label>
                     <select name="subcategory_id" class="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900" required>
                         <option value="">{{ __('Select Category') }}</option>
-                        @foreach($subcategories as $subcategory)
-                            <option value="{{ $subcategory->id }}" @selected(old('subcategory_id') == $subcategory->id)>
-                                {{ $subcategory->name }}
-                            </option>
+                        @foreach($subcategories->groupBy('category_id') as $categoryId => $grouped)
+                            <optgroup label="{{ $grouped->first()->category?->name ?? __('Other') }}">
+                                @foreach($grouped as $subcategory)
+                                    <option value="{{ $subcategory->id }}" @selected(old('subcategory_id') == $subcategory->id)>
+                                        {{ $subcategory->name }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
                     <p class="mt-1 text-xs text-slate-400">{{ __('Which type of unit will this attribute apply to?') }}</p>
