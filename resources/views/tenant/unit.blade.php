@@ -376,7 +376,7 @@
 
                         @if ($unit->unitAttributes->count() > 0)
                             <div class="mt-8 grid gap-4 md:grid-cols-2">
-                                @foreach ($unit->unitAttributes as $attribute)
+                                @foreach ($unit->unitAttributes->sortBy(fn($a) => $a->attributeField?->sort ?? 999) as $attribute)
                                     @if ($attribute->attributeField)
                                         <div class="story-fact">
                                             <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">{{ $attribute->attributeField->translated_label }}</div>

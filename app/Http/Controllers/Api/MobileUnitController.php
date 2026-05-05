@@ -42,8 +42,8 @@ class MobileUnitController extends Controller
         $agents = Agent::query()->orderBy('name')->get(['id', 'name', 'email', 'phone']);
         $cities = City::where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']);
         $attributeFields = $tenant
-            ? AttributeField::with('subcategory')->availableTo($tenant->id)->get()
-            : AttributeField::with('subcategory')->global()->get();
+            ? AttributeField::with('subcategory')->availableTo($tenant->id)->orderBy('sort')->get()
+            : AttributeField::with('subcategory')->global()->orderBy('sort')->get();
 
         return response()->json([
             'properties' => $properties,

@@ -108,7 +108,7 @@ class MobileUnitResource extends JsonResource
                 ];
             }),
             'attributes' => $this->whenLoaded('unitAttributes', function () {
-                return $this->unitAttributes->map(function ($attribute) {
+                return $this->unitAttributes->sortBy(fn ($a) => $a->attributeField?->sort ?? 999)->map(function ($attribute) {
                     $field = $attribute->attributeField;
 
                     return [
@@ -116,6 +116,7 @@ class MobileUnitResource extends JsonResource
                         'key' => $field?->key,
                         'label' => $field?->translated_label,
                         'group' => $field?->group,
+                        'sort' => $field?->sort,
                         'searchable' => (bool) $field?->searchable,
                         'promoted' => (bool) $field?->promoted,
                         'formatted_value' => $attribute->formatted_value,

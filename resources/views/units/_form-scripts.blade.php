@@ -144,7 +144,7 @@
 
         function renderFieldsForSubcategory(subcategoryId) {
             const fields = Array.isArray(window._attrFields)
-                ? window._attrFields.filter(f => f.subcategory_id == subcategoryId)
+                ? window._attrFields.filter(f => f.subcategory_id == subcategoryId).sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999))
                 : [];
 
             renderFields(fields);

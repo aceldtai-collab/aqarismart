@@ -98,6 +98,7 @@
 
     $featureFacts = $unit->unitAttributes
         ->filter(fn ($attribute) => $attribute->attributeField && filled($attribute->formatted_value))
+        ->sortBy(fn ($a) => $a->attributeField?->sort ?? 999)
         ->values();
 
     $summaryNotes = array_values(array_filter([

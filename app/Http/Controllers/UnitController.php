@@ -172,7 +172,7 @@ class UnitController extends Controller
 
         $unit->load(['property.agent', 'property.agents', 'agent', 'agents', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField']);
 
-        $attributeFields = AttributeField::where('subcategory_id', $unit->subcategory_id)->get();
+        $attributeFields = AttributeField::where('subcategory_id', $unit->subcategory_id)->orderBy('sort')->get();
         $unitAttributes = $unit->unitAttributes->keyBy('attribute_field_id');
 
         return view('units.show', compact('unit', 'attributeFields', 'unitAttributes'));
@@ -289,7 +289,7 @@ class UnitController extends Controller
             'agent',
         ]);
 
-        $attributeFields = AttributeField::where('subcategory_id', $unit->subcategory_id)->get();
+        $attributeFields = AttributeField::where('subcategory_id', $unit->subcategory_id)->orderBy('sort')->get();
 
         return view('tenant.unit', [
             'unit' => $unit,
@@ -473,8 +473,8 @@ class UnitController extends Controller
         })->values();
         $tenant = $this->tenants->tenant();
         $attributeFields = $tenant
-            ? AttributeField::with('subcategory')->availableTo($tenant->id)->get()
-            : AttributeField::with('subcategory')->global()->get();
+            ? AttributeField::with('subcategory')->availableTo($tenant->id)->orderBy('sort')->get()
+            : AttributeField::with('subcategory')->global()->orderBy('sort')->get();
         $agents = $this->availableAgents();
 
         return compact('properties', 'categories', 'propMeta', 'catMeta', 'attributeFields', 'agents');
