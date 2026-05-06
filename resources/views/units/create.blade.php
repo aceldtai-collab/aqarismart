@@ -163,7 +163,7 @@
                             </div>
                             
                             <div>
-                                <select name="listing_type" class="border rounded py-2 px-3 w-full @error('listing_type') border-red-500 @enderror">
+                                <select name="listing_type" id="listing_type" class="border rounded py-2 px-3 w-full @error('listing_type') border-red-500 @enderror" onchange="toggleRentPrice()">
                                     @foreach (\App\Models\Unit::listingTypeLabels() as $value => $label)
                                         <option value="{{ $value }}" @selected(old('listing_type', \App\Models\Unit::LISTING_RENT) == $value)>{{ $label }}</option>
                                     @endforeach
@@ -183,6 +183,14 @@
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+                        </div>
+
+                        <div id="rent-price-row" class="{{ old('listing_type') === 'both' ? '' : 'hidden' }}">
+                            <input type="number" step="0.01" name="market_rent" placeholder="{{ __('Rent Price (per year)') }}" class="border rounded py-2 px-3 w-full @error('market_rent') border-red-500 @enderror" value="{{ old('market_rent') }}">
+                            <p class="text-xs text-slate-500 mt-1">{{ __('When listing for both rent & sale, enter the annual rent price here. The price field above is the sale price.') }}</p>
+                            @error('market_rent')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -404,4 +412,15 @@
             previewContainer.style.display = 'none';
         }
     });
+
+    function toggleRentPrice() {
+        const listingType = document.getElementById('listing_type').value;
+        const row = document.getElementById('rent-price-row');
+        if (listingType === 'both') {
+            row.classList.remove('hidden');
+        } else {
+            row.classList.add('hidden');
+        }
+    }
+    toggleRentPrice();
 </script>

@@ -21,6 +21,7 @@ class Unit extends Model
 
     public const LISTING_RENT = 'rent';
     public const LISTING_SALE = 'sale';
+    public const LISTING_BOTH = 'both';
 
     public const STATUSES = [
         self::STATUS_SOLD,
@@ -31,6 +32,7 @@ class Unit extends Model
     public const LISTING_TYPES = [
         self::LISTING_RENT,
         self::LISTING_SALE,
+        self::LISTING_BOTH,
     ];
 
     public static function statusLabels(): array
@@ -47,6 +49,7 @@ class Unit extends Model
         return [
             self::LISTING_RENT => __('For Rent'),
             self::LISTING_SALE => __('For Sale'),
+            self::LISTING_BOTH => __('For Rent & Sale'),
         ];
     }
 

@@ -47,6 +47,7 @@ class StoreUnitRequest extends FormRequest
             'lng' => ['nullable','numeric','between:-180,180'],
             'status' => ['required','string', Rule::in(Unit::STATUSES)],
             'listing_type' => ['required','string', Rule::in(Unit::LISTING_TYPES)],
+            'market_rent' => ['nullable','numeric','min:0','max:9999999999.99'],
             'photos' => ['nullable','array','max:50'],
             'photos.*' => ['image','mimes:jpeg,png,jpg,webp','max:5120'],
             'keep_photos_present' => ['nullable'],

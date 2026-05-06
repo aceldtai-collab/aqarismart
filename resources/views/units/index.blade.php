@@ -242,6 +242,48 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @if($filterableAttributes->isNotEmpty())
+                            <!-- Custom Attributes Filter -->
+                            <div class="xl:col-span-2">
+                                <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+                                    <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
+                                    {{ __('Custom Attributes') }}
+                                </label>
+                                <div x-data="attributeMultiSelect()" class="relative">
+                                    <div @click="open = !open" class="w-full min-h-[3.5rem] px-4 py-2.5 border border-slate-300 rounded-xl bg-white shadow-sm cursor-pointer hover:border-slate-400 transition-all flex flex-wrap items-center gap-2">
+                                        <template x-if="selected.length === 0">
+                                            <span class="text-slate-400 text-sm">{{ __('Select attributes...') }}</span>
+                                        </template>
+                                        <template x-for="id in selected" :key="id">
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-teal-100 text-teal-700 text-xs font-medium rounded-lg">
+                                                <span x-text="getLabel(id)"></span>
+                                                <button type="button" @click.stop="toggle(id)" class="hover:text-teal-900">&times;</button>
+                                            </span>
+                                        </template>
+                                    </div>
+                                    <div x-show="open" @click.away="open = false" x-transition class="absolute z-50 mt-2 w-full bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-hidden">
+                                        <div class="p-2 border-b border-slate-100">
+                                            <input type="text" x-model="search" placeholder="{{ __('Search...') }}" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                                        </div>
+                                        <div class="overflow-y-auto max-h-44 p-1">
+                                            <template x-for="attr in filteredAttrs" :key="attr.id">
+                                                <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
+                                                    <input type="checkbox" :value="attr.id" :checked="selected.includes(String(attr.id))" @change="toggle(String(attr.id))" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+                                                    <span class="text-sm text-slate-700" x-text="attr.label"></span>
+                                                </label>
+                                            </template>
+                                            <div x-show="filteredAttrs.length === 0" class="px-3 py-4 text-center text-sm text-slate-400">{{ __('No attributes found') }}</div>
+                                        </div>
+                                    </div>
+                                    <template x-for="id in selected" :key="'input-'+id">
+                                        <input type="hidden" name="attribute_filters[]" :value="id">
+                                    </template>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                         
                         <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-200/60">
@@ -298,6 +340,30 @@
                         toggleBg.classList.remove('bg-indigo-100');
                         toggleBg.classList.add('bg-slate-100');
                     }
+                }
+
+                function attributeMultiSelect() {
+                    const locale = '{{ app()->getLocale() }}';
+                    const attrs = @json($filterableAttributes->map(fn($f) => ['id' => (string)$f->id, 'label' => $f->label_translations[app()->getLocale()] ?? $f->label ?? $f->key]));
+                    const initial = @json(array_map('strval', $attribute_filters ?? []));
+                    return {
+                        open: false,
+                        search: '',
+                        attrs: attrs,
+                        selected: initial,
+                        get filteredAttrs() {
+                            const q = this.search.toLowerCase();
+                            return q ? this.attrs.filter(a => a.label.toLowerCase().includes(q)) : this.attrs;
+                        },
+                        toggle(id) {
+                            const idx = this.selected.indexOf(id);
+                            if (idx > -1) { this.selected.splice(idx, 1); } else { this.selected.push(id); }
+                        },
+                        getLabel(id) {
+                            const a = this.attrs.find(a => a.id === id);
+                            return a ? a.label : id;
+                        }
+                    };
                 }
             </script>
             <!-- Quick Filters -->
@@ -403,6 +469,13 @@
                                             </svg>
                                             {{ __('For Sale') }}
                                         </span>
+                                    @elseif($u->listing_type === 'both')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                            </svg>
+                                            {{ __('Rent & Sale') }}
+                                        </span>
                                     @else
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
                                             {{ \App\Models\Unit::listingTypeLabels()[$u->listing_type] ?? $u->listing_type }}
@@ -411,7 +484,12 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="text-sm font-semibold text-slate-900">{{ number_format((float) $u->price, 2) }} {{ $u->currency ?? 'JOD' }}</div>
-                                    <div class="text-xs text-slate-500">{{ $u->listing_type === 'rent' ? __('per year') : __('sale price') }}</div>
+                                    <div class="text-xs text-slate-500">
+                                        @if($u->listing_type === 'rent') {{ __('per year') }}
+                                        @elseif($u->listing_type === 'both') {{ __('sale') }} @if($u->market_rent) · {{ number_format((float) $u->market_rent, 2) }} {{ __('rent/yr') }} @endif
+                                        @else {{ __('sale price') }}
+                                        @endif
+                                    </div>
                                 </td>
                                 @if(! auth()->user()?->agent_id)
                                     <td class="px-4 py-3 text-right">
@@ -432,15 +510,20 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-left">
-                                    @can('update', $u)
-                                        <a href="{{ route('units.edit', $u) }}" class="text-indigo-600 hover:text-indigo-900 text-sm mr-3">{{ __('Edit') }}</a>
-                                    @endcan
-                                    @can('delete', $u)
-                                        <form method="post" action="{{ route('units.destroy', $u) }}" class="inline" onsubmit="return confirm('{{ __('Delete this unit?') }}')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 text-sm">{{ __('Delete') }}</button>
-                                        </form>
-                                    @endcan
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('tenant.unit', $u->code) }}" target="_blank" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="{{ __('View as buyer') }}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        </a>
+                                        @can('update', $u)
+                                            <a href="{{ route('units.edit', $u) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">{{ __('Edit') }}</a>
+                                        @endcan
+                                        @can('delete', $u)
+                                            <form method="post" action="{{ route('units.destroy', $u) }}" class="inline" onsubmit="return confirm('{{ __('Delete this unit?') }}')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 text-sm">{{ __('Delete') }}</button>
+                                            </form>
+                                        @endcan
+                                    </div>
                                 </td>
                             </tr>
                         @empty

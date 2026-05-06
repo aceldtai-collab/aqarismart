@@ -106,7 +106,7 @@
                                 <option value="USD" @selected(old('currency', $unit->currency ?? 'IQD') == 'USD')>{{ __('USD') }}</option>
                             </select>
                             
-                            <select name="listing_type" class="border rounded py-2 px-3">
+                            <select name="listing_type" id="listing_type" class="border rounded py-2 px-3" onchange="toggleRentPrice()">
                                 @foreach (\App\Models\Unit::listingTypeLabels() as $value => $label)
                                     <option value="{{ $value }}" @selected(old('listing_type', $unit->listing_type ?? \App\Models\Unit::LISTING_RENT) == $value)>{{ $label }}</option>
                                 @endforeach
@@ -117,6 +117,12 @@
                                     <option value="{{ $value }}" @selected(old('status', $unit->status ?? \App\Models\Unit::STATUS_SOLD) == $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        @php $currentListingType = old('listing_type', $unit->listing_type ?? ''); @endphp
+                        <div id="rent-price-row" class="{{ $currentListingType === 'both' ? '' : 'hidden' }}">
+                            <input type="number" step="0.01" name="market_rent" placeholder="{{ __('Rent Price (per year)') }}" class="border rounded py-2 px-3 w-full" value="{{ old('market_rent', $unit->market_rent) }}">
+                            <p class="text-xs text-slate-500 mt-1">{{ __('When listing for both rent & sale, enter the annual rent price here. The price field above is the sale price.') }}</p>
                         </div>
 
                         <input name="location" placeholder="{{ __('Location') }}" class="w-full border rounded py-2 px-3" value="{{ old('location', $unit->location) }}">
@@ -151,13 +157,26 @@
                                 <p class="text-xs text-gray-500">{{ __('Remove any old image before saving if it no longer belongs to this unit.') }}</p>
                             </div>
                             <div id="current-photo-grid" class="grid grid-cols-2 gap-4 md:grid-cols-4 {{ $currentPhotos->isEmpty() ? 'hidden' : '' }}">
-                                @foreach ($currentPhotos as $photo)
-                                    <div class="relative group current-photo-card">
+                                @foreach ($currentPhotos as $index => $photo)
+                                    <div class="relative group current-photo-card" data-photo-index="{{ $index }}">
                                         <input type="hidden" name="keep_photos[]" value="{{ $photo }}">
                                         <img src="{{ $photo }}" alt="Unit photo"
                                              class="h-32 w-full rounded-md object-cover cursor-pointer hover:opacity-75 transition"
                                              onclick="window.open('{{ $photo }}', '_blank')"
                                              onerror="this.onerror=null;this.src='https://placehold.co/300x200?text=Photo';" />
+                                        @if($index === 0)
+                                            <span class="cover-badge absolute left-2 top-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                {{ __('Cover') }}
+                                            </span>
+                                        @else
+                                            <button type="button"
+                                                    class="set-cover-photo absolute left-2 top-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-slate-700 shadow opacity-0 group-hover:opacity-100 transition hover:bg-emerald-500 hover:text-white"
+                                                    title="{{ __('Set as cover') }}">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                {{ __('Cover') }}
+                                            </button>
+                                        @endif
                                         <button type="button"
                                                 class="remove-current-photo absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-600/90 text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
                                                 aria-label="{{ __('Remove image') }}"
@@ -370,13 +389,52 @@
     }
 
     currentPhotoGrid?.addEventListener('click', function(event) {
-        const button = event.target.closest('.remove-current-photo');
-        if (!button) return;
+        const removeBtn = event.target.closest('.remove-current-photo');
+        if (removeBtn) {
+            const card = removeBtn.closest('.current-photo-card');
+            card?.remove();
+            syncCurrentPhotoState();
+            syncCoverBadges();
+            return;
+        }
 
-        const card = button.closest('.current-photo-card');
-        card?.remove();
-        syncCurrentPhotoState();
+        const coverBtn = event.target.closest('.set-cover-photo');
+        if (coverBtn) {
+            const card = coverBtn.closest('.current-photo-card');
+            if (card && currentPhotoGrid) {
+                currentPhotoGrid.prepend(card);
+                syncCoverBadges();
+            }
+        }
     });
+
+    function syncCoverBadges() {
+        if (!currentPhotoGrid) return;
+        const cards = currentPhotoGrid.querySelectorAll('.current-photo-card');
+        cards.forEach((card, idx) => {
+            const existingBadge = card.querySelector('.cover-badge');
+            const existingBtn = card.querySelector('.set-cover-photo');
+            if (idx === 0) {
+                if (existingBtn) existingBtn.remove();
+                if (!existingBadge) {
+                    const badge = document.createElement('span');
+                    badge.className = 'cover-badge absolute left-2 top-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow';
+                    badge.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> {{ __("Cover") }}';
+                    card.appendChild(badge);
+                }
+            } else {
+                if (existingBadge) existingBadge.remove();
+                if (!existingBtn) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'set-cover-photo absolute left-2 top-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-slate-700 shadow opacity-0 group-hover:opacity-100 transition hover:bg-emerald-500 hover:text-white';
+                    btn.title = '{{ __("Set as cover") }}';
+                    btn.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> {{ __("Cover") }}';
+                    card.appendChild(btn);
+                }
+            }
+        });
+    }
 
     syncCurrentPhotoState();
 
@@ -410,4 +468,15 @@
             previewContainer.style.display = 'none';
         }
     });
+
+    function toggleRentPrice() {
+        const listingType = document.getElementById('listing_type').value;
+        const row = document.getElementById('rent-price-row');
+        if (listingType === 'both') {
+            row.classList.remove('hidden');
+        } else {
+            row.classList.add('hidden');
+        }
+    }
+    toggleRentPrice();
 </script>

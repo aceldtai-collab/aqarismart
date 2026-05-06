@@ -106,9 +106,20 @@ class MobileMarketplaceController extends Controller
             });
         }
 
-        foreach (['listing_type', 'subcategory_id', 'city_id', 'tenant_id'] as $field) {
+        foreach (['subcategory_id', 'city_id', 'tenant_id'] as $field) {
             if ($request->filled($field)) {
                 $query->where($field, $request->input($field));
+            }
+        }
+
+        if ($request->filled('listing_type')) {
+            $lt = $request->input('listing_type');
+            if ($lt === Unit::LISTING_RENT) {
+                $query->whereIn('listing_type', [Unit::LISTING_RENT, Unit::LISTING_BOTH]);
+            } elseif ($lt === Unit::LISTING_SALE) {
+                $query->whereIn('listing_type', [Unit::LISTING_SALE, Unit::LISTING_BOTH]);
+            } else {
+                $query->where('listing_type', $lt);
             }
         }
 
@@ -239,8 +250,8 @@ class MobileMarketplaceController extends Controller
 
         $stats = [
             'properties' => (clone $baseQuery)->count(),
-            'sale' => (clone $baseQuery)->where('listing_type', Unit::LISTING_SALE)->count(),
-            'rent' => (clone $baseQuery)->where('listing_type', Unit::LISTING_RENT)->count(),
+            'sale' => (clone $baseQuery)->whereIn('listing_type', [Unit::LISTING_SALE, Unit::LISTING_BOTH])->count(),
+            'rent' => (clone $baseQuery)->whereIn('listing_type', [Unit::LISTING_RENT, Unit::LISTING_BOTH])->count(),
             'managers' => $tenants->count(),
             'agents' => Agent::withoutGlobalScope('tenant')
                 ->whereIn('tenant_id', $tenants->modelKeys())

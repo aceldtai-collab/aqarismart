@@ -41,6 +41,7 @@ class UnitController extends Controller
         $max_price = (float) request()->query('max_price', 0);
         $beds = (int) request()->query('beds', 0);
         $baths = (float) request()->query('baths', 0);
+        $attribute_filters = (array) request()->query('attribute_filters', []);
 
         $query = Unit::with(['property.agent', 'property.agents', 'agent', 'agents', 'subcategory.category']);
         $query = $this->applyUnitSearch($query, $q);
@@ -52,6 +53,15 @@ class UnitController extends Controller
         $query = $this->applyUnitPriceFilter($query, $min_price, $max_price);
         $query = $this->applyUnitBedsFilter($query, $beds);
         $query = $this->applyUnitBathsFilter($query, $baths);
+
+        if (! empty($attribute_filters)) {
+            foreach ($attribute_filters as $fieldId) {
+                $fieldId = (int) $fieldId;
+                if ($fieldId > 0) {
+                    $query->whereHas('unitAttributes', fn (Builder $ua) => $ua->where('attribute_field_id', $fieldId));
+                }
+            }
+        }
         
         if ($agentId = auth()->user()?->agent_id) {
             $query->forAgent($agentId);
@@ -62,8 +72,12 @@ class UnitController extends Controller
         $subcategories = \App\Models\Subcategory::orderBy('name')->get();
         $properties = $this->availableProperties();
         $agents = $this->availableAgents();
+        $filterableAttributes = AttributeField::forTenant($tenant->id)
+            ->whereIn('type', ['bool', 'enum'])
+            ->orderBy('sort')
+            ->get(['id', 'label', 'label_translations', 'type', 'key']);
         
-        return view('units.index', compact('units', 'subcategories', 'properties', 'agents') + [
+        return view('units.index', compact('units', 'subcategories', 'properties', 'agents', 'filterableAttributes') + [
             'q' => $q,
             'subcategory_id' => $subcategory_id,
             'property_id' => $property_id,
@@ -74,6 +88,7 @@ class UnitController extends Controller
             'max_price' => $max_price,
             'beds' => $beds,
             'baths' => $baths,
+            'attribute_filters' => $attribute_filters,
         ]);
     }
 
@@ -451,8 +466,16 @@ class UnitController extends Controller
 
     protected function applyUnitListingTypeFilter(Builder $query, string $listingType): Builder
     {
-        if (in_array($listingType, Unit::LISTING_TYPES, true)) {
-            return $query->where('listing_type', $listingType);
+        if ($listingType === Unit::LISTING_RENT) {
+            return $query->whereIn('listing_type', [Unit::LISTING_RENT, Unit::LISTING_BOTH]);
+        }
+
+        if ($listingType === Unit::LISTING_SALE) {
+            return $query->whereIn('listing_type', [Unit::LISTING_SALE, Unit::LISTING_BOTH]);
+        }
+
+        if ($listingType === Unit::LISTING_BOTH) {
+            return $query->where('listing_type', Unit::LISTING_BOTH);
         }
 
         return $query;

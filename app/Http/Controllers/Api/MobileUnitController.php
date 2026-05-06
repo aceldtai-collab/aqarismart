@@ -346,6 +346,7 @@ class MobileUnitController extends Controller
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'status' => ['required', 'string', 'in:' . implode(',', Unit::STATUSES)],
             'listing_type' => ['required', 'string', 'in:' . implode(',', Unit::LISTING_TYPES)],
+            'market_rent' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'photos' => ['nullable', 'array', 'max:50'],
             'photos.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'location' => ['nullable', 'string', 'max:500'],
@@ -452,6 +453,15 @@ class MobileUnitController extends Controller
 
     protected function applyUnitListingTypeFilter(Builder $query, string $listingType): Builder
     {
-        return in_array($listingType, Unit::LISTING_TYPES, true) ? $query->where('listing_type', $listingType) : $query;
+        if ($listingType === Unit::LISTING_RENT) {
+            return $query->whereIn('listing_type', [Unit::LISTING_RENT, Unit::LISTING_BOTH]);
+        }
+        if ($listingType === Unit::LISTING_SALE) {
+            return $query->whereIn('listing_type', [Unit::LISTING_SALE, Unit::LISTING_BOTH]);
+        }
+        if ($listingType === Unit::LISTING_BOTH) {
+            return $query->where('listing_type', Unit::LISTING_BOTH);
+        }
+        return $query;
     }
 }

@@ -93,7 +93,9 @@ class MobileTenantDirectoryController extends Controller
             ->with(['property.city', 'property.state', 'subcategory.category', 'city', 'area', 'tenant', 'unitAttributes.attributeField'])
             ->where('tenant_id', $tenant->id)
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED])
-            ->when(in_array($listingType, Unit::LISTING_TYPES, true), fn ($q) => $q->where('listing_type', $listingType))
+            ->when($listingType === Unit::LISTING_RENT, fn ($q) => $q->whereIn('listing_type', [Unit::LISTING_RENT, Unit::LISTING_BOTH]))
+            ->when($listingType === Unit::LISTING_SALE, fn ($q) => $q->whereIn('listing_type', [Unit::LISTING_SALE, Unit::LISTING_BOTH]))
+            ->when($listingType === Unit::LISTING_BOTH, fn ($q) => $q->where('listing_type', Unit::LISTING_BOTH))
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($inner) use ($search) {
                     $inner->where('title', 'like', "%{$search}%")
@@ -123,8 +125,8 @@ class MobileTenantDirectoryController extends Controller
             'units' => MobileUnitResource::collection($units->getCollection()),
             'summary' => [
                 'total_active' => (clone $summaryQuery)->count(),
-                'rent_count' => (clone $summaryQuery)->where('listing_type', Unit::LISTING_RENT)->count(),
-                'sale_count' => (clone $summaryQuery)->where('listing_type', Unit::LISTING_SALE)->count(),
+                'rent_count' => (clone $summaryQuery)->whereIn('listing_type', [Unit::LISTING_RENT, Unit::LISTING_BOTH])->count(),
+                'sale_count' => (clone $summaryQuery)->whereIn('listing_type', [Unit::LISTING_SALE, Unit::LISTING_BOTH])->count(),
             ],
             'meta' => [
                 'current_page' => $units->currentPage(),
