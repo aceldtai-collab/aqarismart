@@ -31,6 +31,8 @@ Thumbs.db
 
 # Project docs
 IMPROVEMENTS.md
+docs/
+scripts/create-aqari-presentation.mjs
 
 # Credential files (keystores, private keys, etc.)
 /credentials/
