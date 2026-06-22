@@ -8,6 +8,7 @@ use App\Http\Resources\MobileUserResource;
 use App\Models\Resident;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Market\CurrentCountry;
 use App\Services\Tenancy\TenantManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -37,7 +38,12 @@ class MobileAuthController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
             'agent' => ['nullable', 'string', 'max:255'],
             'subdomain' => ['nullable', 'string', 'max:30', 'alpha_dash', 'unique:tenants,slug'],
+            'country_id' => ['nullable', 'integer', 'exists:countries,id'],
         ]);
+
+        $country = isset($data['country_id'])
+            ? \App\Models\Country::query()->find($data['country_id'])
+            : app(CurrentCountry::class)->resolve($request);
 
         $user = User::create([
             'name' => $data['name'],
@@ -54,8 +60,12 @@ class MobileAuthController extends Controller
         $tenant = Tenant::create([
             'name' => $tenantName,
             'slug' => (string) $slug,
+            'country_id' => $country?->id,
             'plan' => 'starter',
-            'settings' => ['timezone' => config('app.timezone', 'UTC')],
+            'settings' => [
+                'timezone' => config('app.timezone', 'UTC'),
+                'currency' => $country?->currency_code ?: 'IQD',
+            ],
             'trial_ends_at' => now()->addDays(14),
         ]);
 

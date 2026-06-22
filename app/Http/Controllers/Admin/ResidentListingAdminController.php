@@ -56,8 +56,9 @@ class ResidentListingAdminController extends Controller
 
         $residentListing->load(['user', 'subcategory', 'city', 'adDuration']);
         $subcategories = Subcategory::orderBy('name')->get();
-        $cities = City::where('is_active', true)->orderBy('name_en')->get();
-        $adDurations = AdDuration::active()->ordered()->get();
+        $countryId = $residentListing->country_id;
+        $cities = City::where('country_id', $countryId)->where('is_active', true)->orderBy('name_en')->get();
+        $adDurations = AdDuration::where('country_id', $countryId)->active()->ordered()->get();
 
         return view('admin.resident-listings.edit', compact('residentListing', 'subcategories', 'cities', 'adDurations'));
     }

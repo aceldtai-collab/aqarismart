@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Tenant;
 use App\Models\Unit;
 use App\Services\PublicLandingService;
+use App\Services\Market\CurrentCountry;
 use App\Services\Search\SearchExperienceBuilder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,10 +16,12 @@ class PublicHomeController extends Controller
 {
     public function index(PublicLandingService $landing): View
     {
+        $country = app(CurrentCountry::class)->get();
         $categories = Category::query()->orderBy('name')->get();
 
         // Tenants with active subscriptions (showcase on landing)
         $subscribedTenants = Tenant::whereHas('activeSubscription')
+            ->where('country_id', $country->id)
             ->latest()
             ->limit(8)
             ->get();
@@ -26,15 +29,17 @@ class PublicHomeController extends Controller
         // Featured units from different tenants (bypass tenant scope)
         $featuredUnits = Unit::withoutGlobalScope('tenant')
             ->with(['tenant', 'property', 'subcategory', 'city'])
-            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription'))
+            ->where('country_id', $country->id)
+            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->where('status', Unit::STATUS_VACANT)
             ->latest()
             ->limit(8)
             ->get();
 
-        $tenantsCount = Tenant::whereHas('activeSubscription')->count();
+        $tenantsCount = Tenant::where('country_id', $country->id)->whereHas('activeSubscription')->count();
         $unitsCount = Unit::withoutGlobalScope('tenant')
-            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription'))
+            ->where('country_id', $country->id)
+            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->count();
 
         return view('home', [
@@ -53,8 +58,9 @@ class PublicHomeController extends Controller
         // Dynamic sections (featured, sale, rent, cities, agencies, stats)
         // are fetched client-side from /api/mobile/marketplace (single source of truth).
         try {
+            $country = app(CurrentCountry::class)->get();
             $categories = Category::where('is_active', true)->orderBy('sort_order')->with('subcategories')->get();
-            $cities = City::where('is_active', true)->orderBy('name_en')->get();
+            $cities = City::where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get();
         } catch (\Illuminate\Database\QueryException $e) {
             $categories = collect();
             $cities = collect();
@@ -70,9 +76,11 @@ class PublicHomeController extends Controller
 
     public function search(Request $request, PublicLandingService $landing, SearchExperienceBuilder $searchExperienceBuilder): View
     {
+        $country = app(CurrentCountry::class)->get();
         $query = Unit::withoutGlobalScope('tenant')
             ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
-            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription'))
+            ->where('country_id', $country->id)
+            ->whereHas('tenant', fn($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED]);
 
         // Search keyword
@@ -146,8 +154,8 @@ class PublicHomeController extends Controller
 
         // Filter options
         $categories = Category::where('is_active', true)->orderBy('sort_order')->with('subcategories')->get();
-        $cities = City::where('is_active', true)->orderBy('name_en')->get();
-        $tenants = Tenant::whereHas('activeSubscription')->orderBy('name')->get();
+        $cities = City::where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get();
+        $tenants = Tenant::where('country_id', $country->id)->whereHas('activeSubscription')->orderBy('name')->get();
 
         return view('public.search', [
             'landing' => $landing->forPublicDomain(),

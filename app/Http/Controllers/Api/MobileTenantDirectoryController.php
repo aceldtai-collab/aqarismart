@@ -8,6 +8,7 @@ use App\Models\Agent;
 use App\Http\Resources\MobileUnitResource;
 use App\Models\Tenant;
 use App\Models\Unit;
+use App\Services\Market\CurrentCountry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,10 @@ class MobileTenantDirectoryController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $country = app(CurrentCountry::class)->resolve($request);
+
         $baseQuery = Tenant::query()
+            ->where('country_id', $country->id)
             ->whereHas('activeSubscription')
             ->when($request->filled('q'), function ($query) use ($request) {
                 $q = $request->string('q')->trim()->value();
@@ -48,6 +52,7 @@ class MobileTenantDirectoryController extends Controller
             'summary' => [
                 'agencies_count' => (clone $baseQuery)->count(),
                 'active_units_count' => Unit::withoutGlobalScope('tenant')
+                    ->where('country_id', $country->id)
                     ->whereIn('tenant_id', $tenantIds)
                     ->where('status', Unit::STATUS_VACANT)
                     ->count(),

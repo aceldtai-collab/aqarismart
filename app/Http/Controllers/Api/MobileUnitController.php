@@ -141,8 +141,10 @@ class MobileUnitController extends Controller
         $this->authorize('create', Unit::class);
 
         $data = $request->validated();
+        $data['tenant_id'] = $tenant->id;
+        $data['country_id'] = $tenant->country_id;
         $data['agent_id'] = $this->resolveAssignedAgents($request->input('agent_ids', []))->first() ?? null;
-        $data = $this->applyPricingDefaults($data);
+        $data = $this->applyPricingDefaults($data, null, $tenant);
         $data['code'] = $this->generateCode($tenant, (int) $data['subcategory_id']);
         $data['photos'] = $this->storePhotos($request, 'units');
 
@@ -190,7 +192,9 @@ class MobileUnitController extends Controller
         $data = validator($request->all(), $this->rulesForUpdate($unit))->validate();
         $assignedAgents = $this->resolveAssignedAgents($request->input('agent_ids', []));
         $data['agent_id'] = $assignedAgents->first() ?? $unit->agent_id;
-        $data = $this->applyPricingDefaults($data, $unit);
+        $tenant = $this->tenant($request) ?? $unit->tenant;
+        $data = $this->applyPricingDefaults($data, $unit, $tenant);
+        $data['country_id'] = $tenant?->country_id ?? $unit->country_id;
         $data['photos'] = $this->storePhotos($request, 'units', is_array($unit->photos) ? $unit->photos : []);
 
         if (! empty($data['location_url'])) {
@@ -357,13 +361,13 @@ class MobileUnitController extends Controller
         ];
     }
 
-    protected function applyPricingDefaults(array $data, ?Unit $unit = null): array
+    protected function applyPricingDefaults(array $data, ?Unit $unit = null, ?Tenant $tenant = null): array
     {
         if (! array_key_exists('price', $data) || $data['price'] === null) {
             $data['price'] = $unit?->price ?? 0;
         }
         if (! array_key_exists('currency', $data) || $data['currency'] === null) {
-            $data['currency'] = $unit?->currency ?? 'IQD';
+            $data['currency'] = $unit?->currency ?? ($tenant?->settings['currency'] ?? 'IQD');
         }
 
         return $data;

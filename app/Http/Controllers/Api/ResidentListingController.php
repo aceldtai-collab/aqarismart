@@ -7,6 +7,7 @@ use App\Http\Requests\StoreResidentListingRequest;
 use App\Http\Resources\MobileResidentListingResource;
 use App\Models\AdDuration;
 use App\Models\ResidentListing;
+use App\Services\Market\CurrentCountry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,10 @@ class ResidentListingController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $country = app(CurrentCountry::class)->resolve($request);
+
         $query = ResidentListing::with(['user', 'city', 'area', 'subcategory.category', 'adDuration'])
+            ->forCountry($country)
             ->active();
 
         if ($request->filled('listing_type')) {
@@ -126,9 +130,11 @@ class ResidentListingController extends Controller
         $this->authorize('create', ResidentListing::class);
 
         $data = $request->validated();
+        $country = app(CurrentCountry::class)->resolve($request);
         $data['user_id'] = $user->id;
+        $data['country_id'] = $country->id;
         $data['code'] = ResidentListing::generateCode();
-        $data['currency'] = $data['currency'] ?? 'IQD';
+        $data['currency'] = $data['currency'] ?? ($country->currency_code ?: 'IQD');
         $data['source'] = 'direct_owner';
         $data['payment_status'] = 'paid';
         $data['payment_method'] = $data['payment_method'] ?? 'manual';
@@ -150,7 +156,7 @@ class ResidentListingController extends Controller
             }
         }
 
-        if ($duration = AdDuration::find($data['ad_duration_id'])) {
+        if ($duration = AdDuration::forCountry($country)->find($data['ad_duration_id'])) {
             $data['ad_started_at'] = now();
             $data['ad_expires_at'] = now()->addDays($duration->days);
             $data['ad_status'] = 'active';
@@ -201,9 +207,11 @@ class ResidentListingController extends Controller
             'photos' => ['nullable', 'array'],
         ]);
 
+        $country = app(CurrentCountry::class)->resolve($request);
         $data['user_id'] = $user->id;
+        $data['country_id'] = $country->id;
         $data['code'] = ResidentListing::generateCode();
-        $data['currency'] = $data['currency'] ?? 'IQD';
+        $data['currency'] = $data['currency'] ?? ($country->currency_code ?: 'IQD');
         $data['source'] = 'direct_owner';
         $data['payment_status'] = 'paid';
         $data['payment_method'] = $data['payment_method'] ?? 'manual';
@@ -223,7 +231,7 @@ class ResidentListingController extends Controller
             }
         }
 
-        if ($duration = AdDuration::find($data['ad_duration_id'])) {
+        if ($duration = AdDuration::forCountry($country)->find($data['ad_duration_id'])) {
             $data['ad_started_at'] = now();
             $data['ad_expires_at'] = now()->addDays($duration->days);
             $data['ad_status'] = 'active';

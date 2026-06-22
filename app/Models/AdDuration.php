@@ -12,6 +12,7 @@ class AdDuration extends Model
     use HasFactory;
 
     protected $fillable = [
+        'country_id',
         'name_en',
         'name_ar',
         'days',
@@ -33,9 +34,21 @@ class AdDuration extends Model
         return $this->hasMany(ResidentListing::class);
     }
 
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeForCountry(Builder $query, Country|int $country): Builder
+    {
+        $countryId = $country instanceof Country ? $country->id : $country;
+
+        return $query->where('country_id', $countryId);
     }
 
     public function scopeOrdered(Builder $query): Builder

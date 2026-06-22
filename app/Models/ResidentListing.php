@@ -15,6 +15,7 @@ class ResidentListing extends Model
 
     protected $fillable = [
         'user_id',
+        'country_id',
         'code',
         'title',
         'description',
@@ -69,6 +70,11 @@ class ResidentListing extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
     public function subcategory(): BelongsTo
@@ -131,6 +137,13 @@ class ResidentListing extends Model
     public function scopeByListingType(Builder $query, string $type): Builder
     {
         return $query->where('listing_type', $type);
+    }
+
+    public function scopeForCountry(Builder $query, Country|int $country): Builder
+    {
+        $countryId = $country instanceof Country ? $country->id : $country;
+
+        return $query->where('country_id', $countryId);
     }
 
     public function scopePaid(Builder $query): Builder

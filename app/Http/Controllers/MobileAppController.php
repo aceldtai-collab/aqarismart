@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\Tenant;
 use App\Models\Unit;
+use App\Services\Market\CurrentCountry;
 use App\Services\Search\SearchExperienceBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
@@ -38,10 +39,12 @@ class MobileAppController extends Controller
     public function search(Request $request, SearchExperienceBuilder $searchExperienceBuilder): View
     {
         $this->abortIfNotCentralDomain($request);
+        $country = app(CurrentCountry::class)->get();
 
         $query = Unit::withoutGlobalScope('tenant')
             ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
-            ->whereHas('tenant', fn ($tenantQuery) => $tenantQuery->whereHas('activeSubscription'))
+            ->where('country_id', $country->id)
+            ->whereHas('tenant', fn ($tenantQuery) => $tenantQuery->whereHas('activeSubscription')->where('country_id', $country->id))
             ->whereIn('status', [Unit::STATUS_VACANT, Unit::STATUS_OCCUPIED]);
 
         $this->applySearchFilters($query, $request, true);
@@ -54,8 +57,8 @@ class MobileAppController extends Controller
             'context' => 'public',
             'units' => $units,
             'categories' => Category::where('is_active', true)->orderBy('sort_order')->with('subcategories')->get(),
-            'cities' => City::where('is_active', true)->orderBy('name_en')->get(),
-            'tenants' => Tenant::whereHas('activeSubscription')->orderBy('name')->get(),
+            'cities' => City::where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get(),
+            'tenants' => Tenant::where('country_id', $country->id)->whereHas('activeSubscription')->orderBy('name')->get(),
             'filters' => $request->only(['q', 'listing_type', 'category_id', 'subcategory_id', 'city_id', 'tenant_id', 'bedrooms', 'price_min', 'price_max', 'sort']),
             'searchExperience' => $searchExperienceBuilder->build($searchUnits, [
                 'scope' => 'mobile_public',
@@ -184,10 +187,11 @@ class MobileAppController extends Controller
 
     public function createListing(): View
     {
+        $country = app(CurrentCountry::class)->get();
         $subcategories = \App\Models\Subcategory::orderBy('name')->get(['id', 'name', 'category_id']);
-        $cities = \App\Models\City::where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']);
+        $cities = \App\Models\City::where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']);
         try {
-            $adDurations = \App\Models\AdDuration::active()->ordered()->get(['id', 'name_en', 'name_ar', 'days', 'price', 'currency']);
+            $adDurations = \App\Models\AdDuration::forCountry($country)->active()->ordered()->get(['id', 'name_en', 'name_ar', 'days', 'price', 'currency']);
         } catch (\Throwable $e) {
             $adDurations = collect();
         }

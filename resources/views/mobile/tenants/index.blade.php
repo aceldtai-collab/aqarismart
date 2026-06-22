@@ -380,7 +380,11 @@ function updateLoadMore() {
 }
 
 async function loadTenants(page = 1, keepSpotlight = false) {
-    const params = new URLSearchParams({ per_page: '12', page: String(page) });
+    const params = new URLSearchParams({
+        per_page: '12',
+        page: String(page),
+        country: @json(app(\App\Services\Market\CurrentCountry::class)->get()->iso2),
+    });
     if (currentQuery) params.set('q', currentQuery);
 
     if (page === 1) {

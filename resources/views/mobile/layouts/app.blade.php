@@ -48,6 +48,9 @@
     if (empty($countryCodes)) {
         $countryCodes = [$defaultCountry => $defaultCountry];
     }
+    $countryService = app(\App\Services\Market\CurrentCountry::class);
+    $currentCountry = $countryService->get();
+    $marketCountries = $countryService->options();
 @endphp
 <body class="bg-gray-50 min-h-screen text-slate-800 {{ $body_class ?? '' }}">
     <div
@@ -119,6 +122,22 @@
                 </a>
 
                 <div class="my-2 border-t border-slate-100"></div>
+
+                @if($marketCountries->count() > 1)
+                    <div class="px-4 py-2">
+                        <div class="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{{ app()->getLocale() === 'ar' ? 'البلد' : 'Country' }}</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach($marketCountries as $marketCountry)
+                                <a href="{{ request()->fullUrlWithQuery(['country' => $marketCountry->iso2]) }}" class="rounded-xl border px-3 py-2 text-center text-sm font-bold transition {{ $currentCountry->id === $marketCountry->id ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+                                    {{ $marketCountry->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }}
+                                    {{ $marketCountry->iso2 }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="my-2 border-t border-slate-100"></div>
+                @endif
 
                 <div x-show="!authed" class="flex flex-col gap-1">
                     <a href="{{ route('mobile.login') }}" class="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-slate-700 transition-all duration-150 hover:bg-slate-50">

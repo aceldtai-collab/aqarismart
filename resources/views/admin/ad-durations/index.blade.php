@@ -19,6 +19,7 @@
                     <th class="text-left">{{ $isAr ? 'الاسم بالإنجليزية' : 'Name (EN)' }}</th>
                     <th class="text-left">{{ $isAr ? 'الاسم بالعربية' : 'Name (AR)' }}</th>
                     <th class="text-left">{{ $isAr ? 'الأيام' : 'Days' }}</th>
+                    <th class="text-left">{{ $isAr ? 'البلد' : 'Country' }}</th>
                     <th class="text-left">{{ $isAr ? 'السعر' : 'Price' }}</th>
                     <th class="text-left">{{ $isAr ? 'العملة' : 'Currency' }}</th>
                     <th class="text-left">{{ $isAr ? 'نشط' : 'Active' }}</th>
@@ -32,6 +33,7 @@
                         <td class="font-semibold text-[#1e1e2d]">{{ $d->name_en }}</td>
                         <td class="text-[#1e1e2d]">{{ $d->name_ar }}</td>
                         <td class="text-[#7c8db5]">{{ $d->days }}</td>
+                        <td class="text-[#7c8db5]">{{ $d->country?->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }} {{ $d->country?->name_en ?? 'Iraq' }}</td>
                         <td class="font-semibold text-[#1e1e2d]">{{ number_format($d->price, 0) }}</td>
                         <td class="text-[#7c8db5]">{{ $d->currency }}</td>
                         <td>
@@ -51,7 +53,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center py-10 text-sm text-[#7c8db5]">{{ $isAr ? 'لا توجد مدد إعلانية بعد.' : 'No ad durations yet.' }}</td>
+                        <td colspan="9" class="text-center py-10 text-sm text-[#7c8db5]">{{ $isAr ? 'لا توجد مدد إعلانية بعد.' : 'No ad durations yet.' }}</td>
                     </tr>
                 @endforelse
             </tbody>

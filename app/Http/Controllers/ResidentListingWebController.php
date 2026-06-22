@@ -8,6 +8,7 @@ use App\Models\City;
 use App\Models\ResidentListing;
 use App\Models\State;
 use App\Models\Subcategory;
+use App\Services\Market\CurrentCountry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -51,9 +52,11 @@ class ResidentListingWebController extends Controller
         $this->authorize('create', ResidentListing::class);
 
         $data = $request->validated();
+        $country = app(CurrentCountry::class)->get();
         $data['user_id'] = $request->user()->id;
+        $data['country_id'] = $country->id;
         $data['code'] = ResidentListing::generateCode();
-        $data['currency'] = $data['currency'] ?? 'IQD';
+        $data['currency'] = $data['currency'] ?? ($country->currency_code ?: 'IQD');
         $data['source'] = 'direct_owner';
         $data['payment_status'] = 'paid';
         $data['payment_method'] = $data['payment_method'] ?? 'manual';
@@ -68,7 +71,7 @@ class ResidentListingWebController extends Controller
             }
         }
 
-        if ($duration = AdDuration::find($data['ad_duration_id'])) {
+        if ($duration = AdDuration::forCountry($country)->find($data['ad_duration_id'])) {
             $data['ad_started_at'] = now();
             $data['ad_expires_at'] = now()->addDays($duration->days);
             $data['ad_status'] = 'active';
@@ -157,11 +160,13 @@ class ResidentListingWebController extends Controller
 
     protected function formData(): array
     {
+        $country = app(CurrentCountry::class)->get();
+
         return [
             'subcategories' => Subcategory::query()->orderBy('name')->get(['id', 'name', 'category_id']),
-            'cities' => City::query()->where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
-            'areas' => State::query()->where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
-            'adDurations' => AdDuration::query()->orderBy('days')->get(),
+            'cities' => City::query()->where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
+            'areas' => State::query()->where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
+            'adDurations' => AdDuration::query()->forCountry($country)->orderBy('days')->get(),
         ];
     }
 

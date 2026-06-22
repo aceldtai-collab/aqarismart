@@ -775,6 +775,7 @@
 
 <script>
 const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+const currentCountry = @json(app(\App\Services\Market\CurrentCountry::class)->get()->iso2);
 const marketplaceForm = document.getElementById('mobile-marketplace-filter');
 const marketplaceResults = document.getElementById('mobile-marketplace-results');
 const fullSearchLink = document.getElementById('mm-full-search-link');
@@ -857,6 +858,7 @@ function marketplaceSearchUrl() {
             params.set(key, value);
         }
     }
+    params.set('country', currentCountry);
     const query = params.toString();
     return query ? `${fullSearchBaseUrl}?${query}` : fullSearchBaseUrl;
 }
@@ -1219,6 +1221,7 @@ function bindCityFilters() {
 
 async function loadMarketplace() {
     const params = new URLSearchParams(new FormData(marketplaceForm));
+    params.set('country', currentCountry);
     const apiBase = window.__AQARI_API_BASE || '';
     const response = await fetch(`${apiBase}/api/mobile/marketplace?${params.toString()}`, { headers: { Accept: 'application/json' } });
     const json = await response.json();
@@ -1244,7 +1247,7 @@ async function loadResidentListings() {
     const section = document.getElementById('direct-owner-section');
 
     try {
-        const response = await fetch(`${apiBase}/api/mobile/resident-listings?per_page=8`, { headers: { Accept: 'application/json' } });
+        const response = await fetch(`${apiBase}/api/mobile/resident-listings?per_page=8&country=${encodeURIComponent(currentCountry)}`, { headers: { Accept: 'application/json' } });
         if (!response.ok) { section?.classList.add('hidden'); return; }
 
         const json = await response.json();

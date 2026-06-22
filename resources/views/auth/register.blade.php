@@ -2,7 +2,7 @@
     @php
         $isAr = app()->getLocale() === 'ar';
         $stepFromErrors = 1;
-        $fieldSteps = [1 => ['name'], 2 => ['email', 'phone'], 3 => ['agent', 'subdomain'], 4 => ['password', 'password_confirmation']];
+        $fieldSteps = [1 => ['name'], 2 => ['email', 'phone'], 3 => ['agent', 'subdomain', 'country_id'], 4 => ['password', 'password_confirmation']];
         foreach ($fieldSteps as $sn => $fields) {
             foreach ($fields as $field) {
                 if ($errors->has($field)) {
@@ -17,6 +17,7 @@
             'email_invalid' => $isAr ? 'أدخل بريداً إلكترونياً صالحاً.' : 'Enter a valid email address.',
             'subdomain_invalid' => $isAr ? 'يمكن أن يحتوي الاسم المختصر على حروف وأرقام وشرطة فقط.' : 'Subdomain can only contain letters, numbers, dashes, and underscores.',
             'subdomain_length' => $isAr ? 'الاسم المختصر يجب ألا يتجاوز 30 حرفاً.' : 'Subdomain must be 30 characters or fewer.',
+            'country_required' => $isAr ? 'اختر بلد المساحة.' : 'Choose the workspace country.',
             'password_required' => $isAr ? 'كلمة المرور مطلوبة.' : 'Password is required.',
             'password_length' => $isAr ? 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' : 'Password must be at least 8 characters.',
             'password_confirm_required' => $isAr ? 'تأكيد كلمة المرور مطلوب.' : 'Password confirmation is required.',
@@ -57,7 +58,7 @@
                 const fields = {
                     1: ['name'],
                     2: ['email'],
-                    3: ['subdomain'],
+                    3: ['subdomain', 'country_id'],
                     4: ['password', 'password_confirmation', 'terms'],
                 }[step] || [];
                 fields.forEach((field) => delete this.clientErrors[field]);
@@ -86,6 +87,8 @@
                     } else if (subdomain && subdomain.length > 30) {
                         this.setError('subdomain', this.messages.subdomain_length);
                     }
+                    const countryId = this.$refs.country_id?.value || '';
+                    if (!countryId) this.setError('country_id', this.messages.country_required);
                 }
                 if (step === 4) {
                     const password = this.$refs.password?.value || '';
@@ -229,6 +232,28 @@
                         <input id="agent" type="text" name="agent" value="{{ old('agent') }}" maxlength="255" class="r-input has-icon" placeholder="{{ __('Acme Properties') }}">
                     </div>
                     <x-input-error :messages="$errors->get('agent')" class="mt-1.5" />
+                </div>
+                <div>
+                    <label for="country_id" class="mb-1.5 block text-[13px] font-semibold text-[color:var(--market-ink)]">{{ __('Country') }}</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 ltr:left-0 rtl:right-0 flex items-center pointer-events-none ltr:pl-3 rtl:pr-3">
+                            <svg class="h-[17px] w-[17px] text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.6 9h16.8M3.6 15h16.8M12 3c2.25 2.45 3.38 5.45 3.38 9S14.25 18.55 12 21M12 3C9.75 5.45 8.62 8.45 8.62 12S9.75 18.55 12 21"/></svg>
+                        </div>
+                        <select x-ref="country_id" x-on:change="touch('country_id')" id="country_id" name="country_id" required class="r-input has-icon">
+                            <option value="">{{ __('Choose country') }}</option>
+                            @foreach(($countries ?? collect()) as $country)
+                                <option value="{{ $country->id }}" @selected((string) old('country_id', $currentCountry?->id) === (string) $country->id)>
+                                    {{ $country->iso2 === 'IQ' ? '🇮🇶' : ($country->iso2 === 'JO' ? '🇯🇴' : '') }}
+                                    {{ app()->getLocale() === 'ar' && $country->name_ar ? $country->name_ar : $country->name_en }}
+                                    @if($country->currency_code)
+                                        ({{ $country->currency_code }})
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <p x-show="clientErrors.country_id" x-cloak x-text="clientErrors.country_id" class="mt-1.5 text-sm text-red-600"></p>
+                    <x-input-error :messages="$errors->get('country_id')" class="mt-1.5" />
                 </div>
                 <div>
                     <label for="subdomain" class="mb-1.5 block text-[13px] font-semibold text-[color:var(--market-ink)]">{{ __('Subdomain') }}</label>

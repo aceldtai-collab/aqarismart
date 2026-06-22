@@ -26,6 +26,9 @@
     $navBrandHref = $navBrandHref ?? ($navLinks[0]['href'] ?? url('/'));
     $navBrandLabel = $navBrandLabel ?? ($navTx['brand'] ?? config('app.name'));
     $tenantCtx = $tenantCtx ?? app(\App\Services\Tenancy\TenantManager::class)->tenant();
+    $countryService = app(\App\Services\Market\CurrentCountry::class);
+    $currentCountry = $countryService->get();
+    $countryOptions = $countryService->options();
 
     $authUser = Auth::user();
     $superAdminEmails = collect(config('auth.super_admin_emails', []))
@@ -107,6 +110,23 @@
                         <a href="{{ $urlEn }}" class="rounded-full px-3 py-1 {{ ! $isAr ? 'bg-white text-slate-900' : 'text-white/80' }}">EN</a>
                         <a href="{{ $urlAr }}" class="rounded-full px-3 py-1 {{ $isAr ? 'bg-white text-slate-900' : 'text-white/80' }}">ع</a>
                     </div>
+                    @if($countryOptions->count() > 1)
+                        <div x-data="{ open: false }" @click.outside="open = false" class="relative hidden sm:block">
+                            <button type="button" @click="open = !open" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-bold text-white backdrop-blur">
+                                <span>{{ $currentCountry->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }}</span>
+                                <span>{{ $currentCountry->iso2 }}</span>
+                                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                            </button>
+                            <div x-show="open" x-cloak x-transition class="market-user-menu absolute {{ $isAr ? 'left-0' : 'right-0' }} mt-3 w-44 rounded-[20px] p-2 text-slate-900">
+                                @foreach($countryOptions as $countryOption)
+                                    <a href="{{ request()->fullUrlWithQuery(['country' => $countryOption->iso2]) }}" class="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-semibold transition hover:bg-[rgba(15,90,70,.06)] {{ $currentCountry->id === $countryOption->id ? 'bg-[rgba(15,90,70,.08)] text-[color:var(--market-palm,#0f5a46)]' : 'text-slate-700' }}">
+                                        <span>{{ $countryOption->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }}</span>
+                                        <span>{{ $isAr && $countryOption->name_ar ? $countryOption->name_ar : $countryOption->name_en }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                     @auth
                         <div x-data="{ open: false }" @click.outside="open = false" class="relative hidden md:block">
                             <button type="button" @click="open = !open" class="inline-flex items-center gap-3 rounded-full border border-white/14 bg-white/8 py-1.5 pl-1.5 pr-3 {{ $isAr ? 'text-right' : 'text-left' }} text-white backdrop-blur">
@@ -234,6 +254,19 @@
                     <a href="{{ $urlAr }}" class="market-mobile-link text-center {{ $isAr ? 'ring-2 ring-[color:var(--market-brass,#b6842f)]' : '' }}">{{ $isAr ? 'العربية' : 'Arabic' }}</a>
                 </div>
             </div>
+            @if($countryOptions->count() > 1)
+                <div class="mt-6 rounded-[26px] bg-white p-5">
+                    <div class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{{ $isAr ? 'البلد' : 'Country' }}</div>
+                    <div class="mt-4 grid gap-3">
+                        @foreach($countryOptions as $countryOption)
+                            <a href="{{ request()->fullUrlWithQuery(['country' => $countryOption->iso2]) }}" class="market-mobile-link {{ $currentCountry->id === $countryOption->id ? 'ring-2 ring-[color:var(--market-brass,#b6842f)]' : '' }}">
+                                {{ $countryOption->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }}
+                                {{ $isAr && $countryOption->name_ar ? $countryOption->name_ar : $countryOption->name_en }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </aside>
 </div>

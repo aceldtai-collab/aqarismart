@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Tenant;
+use App\Models\Country;
 use App\Services\Tenancy\TenantManager;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\Registered;
@@ -22,7 +23,15 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'countries' => Country::query()
+                ->where('is_active', true)
+                ->whereIn('iso2', ['IQ', 'JO'])
+                ->orderByRaw("CASE iso2 WHEN 'IQ' THEN 0 WHEN 'JO' THEN 1 ELSE 2 END")
+                ->orderBy('name_en')
+                ->get(['id', 'iso2', 'currency_code', 'name_en', 'name_ar']),
+            'currentCountry' => app(\App\Services\Market\CurrentCountry::class)->get(),
+        ]);
     }
 
     /**
@@ -38,7 +47,10 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'agent' => ['nullable', 'string', 'max:255'],
             'subdomain' => ['nullable', 'string', 'max:30', 'alpha_dash', 'unique:tenants,slug'],
+            'country_id' => ['required', 'integer', 'exists:countries,id'],
         ]);
+
+        $country = Country::query()->findOrFail($request->integer('country_id'));
 
         $user = User::create([
             'name' => $request->name,
@@ -58,8 +70,12 @@ class RegisteredUserController extends Controller
         $tenant = Tenant::create([
             'name' => $name,
             'slug' => (string) $slug,
+            'country_id' => $country->id,
             'plan' => 'starter',
-            'settings' => ['timezone' => config('app.timezone', 'UTC')],
+            'settings' => [
+                'timezone' => config('app.timezone', 'UTC'),
+                'currency' => $country->currency_code ?: 'IQD',
+            ],
             'trial_ends_at' => now()->addDays(14),
         ]);
 

@@ -62,6 +62,7 @@ class Unit extends Model
 
     protected $fillable = [
         'tenant_id',
+        'country_id',
         'agent_id',
         'property_id',
         'subcategory_id',
@@ -104,6 +105,23 @@ class Unit extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Unit $unit): void {
+            if ($unit->country_id) {
+                return;
+            }
+
+            $tenant = $unit->tenant_id ? Tenant::query()->find($unit->tenant_id) : null;
+            $unit->country_id = $tenant?->country_id;
+        });
     }
 
     public function leases(): HasMany

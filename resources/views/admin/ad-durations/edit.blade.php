@@ -22,6 +22,18 @@
                             @error('name_ar')<div class="text-sm text-[#e8604c] mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-[#7c8db5] mb-1">{{ $isAr ? 'البلد' : 'Country' }}</label>
+                        <select name="country_id" class="gz-search w-full" required>
+                            @foreach($countries as $country)
+                                <option value="{{ $country->id }}" @selected((string) old('country_id', $adDuration->country_id) === (string) $country->id)>
+                                    {{ $country->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }}
+                                    {{ $isAr && $country->name_ar ? $country->name_ar : $country->name_en }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('country_id')<div class="text-sm text-[#e8604c] mt-1">{{ $message }}</div>@enderror
+                    </div>
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-[#7c8db5] mb-1">{{ $isAr ? 'الأيام' : 'Days' }}</label>

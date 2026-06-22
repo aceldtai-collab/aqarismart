@@ -17,6 +17,7 @@ class Tenant extends Model
     protected $fillable = [
         'name',
         'slug',
+        'country_id',
         'plan',
         'settings',
         'trial_ends_at',
@@ -35,6 +36,11 @@ class Tenant extends Model
         return $this->belongsToMany(User::class, 'tenant_user')
             ->withPivot(['role'])
             ->withTimestamps();
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
     }
 
     /* ── Package system ─────────────────────────────── */

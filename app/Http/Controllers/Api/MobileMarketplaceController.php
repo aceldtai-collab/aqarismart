@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\Tenant;
 use App\Models\Unit;
+use App\Services\Market\CurrentCountry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -85,9 +86,12 @@ class MobileMarketplaceController extends Controller
 
     private function queryMarketplace(Request $request): JsonResponse
     {
+        $country = app(CurrentCountry::class)->resolve($request);
+
         $baseQuery = Unit::withoutGlobalScope('tenant')
             ->with(['tenant.activeSubscription.package', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
-            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
+            ->where('country_id', $country->id)
+            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->where('status', Unit::STATUS_VACANT);
 
         $query = clone $baseQuery;
@@ -175,6 +179,7 @@ class MobileMarketplaceController extends Controller
         $units = $query->paginate((int) $request->input('per_page', 12))->withQueryString();
 
         $tenants = Tenant::whereHas('activeSubscription')
+            ->where('country_id', $country->id)
             ->withCount(['units' => fn($q) => $q->where('status', Unit::STATUS_VACANT)])
             ->with('users')
             ->orderByDesc('units_count')
@@ -184,8 +189,9 @@ class MobileMarketplaceController extends Controller
         $cityCounts = Unit::withoutGlobalScope('tenant')
             ->selectRaw('city_id, COUNT(*) as units_count')
             ->whereNotNull('city_id')
+            ->where('country_id', $country->id)
             ->where('status', Unit::STATUS_VACANT)
-            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
+            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->groupBy('city_id')
             ->orderByDesc('units_count')
             ->limit(4)
@@ -213,7 +219,7 @@ class MobileMarketplaceController extends Controller
             ->orderBy('sort_order')
             ->withCount('subcategories')
             ->get()
-            ->map(function (Category $category) {
+            ->map(function (Category $category) use ($country) {
                 $image = match(strtolower($category->name_en)) {
                     'residential' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=400',
                     'commercial' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400',
@@ -227,23 +233,25 @@ class MobileMarketplaceController extends Controller
                         'ar' => $category->name_ar ?? $category->name,
                     ],
                     'image' => $image,
-                    'count' => Unit::whereHas('subcategory', fn($q) => $q->where('category_id', $category->id))->count(),
+                    'count' => Unit::where('country_id', $country->id)->whereHas('subcategory', fn($q) => $q->where('category_id', $category->id))->count(),
                 ];
             });
             
         $featuredSectionUnits = Unit::withoutGlobalScope('tenant')
             ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
+            ->where('country_id', $country->id)
             ->where('status', Unit::STATUS_VACANT)
             ->where('listing_type', Unit::LISTING_SALE)
-            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
+            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->latest()
             ->limit(5)
             ->get();
 
         $recommendedSectionUnits = Unit::withoutGlobalScope('tenant')
             ->with(['tenant', 'property.city', 'property.state', 'subcategory.category', 'city', 'area', 'unitAttributes.attributeField'])
+            ->where('country_id', $country->id)
             ->where('status', Unit::STATUS_VACANT)
-            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription'))
+            ->whereHas('tenant', fn ($q) => $q->whereHas('activeSubscription')->where('country_id', $country->id))
             ->latest()
             ->limit(6)
             ->get();

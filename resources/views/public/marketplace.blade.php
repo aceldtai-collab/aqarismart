@@ -754,6 +754,7 @@
     const lang = '{{ $loc }}';
     const isRtl = lang === 'ar';
     const baseDomain = '{{ config("tenancy.base_domain") }}';
+    const currentCountry = @json(app(\App\Services\Market\CurrentCountry::class)->get()->iso2);
     const residentListingBaseUrl = @json($residentListingBaseUrl);
     const scheme = '{{ request()->getScheme() }}';
     const fmt = new Intl.NumberFormat();
@@ -990,7 +991,7 @@
         const section = document.getElementById('direct-owner-properties');
         if (!section) return;
         try {
-            const res = await fetch('/api/mobile/resident-listings?per_page=8', { headers: { Accept: 'application/json' } });
+            const res = await fetch(`/api/mobile/resident-listings?per_page=8&country=${encodeURIComponent(currentCountry)}`, { headers: { Accept: 'application/json' } });
             if (!res.ok) {
                 section.classList.add('hidden');
                 return;
@@ -1029,7 +1030,7 @@
 
     async function loadShowcase() {
         try {
-            const res = await fetch('/api/mobile/marketplace?per_page=12', { headers: { Accept: 'application/json' } });
+            const res = await fetch(`/api/mobile/marketplace?per_page=12&country=${encodeURIComponent(currentCountry)}`, { headers: { Accept: 'application/json' } });
             const json = await res.json();
             renderStats(json.stats ?? {});
             renderCategories(json.categories ?? []);
@@ -1045,6 +1046,7 @@
     async function loadCatalog() {
         const form = document.getElementById('catalog-filter-form');
         const params = new URLSearchParams(new FormData(form));
+        params.set('country', currentCountry);
         params.set('page', catalogPage);
         params.set('per_page', '12');
         try {

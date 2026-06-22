@@ -25,17 +25,21 @@ Route::prefix('mobile')->name('api.mobile.')->group(function () {
     Route::get('/resident-listings/{residentListing:code}', [ResidentListingController::class, 'show'])->name('resident-listings.show');
     
     // Listing meta (subcategories + cities) - Public route for NativePHP create form
-    Route::get('/listing-meta', function () {
+    Route::get('/listing-meta', function (\Illuminate\Http\Request $request) {
+        $country = app(\App\Services\Market\CurrentCountry::class)->resolve($request);
+
         return response()->json([
             'subcategories' => \App\Models\Subcategory::orderBy('name')->get(['id', 'name', 'category_id']),
-            'cities' => \App\Models\City::where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
+            'cities' => \App\Models\City::where('country_id', $country->id)->where('is_active', true)->orderBy('name_en')->get(['id', 'name_en', 'name_ar']),
         ]);
     })->name('listing-meta');
 
     // Ad Durations - Public route
-    Route::get('/ad-durations', function () {
+    Route::get('/ad-durations', function (\Illuminate\Http\Request $request) {
+        $country = app(\App\Services\Market\CurrentCountry::class)->resolve($request);
+
         return response()->json([
-            'data' => AdDuration::active()->ordered()->get()->map(fn($duration) => [
+            'data' => AdDuration::forCountry($country)->active()->ordered()->get()->map(fn($duration) => [
                 'id' => $duration->id,
                 'name_en' => $duration->name_en,
                 'name_ar' => $duration->name_ar,

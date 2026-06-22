@@ -109,9 +109,11 @@ class UnitController extends Controller
         $this->authorize('create', Unit::class);
 
         $data = $request->validated();
+        $data['tenant_id'] = $tenant->id;
+        $data['country_id'] = $tenant->country_id;
         $assignedAgents = $this->resolveAssignedAgents($request->input('agent_ids', []));
         $data['agent_id'] = $assignedAgents->first() ?? null;
-        $data = $this->applyPricingDefaults($data);
+        $data = $this->applyPricingDefaults($data, null, $tenant);
 
         // Auto-generate code: 8 chars (Tenant slug 2 + Category slug 2 + 4-digit seq)
         $subcategory = Subcategory::find($data['subcategory_id']);
@@ -219,7 +221,7 @@ class UnitController extends Controller
         $assignedAgents = $this->resolveAssignedAgents($request->input('agent_ids', []));
         $data['agent_id'] = $assignedAgents->first() ?? $unit->agent_id;
 
-        $data = $this->applyPricingDefaults($data, $unit);
+        $data = $this->applyPricingDefaults($data, $unit, $tenant);
 
         $data['photos'] = $this->storePhotos($request, 'units', $unit->photos ?? []);
 
@@ -232,6 +234,7 @@ class UnitController extends Controller
             }
         }
 
+        $data['country_id'] = $tenant->country_id;
         $unit->update($data);
 
         // Official data
@@ -503,13 +506,13 @@ class UnitController extends Controller
         return compact('properties', 'categories', 'propMeta', 'catMeta', 'attributeFields', 'agents');
     }
 
-    protected function applyPricingDefaults(array $data, ?Unit $unit = null): array
+    protected function applyPricingDefaults(array $data, ?Unit $unit = null, $tenant = null): array
     {
         if (! array_key_exists('price', $data) || $data['price'] === null) {
             $data['price'] = $unit?->price ?? 0;
         }
         if (! array_key_exists('currency', $data) || $data['currency'] === null) {
-            $data['currency'] = $unit?->currency ?? 'IQD';
+            $data['currency'] = $unit?->currency ?? ($tenant?->settings['currency'] ?? 'IQD');
         }
 
         return $data;

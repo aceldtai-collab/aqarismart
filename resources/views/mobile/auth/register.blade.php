@@ -64,7 +64,11 @@
         'passwordError' => $ui['passwordError'],
         'passwordConfirmError' => $ui['passwordConfirmError'],
         'connectionError' => $ui['connectionError'],
+        'countryError' => $isAr ? 'اختر بلد الوكالة.' : 'Choose the agency country.',
     ];
+    $countryService = app(\App\Services\Market\CurrentCountry::class);
+    $currentCountry = $countryService->get();
+    $marketCountries = $countryService->options();
 @endphp
 
 @push('head')
@@ -222,6 +226,27 @@
                                 </div>
 
                                 <div>
+                                    <label class="ma-label">{{ $isAr ? 'بلد الوكالة' : 'Agency country' }}</label>
+                                    <div class="ma-input-wrap">
+                                        <div class="ma-input-icon">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3.6 9h16.8M3.6 15h16.8M12 3c2.25 2.45 3.38 5.45 3.38 9S14.25 18.55 12 21M12 3C9.75 5.45 8.62 8.45 8.62 12S9.75 18.55 12 21"/></svg>
+                                        </div>
+                                        <select x-model="formData.country_id" @change="clearFieldError('country_id')" class="ma-input" :class="{ 'is-invalid': stepErrors.country_id }">
+                                            @foreach($marketCountries as $marketCountry)
+                                                <option value="{{ $marketCountry->id }}">
+                                                    {{ $marketCountry->iso2 === 'JO' ? '🇯🇴' : '🇮🇶' }}
+                                                    {{ $isAr && $marketCountry->name_ar ? $marketCountry->name_ar : $marketCountry->name_en }}
+                                                    @if($marketCountry->currency_code)
+                                                        ({{ $marketCountry->currency_code }})
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <p x-show="stepErrors.country_id" x-text="stepErrors.country_id" class="ma-field-error"></p>
+                                </div>
+
+                                <div>
                                     <label class="ma-label">{{ $ui['subdomain'] }}</label>
                                     <div class="ma-input-wrap">
                                         <div class="ma-input-icon">
@@ -332,7 +357,7 @@ function mobileRegisterWizard() {
         loading: false,
         steps: @json($stepLabels),
         stepErrors: {},
-        formData: { name: '', email: '', agent: '', subdomain: '', password: '', password_confirmation: '' },
+        formData: { name: '', email: '', agent: '', country_id: @json((string) $currentCountry->id), subdomain: '', password: '', password_confirmation: '' },
         translations: @json($clientTranslations),
         clearFieldError(field) {
             if (this.stepErrors[field]) {
@@ -366,6 +391,10 @@ function mobileRegisterWizard() {
             if (step === 3) {
                 if (!this.formData.agent.trim()) {
                     errors.agent = this.translations.agencyError;
+                }
+
+                if (!this.formData.country_id) {
+                    errors.country_id = this.translations.countryError;
                 }
 
                 if (!this.isValidSubdomain(this.formData.subdomain.trim())) {

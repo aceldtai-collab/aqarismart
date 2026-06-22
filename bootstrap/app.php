@@ -47,15 +47,22 @@ return Application::configure(basePath: dirname(__DIR__))
             'staff' => \App\Http\Middleware\EnsureStaff::class,
             'resident' => \App\Http\Middleware\EnsureResident::class,
             'mobile.tenant' => \App\Http\Middleware\SetMobileTenantContext::class,
+            'country' => \App\Http\Middleware\SetCurrentCountry::class,
             'setlocale' => \App\Http\Middleware\SetLocale::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
 
         // Locale now relies on ?lang + cookie/session, so it can run after cookie encryption.
         if (method_exists($middleware, 'appendToGroup')) {
-            $middleware->appendToGroup('web', [\App\Http\Middleware\SetLocale::class]);
+            $middleware->appendToGroup('web', [
+                \App\Http\Middleware\SetLocale::class,
+                \App\Http\Middleware\SetCurrentCountry::class,
+            ]);
         } else {
-            $middleware->appendToGroup('web', [\App\Http\Middleware\SetLocale::class]);
+            $middleware->appendToGroup('web', [
+                \App\Http\Middleware\SetLocale::class,
+                \App\Http\Middleware\SetCurrentCountry::class,
+            ]);
         }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
