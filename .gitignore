@@ -1,9 +1,9 @@
 # Laravel
 /vendor/
 /node_modules/
-.env
-.env.*
-!.env.example
+# .env
+# .env.*
+# !.env.example
 
 # WSL2 dev scripts (local environment only)
 start-dev.ps1
