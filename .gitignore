@@ -18,6 +18,9 @@ nginx-rentojo.conf
 !/storage/app/.gitignore
 /storage/framework/*
 !/storage/framework/.gitignore
+!/storage/framework/cache/
+!/storage/framework/sessions/
+!/storage/framework/views/
 /storage/logs/*
 !/storage/logs/.gitignore
 /bootstrap/cache/*
