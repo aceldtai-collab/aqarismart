@@ -59,23 +59,25 @@ $lightSplash = buildSplash($logoTransparent, false);
 $darkSplash = buildSplash($logoSoft, true);
 
 $lightTargets = [
-    $publicPath.'/splash.png',
-    $publicPath.'/splash@2x.png',
-    $publicPath.'/splash@3x.png',
+    [$publicPath.'/splash.png', 1],
+    [$publicPath.'/splash@1x.png', 1 / 3],
+    [$publicPath.'/splash@2x.png', 2 / 3],
+    [$publicPath.'/splash@3x.png', 1],
 ];
 
 $darkTargets = [
-    $publicPath.'/splash-dark.png',
-    $publicPath.'/splash-dark@2x.png',
-    $publicPath.'/splash-dark@3x.png',
+    [$publicPath.'/splash-dark.png', 1],
+    [$publicPath.'/splash-dark@1x.png', 1 / 3],
+    [$publicPath.'/splash-dark@2x.png', 2 / 3],
+    [$publicPath.'/splash-dark@3x.png', 1],
 ];
 
-foreach ($lightTargets as $target) {
-    savePng($lightSplash, $target);
+foreach ($lightTargets as [$target, $scale]) {
+    saveScaledPng($lightSplash, $target, $scale);
 }
 
-foreach ($darkTargets as $target) {
-    savePng($darkSplash, $target);
+foreach ($darkTargets as [$target, $scale]) {
+    saveScaledPng($darkSplash, $target, $scale);
 }
 
 imagedestroy($source);
@@ -151,6 +153,26 @@ function buildSplash(GdImage $logo, bool $dark): GdImage
 function savePng(GdImage $image, string $path): void
 {
     imagepng($image, $path, 9);
+}
+
+function saveScaledPng(GdImage $image, string $path, float $scale): void
+{
+    if ($scale === 1.0) {
+        savePng($image, $path);
+
+        return;
+    }
+
+    $width = (int) round(imagesx($image) * $scale);
+    $height = (int) round(imagesy($image) * $scale);
+    $scaled = imagecreatetruecolor($width, $height);
+
+    imagealphablending($scaled, true);
+    imagesavealpha($scaled, false);
+    imagecopyresampled($scaled, $image, 0, 0, 0, 0, $width, $height, imagesx($image), imagesy($image));
+
+    savePng($scaled, $path);
+    imagedestroy($scaled);
 }
 
 function findContentBounds(GdImage $image, int $threshold): array
