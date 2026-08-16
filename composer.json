@@ -13,6 +13,7 @@
         "laravel/tinker": "^2.10.1",
         "mpdf/mpdf": "^8.2",
         "nativephp/mobile": "^3.1",
+        "sentry/sentry-laravel": "^4.27",
         "spatie/laravel-permission": "^6.21"
     },
     "require-dev": {
@@ -52,7 +53,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php scripts/patch-nativephp-ios-splash.php"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

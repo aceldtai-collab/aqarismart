@@ -10,6 +10,7 @@
         "mcp:install-browser": "playwright install chromium"
     },
     "devDependencies": {
+        "@sentry/vite-plugin": "^5.4.0",
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/vite": "^4.0.0",
         "@types/node": "^25.5.0",
@@ -28,6 +29,7 @@
     "dependencies": {
         "-": "^0.0.1",
         "@modelcontextprotocol/sdk": "^1.29.0",
+        "@sentry/browser": "^10.69.0",
         "body-parser": "^2.2.2",
         "express": "^5.2.1",
         "playwright": "^1.59.1",

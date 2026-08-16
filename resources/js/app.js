@@ -1,3 +1,4 @@
+import './monitoring';
 import './bootstrap';
 
 import Alpine from 'alpinejs';

@@ -15,6 +15,7 @@ use App\Console\Commands\PrelaunchReset;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -37,6 +38,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Trust Cloudways reverse proxy (Nginx/Varnish) so scheme, host, and port are detected correctly
         $middleware->trustProxies(at: '*');
+
+        // Attach a request ID and safe diagnostics context to web and API failures.
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\AttachMonitoringContext::class,
+        ]);
+        $middleware->appendToGroup('api', [
+            \App\Http\Middleware\AttachMonitoringContext::class,
+        ]);
 
         // Alias and register tenant middleware
         $middleware->alias([
@@ -66,7 +75,7 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        Integration::handles($exceptions);
     })
     ->withProviders([
         \App\Providers\TenancyServiceProvider::class,
