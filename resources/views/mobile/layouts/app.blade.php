@@ -6,29 +6,84 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Aqari Smart' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>window.__AQARI_API_BASE = @json(config('nativephp.remote_api_url') ?: 'https://aqarismart.com');</script>
     <script>
-        // Override fetch to include cookies for credentialed requests to the API
-        // when the API base is remote and no Authorization header is present.
+        window.__AQARI_API_BASE = @json(config('nativephp.remote_api_url') ?: 'https://aqarismart.com');
+        window.__AQARI_BUILD = {
+            version: @json(config('nativephp.version')),
+            build: @json(config('nativephp.version_code')),
+            release: @json(env('VITE_SENTRY_RELEASE')),
+        };
+    </script>
+    <script>
+        // Add safe request correlation to every remote API call. Credentials and
+        // response bodies are intentionally never included in monitoring events.
         (function() {
             const _fetch = window.fetch && window.fetch.bind(window);
             if (! _fetch) return;
+
+            const requestId = () => window.crypto?.randomUUID?.()
+                || `aqari-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            const nativePlatform = () => {
+                if (window.AqariMonitoring?.platform) return window.AqariMonitoring.platform;
+                if (window.location.protocol !== 'php:') return 'web';
+
+                return /Android/i.test(navigator.userAgent) ? 'nativephp-android' : 'nativephp-ios';
+            };
+
             window.fetch = function(input, init = {}) {
-                try {
-                    const apiBase = window.__AQARI_API_BASE || '';
-                    let url = (typeof input === 'string') ? input : (input && input.url) || '';
-                    if (apiBase && typeof url === 'string' && url.indexOf(apiBase) === 0) {
+                const apiBase = window.__AQARI_API_BASE || '';
+                const url = (typeof input === 'string') ? input : (input && input.url) || '';
+                const method = init.method || ((typeof Request !== 'undefined' && input instanceof Request) ? input.method : 'GET');
+                let currentRequestId = null;
+
+                if (apiBase && typeof url === 'string' && url.indexOf(apiBase) === 0) {
+                    try {
                         init = Object.assign({}, init || {});
-                        const headers = (init.headers && typeof init.headers === 'object') ? init.headers : {};
-                        const hasAuth = headers.Authorization || headers.authorization || headers['Authorization'] || headers['authorization'];
+                        const headers = new Headers(init.headers || ((typeof Request !== 'undefined' && input instanceof Request) ? input.headers : undefined));
+                        const hasAuth = headers.has('Authorization');
                         if (! hasAuth && !('credentials' in init)) {
                             init.credentials = 'include';
                         }
+
+                        currentRequestId = headers.get('X-Request-ID') || requestId();
+                        headers.set('X-Request-ID', currentRequestId);
+                        headers.set('X-Aqari-Platform', nativePlatform());
+                        headers.set('X-Aqari-App-Version', String(window.__AQARI_BUILD?.version || 'unknown'));
+                        headers.set('X-Aqari-App-Build', String(window.__AQARI_BUILD?.build || 'unknown'));
+                        init.headers = headers;
                     }
-                } catch (e) {
-                    // ignore errors and fall back to native fetch
+                    catch (e) {
+                        // Do not block the user's request if browser header APIs are unavailable.
+                    }
                 }
-                return _fetch(input, init);
+
+                return _fetch(input, init)
+                    .then((response) => {
+                        if (!response.ok && response.status >= 500) {
+                            window.AqariMonitoring?.captureApiFailure({
+                                type: 'http',
+                                method,
+                                url,
+                                status: response.status,
+                                requestId: response.headers.get('X-Request-ID') || currentRequestId,
+                            });
+                        }
+
+                        return response;
+                    })
+                    .catch((error) => {
+                        if (apiBase && typeof url === 'string' && url.indexOf(apiBase) === 0) {
+                            window.AqariMonitoring?.captureApiFailure({
+                                type: 'network',
+                                method,
+                                url,
+                                requestId: currentRequestId,
+                                error,
+                            });
+                        }
+
+                        throw error;
+                    });
             };
         })();
     </script>

@@ -13,6 +13,7 @@
         "laravel/tinker": "^2.10.1",
         "mpdf/mpdf": "^8.2",
         "nativephp/mobile": "^3.1",
+        "sentry/sentry-laravel": "^4.27",
         "spatie/laravel-permission": "^6.21"
     },
     "require-dev": {

@@ -26,7 +26,8 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    // Lets the NativePHP WebView correlate a response with the Laravel log/Sentry event.
+    'exposed_headers' => ['X-Request-ID'],
 
     'max_age' => 0,
 
